@@ -7,7 +7,11 @@ authors = [
     { name = "YoYo178", email = "95132723+YoYo178@users.noreply.github.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "beanie>=2.1.0",
+    "fastapi[standard]>=0.141.1",
+    "pydantic-settings>=2.14.2",
+]
 
 [project.scripts]
 backend = "backend:main"

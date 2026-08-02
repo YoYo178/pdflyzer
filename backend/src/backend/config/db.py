@@ -1,0 +1,12 @@
+from pymongo import AsyncMongoClient
+from backend.settings import settings
+
+from beanie import init_beanie
+
+db_client = AsyncMongoClient(settings.mongodb_uri)
+database = db_client[settings.db_name]
+
+async def connect_db():
+    print("[MongoDB] Initializing Beanie...")
+    await init_beanie(database=database, document_models=[])
+    print("[MongoDB] Beanie initialized successfully!")
