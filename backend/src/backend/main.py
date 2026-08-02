@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
+from backend.exceptions.base import AppException
 from backend.routes.api import router as api_router
 from backend.config.db import connect_db
 
@@ -16,3 +18,13 @@ app = FastAPI(lifespan=lifespan)
 
 # Attach API router
 app.include_router(api_router)
+
+# Add an exception handler
+@app.exception_handler(AppException)
+async def app_exception_handler(_, exc: AppException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": exc.detail
+        }
+    )

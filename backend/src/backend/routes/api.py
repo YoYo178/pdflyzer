@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-from backend.routes.users import router as users_router
+from backend.routes.user import router as users_router
 
 # Create API Router
 router = APIRouter(prefix="/api", tags=["API"])
 
-# Define /api/ controller
+# API Test route
 @router.get("/")
 def get_api_root():
     return { "message": "API route working!", "data": None }
