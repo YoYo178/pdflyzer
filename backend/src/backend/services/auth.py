@@ -6,41 +6,42 @@ import backend.exceptions.user as user_exceptions
 
 from backend.models.user import User
 from backend.schemas.auth import RegisterRequest, LoginRequest
+class AuthService:
+    def __init__(self):
+        self.hasher = PasswordHasher()
 
-ph = PasswordHasher()
+    async def create_user(self, register_data: RegisterRequest):
+        email_exists = await User.find_one({ "email": register_data.email })
 
-async def create_user(register_data: RegisterRequest):
-    email_exists = await User.find_one({ "email": register_data.email })
+        if email_exists:
+            raise auth_exceptions.EmailExists()
 
-    if email_exists:
-        raise auth_exceptions.EmailExists()
+        username_exists = await User.find_one({ "username": register_data.username })
 
-    username_exists = await User.find_one({ "username": register_data.username })
+        if(username_exists):
+            raise auth_exceptions.UsernameExists()
 
-    if(username_exists):
-        raise auth_exceptions.UsernameExists()
+        password_hash = self.hasher.hash(register_data.password)
 
-    password_hash = ph.hash(register_data.password)
+        user = User(
+            name=register_data.name,
+            email=register_data.email,
+            username=register_data.username,
+            password_hash=password_hash
+        )
 
-    user = User(
-        name=register_data.name,
-        email=register_data.email,
-        username=register_data.username,
-        password_hash=password_hash
-    )
+        await user.save()
 
-    await user.save()
+        return user
 
-    return user
+    async def handle_login(self, login_data: LoginRequest):
+        method = "email" if "@" in login_data.login else "username"
+        user = await User.find_one({ method: login_data.login })
 
-async def handle_login(login_data: LoginRequest):
-    method = "email" if "@" in login_data.login else "username"
-    user = await User.find_one({ method: login_data.login })
+        if not user:
+            raise user_exceptions.UserNotFound()
 
-    if not user:
-        raise user_exceptions.UserNotFound()
-
-    try:
-        hash_matches = ph.verify(user.password_hash, login_data.password)
-    except VerifyMismatchError:
-        raise auth_exceptions.InvalidLogin()
+        try:
+            hash_matches = self.hasher.verify(user.password_hash, login_data.password)
+        except VerifyMismatchError:
+            raise auth_exceptions.InvalidLogin()

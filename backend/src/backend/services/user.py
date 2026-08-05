@@ -1,41 +1,36 @@
 from beanie import PydanticObjectId
 
-import backend.exceptions.user as user_exceptions
 from backend.models.user import User
-from backend.schemas.user import UserCreate, UserUpdate
+from backend.schemas.user import UserUpdate
+from backend.utils.user import get_user_safe
 
-### Helper function to safely get a user
-async def get_user_safe(user_id: PydanticObjectId):
-    user = await User.get(user_id)
+class UserService:
+    def __init__(self):
+        pass
 
-    if not user:
-        raise user_exceptions.UserNotFound()
+    # Gets all users
+    async def get_users(self):
+        return await User.find_all().to_list()
 
-    return user
+    # Gets a specific user by ID
+    async def get_user(self, user_id: PydanticObjectId):
+        return await get_user_safe(user_id)
 
-# Gets all users
-async def get_users():
-    return await User.find_all().to_list()
+    # Deletes a user by ID
+    async def delete_user(self, user_id: PydanticObjectId):
+        user = await get_user_safe(user_id)
 
-# Gets a specific user by ID
-async def get_user(user_id: PydanticObjectId):
-    return await get_user_safe(user_id)
+        await user.delete()
 
-# Deletes a user by ID
-async def delete_user(user_id: PydanticObjectId):
-    user = await get_user_safe(user_id)
+    # Updates a user by ID
+    async def update_user(self, user_id: PydanticObjectId, user_data: UserUpdate):
+        user = await get_user_safe(user_id)
 
-    await user.delete()
+        updates = user_data.model_dump(exclude_unset=True)
 
-# Updates a user by ID
-async def update_user(user_id: PydanticObjectId, user_data: UserUpdate):
-    user = await get_user_safe(user_id)
+        for key, value in updates.items():
+            setattr(user, key, value)
 
-    updates = user_data.model_dump(exclude_unset=True)
+        await user.save()
 
-    for key, value in updates.items():
-        setattr(user, key, value)
-
-    await user.save()
-
-    return user
+        return user
