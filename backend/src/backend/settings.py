@@ -6,6 +6,9 @@ class Settings(BaseSettings):
 
     port: int = 3000
 
+    access_token_secret: str
+    refresh_token_secret: str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         extra="ignore",

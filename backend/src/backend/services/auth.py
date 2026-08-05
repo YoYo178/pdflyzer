@@ -5,7 +5,9 @@ import backend.exceptions.auth as auth_exceptions
 import backend.exceptions.user as user_exceptions
 
 from backend.models.user import User
-from backend.schemas.auth import RegisterRequest, LoginRequest
+from backend.schemas.auth import RegisterRequest, LoginRequest, TokensData
+
+from backend.utils.jwt import generate_access_token, generate_refresh_token
 class AuthService:
     def __init__(self):
         self.hasher = PasswordHasher()
@@ -42,6 +44,17 @@ class AuthService:
             raise user_exceptions.UserNotFound()
 
         try:
-            hash_matches = self.hasher.verify(user.password_hash, login_data.password)
+            self.hasher.verify(user.password_hash, login_data.password)
+
+            access_token = generate_access_token(str(user.id))
+            refresh_token = generate_refresh_token(str(user.id))
+
+            return TokensData(
+                access_token=access_token,
+                refresh_token=refresh_token,
+            )
         except VerifyMismatchError:
             raise auth_exceptions.InvalidLogin()
+
+def get_auth_service():
+    return AuthService()

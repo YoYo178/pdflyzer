@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from beanie import PydanticObjectId
 
 from backend.schemas.user import UserBase
 
@@ -8,3 +9,12 @@ class RegisterRequest(UserBase):
 class LoginRequest(BaseModel):
     login: str
     password: str
+
+class AccessTokenPayload(BaseModel):
+    sub: PydanticObjectId
+    exp: int
+    iat: int
+
+class TokensData(BaseModel):
+    access_token: str
+    refresh_token: str
