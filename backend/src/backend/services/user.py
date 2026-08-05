@@ -1,6 +1,6 @@
 from beanie import PydanticObjectId
 
-from backend.exceptions.user import UserNotFound
+import backend.exceptions.user as user_exceptions
 from backend.models.user import User
 from backend.schemas.user import UserCreate, UserUpdate
 
@@ -9,7 +9,7 @@ async def get_user_safe(user_id: PydanticObjectId):
     user = await User.get(user_id)
 
     if not user:
-        raise UserNotFound()
+        raise user_exceptions.UserNotFound()
 
     return user
 
@@ -20,19 +20,6 @@ async def get_users():
 # Gets a specific user by ID
 async def get_user(user_id: PydanticObjectId):
     return await get_user_safe(user_id)
-
-# Creates a new user
-async def create_user(user_data: UserCreate):
-    user = User(
-        email=user_data.email,
-        name=user_data.name,
-        username=user_data.username,
-        password_hash=user_data.password
-    )
-
-    await user.save()
-
-    return user
 
 # Deletes a user by ID
 async def delete_user(user_id: PydanticObjectId):

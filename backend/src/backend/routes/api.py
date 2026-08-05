@@ -1,5 +1,7 @@
 from fastapi import APIRouter
+
 from backend.routes.user import router as users_router
+from backend.routes.auth import router as auth_router
 
 # Create API Router
 router = APIRouter(prefix="/api", tags=["API"])
@@ -11,3 +13,6 @@ def get_api_root():
 
 # Attach Users Controller
 router.include_router(users_router)
+
+# Attach Auth Controller
+router.include_router(auth_router)
