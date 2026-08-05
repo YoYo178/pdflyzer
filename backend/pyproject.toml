@@ -12,6 +12,7 @@ dependencies = [
     "beanie>=2.1.0",
     "fastapi[standard]>=0.141.1",
     "pydantic-settings>=2.14.2",
+    "pyjwt>=2.13.0",
 ]
 
 [project.scripts]
