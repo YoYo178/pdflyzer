@@ -34,3 +34,6 @@ class UserService:
         await user.save()
 
         return user
+
+def get_user_service():
+    return UserService()
