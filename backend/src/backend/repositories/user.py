@@ -10,10 +10,10 @@ class UserRepository:
         return await User.get(user_id)
 
     async def find_by_email(self, email: str) -> User | None:
-        return await User.find_one({ email })
+        return await User.find_one({ "email": email })
 
     async def find_by_username(self, username: str) -> User | None:
-        return await User.find_one({ username })
+        return await User.find_one({ "username": username })
 
     async def create(self, user: User) -> User:
         await user.save()
@@ -42,6 +42,3 @@ class UserRepository:
         await user.delete()
 
         return user
-
-def get_user_repository() -> UserRepository:
-    return UserRepository()

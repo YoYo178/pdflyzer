@@ -4,7 +4,7 @@ from beanie import PydanticObjectId
 import backend.exceptions.user as user_exceptions
 
 from backend.models.user import User
-from backend.repositories.user import UserRepository, get_user_repository
+from backend.repositories.user import UserRepository
 from backend.schemas.user import UserUpdate
 
 class UserService:
@@ -43,8 +43,3 @@ class UserService:
             raise user_exceptions.UserNotFound()
             
         return updated_user
-
-def get_user_service(
-    user_repository: UserRepository = Depends(get_user_repository)
-) -> UserService:
-    return UserService(user_repository)

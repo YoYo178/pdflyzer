@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, Response
 
-from backend.services.auth import AuthService, get_auth_service
+from backend.dependencies.services import get_auth_service
+
+from backend.services.auth import AuthService
+
 from backend.schemas.user import UserSelf
 from backend.schemas.auth import RegisterRequest, LoginRequest
 

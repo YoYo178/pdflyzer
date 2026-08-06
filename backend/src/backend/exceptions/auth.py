@@ -11,3 +11,7 @@ class UsernameExists(AppException):
 class InvalidLogin(AppException):
     status_code = 400 # Bad request
     detail = "Invalid login or Password"
+
+class UnauthorizedUser(AppException):
+    status_code = 401 # Unauthorized
+    detail = "User is not authorized to perform this action"

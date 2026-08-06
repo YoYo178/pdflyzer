@@ -5,7 +5,7 @@ from argon2.exceptions import VerifyMismatchError
 
 import backend.exceptions.auth as auth_exceptions
 
-from backend.repositories.user import UserRepository, get_user_repository
+from backend.repositories.user import UserRepository
 
 from backend.models.user import User
 from backend.schemas.auth import RegisterRequest, LoginRequest, TokensData
@@ -61,11 +61,3 @@ class AuthService:
             )
         except VerifyMismatchError:
             raise auth_exceptions.InvalidLogin()
-
-def get_auth_service(
-    user_repository: UserRepository = Depends(get_user_repository)
-) -> AuthService:
-    return AuthService(
-        user_repository=user_repository,
-        hasher = PasswordHasher()
-    )
