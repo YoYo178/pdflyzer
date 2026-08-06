@@ -38,3 +38,17 @@ def generate_refresh_token(subject: str, expires_delta: timedelta | None = None)
         settings.refresh_token_secret,
         algorithm="HS256"
     )
+
+def decode_access_token(token: str):
+    return jwt.decode(
+        jwt=token,
+        key=settings.access_token_secret,
+        algorithms=["HS256"]
+    )
+
+def decode_refresh_token(token: str):
+    return jwt.decode(
+        jwt=token,
+        key=settings.refresh_token_secret,
+        algorithms=["HS256"]
+    )
