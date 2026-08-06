@@ -1,24 +1,29 @@
+from fastapi import Depends
+
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
 import backend.exceptions.auth as auth_exceptions
-import backend.exceptions.user as user_exceptions
+
+from backend.repositories.user import UserRepository, get_user_repository
 
 from backend.models.user import User
 from backend.schemas.auth import RegisterRequest, LoginRequest, TokensData
 
 from backend.utils.jwt import generate_access_token, generate_refresh_token
-class AuthService:
-    def __init__(self):
-        self.hasher = PasswordHasher()
 
-    async def create_user(self, register_data: RegisterRequest):
-        email_exists = await User.find_one({ "email": register_data.email })
+class AuthService:
+    def __init__(self, user_repository: UserRepository, hasher: PasswordHasher):
+        self.hasher = hasher
+        self.user_repository = user_repository
+
+    async def create_user(self, register_data: RegisterRequest) -> User:
+        email_exists = await self.user_repository.find_by_email(register_data.email)
 
         if email_exists:
             raise auth_exceptions.EmailExists()
 
-        username_exists = await User.find_one({ "username": register_data.username })
+        username_exists = await self.user_repository.find_by_username(register_data.username)
 
         if(username_exists):
             raise auth_exceptions.UsernameExists()
@@ -32,16 +37,17 @@ class AuthService:
             password_hash=password_hash
         )
 
-        await user.save()
+        return await self.user_repository.create(user)
 
-        return user
+    async def handle_login(self, login_data: LoginRequest) -> TokensData:
 
-    async def handle_login(self, login_data: LoginRequest):
-        method = "email" if "@" in login_data.login else "username"
-        user = await User.find_one({ method: login_data.login })
+        if "@" in login_data.login:
+            user = await self.user_repository.find_by_email(login_data.login)
+        else:
+            user = await self.user_repository.find_by_username(login_data.login)
 
         if not user:
-            raise user_exceptions.UserNotFound()
+            raise auth_exceptions.InvalidLogin()
 
         try:
             self.hasher.verify(user.password_hash, login_data.password)
@@ -56,5 +62,10 @@ class AuthService:
         except VerifyMismatchError:
             raise auth_exceptions.InvalidLogin()
 
-def get_auth_service():
-    return AuthService()
+def get_auth_service(
+    user_repository: UserRepository = Depends(get_user_repository)
+) -> AuthService:
+    return AuthService(
+        user_repository=user_repository,
+        hasher = PasswordHasher()
+    )
