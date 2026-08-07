@@ -5,6 +5,8 @@ from pymongo import AsyncMongoClient
 from backend.settings import settings
 
 from backend.models.user import User
+from backend.models.chat import Chat
+from backend.models.chat_document import ChatDocument
 
 from beanie import init_beanie
 
@@ -20,5 +22,5 @@ database = db_client[settings.db_name]
 
 async def connect_db():
     print("[MongoDB] Initializing Beanie...")
-    await init_beanie(database=database, document_models=[User])
+    await init_beanie(database=database, document_models=[User, Chat, ChatDocument])
     print("[MongoDB] Beanie initialized successfully!")
