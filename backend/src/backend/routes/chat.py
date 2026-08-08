@@ -71,7 +71,7 @@ async def upload_document(
     service: ChatService = Depends(get_chat_service),
     current_user: User = Depends(get_current_user)
 ):
-    return await service.upload_document(PydanticObjectId(current_user.id), chat_id)
+    return await service.upload_document(PydanticObjectId(current_user.id), chat_id, {})
 
 @router.get("/{chat_id}/documents")
 async def get_all_documents(

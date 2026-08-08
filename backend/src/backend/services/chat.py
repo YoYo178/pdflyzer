@@ -3,6 +3,7 @@ from backend.schemas.chat import ChatMeta
 
 from backend.models.chat_document import ChatDocument
 from backend.models.chat import Chat
+
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
 
@@ -10,10 +11,10 @@ class ChatService:
     def __init__(
         self,
         chat_repository: ChatRepository,
-        chat_document_repository: DocumentRepository
+        document_repository: DocumentRepository
     ):
         self.chat_repository = chat_repository
-        self.chat_document_repository = chat_document_repository
+        self.document_repository = document_repository
 
     async def get_all_chats(self, user_id: PydanticObjectId) -> list[Chat]:
         return await self.chat_repository.find_all(user_id)
@@ -38,9 +39,18 @@ class ChatService:
 
     async def delete_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> Chat | None:
         return await self.chat_repository.delete(user_id, chat_id)
+    
+    # TODO: implementation
+    async def upload_document(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document_details):
+        document = ChatDocument(
+            chat_id=chat_id,
+            filename="Test.pdf",
+            mime_type="application/pdf",
+            size=8192,
+            status="Uploaded"
+        )
 
-    async def upload_document(self, user_id: PydanticObjectId, chat_id: PydanticObjectId):
-        return None # TODO
+        return await self.document_repository.create(user_id, chat_id, document)
 
     async def get_all_documents(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[ChatDocument]:
-        return [] # TODO
+        return await self.document_repository.find_all(user_id, chat_id)

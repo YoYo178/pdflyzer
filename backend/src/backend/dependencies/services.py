@@ -33,6 +33,7 @@ def get_document_service(
     return DocumentService(document_repository)
 
 def get_chat_service(
-    chat_repository: ChatRepository = Depends(get_chat_repository)
+    chat_repository: ChatRepository = Depends(get_chat_repository),
+    document_repository: DocumentRepository = Depends(get_document_repository)
 ) -> ChatService:
-    return ChatService(chat_repository)
+    return ChatService(chat_repository, document_repository)

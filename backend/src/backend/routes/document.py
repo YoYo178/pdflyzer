@@ -1,5 +1,5 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from backend.models.user import User
 
@@ -9,8 +9,16 @@ from backend.services.document import DocumentService
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
-@router.delete("/{document_id}")
-async def handle_documents_get(
+@router.get("/{document_id}")
+async def handle_get_document(
+    document_id: PydanticObjectId,
+    service: DocumentService = Depends(get_document_service),
+    current_user: User = Depends(get_current_user)
+):
+    return await service.get_document_by_id(PydanticObjectId(current_user.id), document_id)
+
+@router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def handle_delete_document(
     document_id: PydanticObjectId,
     service: DocumentService = Depends(get_document_service),
     current_user: User = Depends(get_current_user)
