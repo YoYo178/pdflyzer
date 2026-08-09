@@ -11,7 +11,7 @@ from backend.repositories.document import DocumentRepository
 from backend.repositories.user import UserRepository
 
 from backend.dependencies.repositories import get_user_repository, get_document_repository, get_chat_repository
-from backend.dependencies.providers import get_password_hasher
+from backend.dependencies.hasher import get_password_hasher
 
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
