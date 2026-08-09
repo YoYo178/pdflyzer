@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, UploadFile, File, status
 from beanie import PydanticObjectId
 
 from backend.dependencies.auth import get_current_user
@@ -65,13 +65,14 @@ async def delete_chat(
     )
 
 # Chat Document routes
-@router.post("/{chat_id}/documents")
+@router.post("/{chat_id}/documents", status_code=status.HTTP_201_CREATED)
 async def upload_document(
     chat_id: PydanticObjectId,
+    files: list[UploadFile],
     service: ChatService = Depends(get_chat_service),
     current_user: User = Depends(get_current_user)
 ):
-    return await service.upload_document(PydanticObjectId(current_user.id), chat_id, {})
+    return await service.upload_document(PydanticObjectId(current_user.id), chat_id, files)
 
 @router.get("/{chat_id}/documents")
 async def get_all_documents(

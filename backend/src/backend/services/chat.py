@@ -1,3 +1,5 @@
+from fastapi import UploadFile
+
 from beanie import PydanticObjectId
 from backend.schemas.chat import ChatMeta
 
@@ -6,6 +8,8 @@ from backend.models.chat import Chat
 
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
+
+MAX_UPLOADS = 5
 
 class ChatService:
     def __init__(
@@ -40,17 +44,22 @@ class ChatService:
     async def delete_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> Chat | None:
         return await self.chat_repository.delete(user_id, chat_id)
     
-    # TODO: implementation
-    async def upload_document(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document_details):
-        document = ChatDocument(
-            chat_id=chat_id,
-            filename="Test.pdf",
-            mime_type="application/pdf",
-            size=8192,
-            status="Uploaded"
-        )
+    async def upload_document(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, files: list[UploadFile]) -> None:
+        files_trimmed = files[0:MAX_UPLOADS]
 
-        return await self.document_repository.create(user_id, chat_id, document)
+        for file in files_trimmed:
+            if not file.filename or not file.content_type or not file.size:
+                continue
+
+            document = ChatDocument(
+                chat_id=chat_id,
+                filename=file.filename,
+                mime_type=file.content_type,
+                size=file.size,
+                status="Uploaded"
+            )
+
+            await self.document_repository.create(user_id, chat_id, document)
 
     async def get_all_documents(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[ChatDocument]:
         return await self.document_repository.find_all(user_id, chat_id)
