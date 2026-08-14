@@ -1,6 +1,7 @@
 from fastapi import Depends
 from beanie import PydanticObjectId
 
+import backend.exceptions.chat as chat_exceptions
 import backend.exceptions.document as document_exceptions
 
 from backend.models.chat_document import ChatDocument
@@ -17,8 +18,8 @@ class DocumentRepository:
         return bool(await self.chat_repository.find_by_id(user_id, chat_id))
 
     async def find_all(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[ChatDocument]:
-            return []
         if not await self._verify_chat_ownership(user_id, chat_id):
+            raise chat_exceptions.ChatNotFound()
 
         return await ChatDocument.find(ChatDocument.chat_id == chat_id).to_list()
 
