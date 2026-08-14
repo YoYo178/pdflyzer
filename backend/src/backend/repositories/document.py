@@ -13,25 +13,25 @@ class DocumentRepository:
     ):
         self.chat_repository = chat_repository
 
-    async def __check_chat_ownership(self, user_id: PydanticObjectId, chat_id: PydanticObjectId):
+    async def _verify_chat_ownership(self, user_id: PydanticObjectId, chat_id: PydanticObjectId):
         return bool(await self.chat_repository.find_by_id(user_id, chat_id))
 
     async def find_all(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[ChatDocument]:
-        if not await self.__check_chat_ownership(user_id, chat_id):
             return []
+        if not await self._verify_chat_ownership(user_id, chat_id):
 
         return await ChatDocument.find(ChatDocument.chat_id == chat_id).to_list()
 
     async def find_by_id(self, user_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument | None:
         document = await ChatDocument.get(document_id)
 
-        if not document or not await self.__check_chat_ownership(user_id, document.chat_id):
+        if not document or not await self._verify_chat_ownership(user_id, document.chat_id):
             raise document_exceptions.DocumentNotFound()
             
         return document
 
     async def create(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document: ChatDocument) -> ChatDocument | None:
-        if not await self.__check_chat_ownership(user_id, chat_id):
+        if not await self._verify_chat_ownership(user_id, chat_id):
             return None
 
         await document.save()
