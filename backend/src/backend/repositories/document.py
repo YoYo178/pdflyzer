@@ -30,6 +30,19 @@ class DocumentRepository:
             raise document_exceptions.DocumentNotFound()
             
         return document
+    
+    async def find_by_hash(self, file_hash: str, chat_id: PydanticObjectId | None = None) -> ChatDocument | None:
+        if not chat_id:
+            doc = await ChatDocument.find_one(
+                ChatDocument.file_hash == file_hash
+            )
+        else:
+            doc = await ChatDocument.find_one(
+                ChatDocument.file_hash == file_hash,
+                ChatDocument.chat_id == chat_id
+            )
+
+        return doc
 
     async def create(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document: ChatDocument) -> ChatDocument | None:
         if not await self._verify_chat_ownership(user_id, chat_id):
