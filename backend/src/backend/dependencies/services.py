@@ -1,3 +1,4 @@
+from arq import ArqRedis
 from fastapi import Depends
 from argon2 import PasswordHasher
 
@@ -14,6 +15,7 @@ from backend.repositories.user import UserRepository
 
 from backend.dependencies.repositories import get_user_repository, get_document_repository, get_chat_repository
 from backend.dependencies.hasher import get_password_hasher
+from backend.dependencies.queue import get_queue
 
 def get_storage_service() -> StorageService:
     return StorageService()
@@ -39,6 +41,13 @@ def get_document_service(
 
 def get_chat_service(
     chat_repository: ChatRepository = Depends(get_chat_repository),
-    document_repository: DocumentRepository = Depends(get_document_repository)
+    document_repository: DocumentRepository = Depends(get_document_repository),
+    storage: StorageService = Depends(get_storage_service),
+    queue: ArqRedis = Depends(get_queue)
 ) -> ChatService:
-    return ChatService(chat_repository, document_repository)
+    return ChatService(
+        chat_repository,
+        document_repository,
+        storage,
+        queue
+    )
