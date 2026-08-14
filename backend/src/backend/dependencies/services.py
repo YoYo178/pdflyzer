@@ -1,6 +1,8 @@
 from fastapi import Depends
 from argon2 import PasswordHasher
 
+from backend.core.storage import StorageService
+
 from backend.services.auth import AuthService
 from backend.services.chat import ChatService
 from backend.services.document import DocumentService
@@ -12,6 +14,9 @@ from backend.repositories.user import UserRepository
 
 from backend.dependencies.repositories import get_user_repository, get_document_repository, get_chat_repository
 from backend.dependencies.hasher import get_password_hasher
+
+def get_storage_service() -> StorageService:
+    return StorageService()
 
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
