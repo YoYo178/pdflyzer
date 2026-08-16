@@ -56,27 +56,29 @@ class ChatService:
             if not file.filename or not file.content_type or not file.size:
                 continue
 
-            file_hash = await self.storage.calculate_hash(file)
+            document_id = PydanticObjectId()
+            temp_file = await self.storage.save_temp(file, str(document_id))
 
             document_exists_in_same_chat = await self.document_repository.find_by_hash(
-                file_hash, chat_id
+                temp_file.sha256, chat_id
             )
 
             if document_exists_in_same_chat:
+                self.storage.reject_file(temp_file.path)
                 raise Exception()  # TODO
 
-            existing_document = await self.document_repository.find_by_hash(file_hash)
+            existing_document = await self.document_repository.find_by_hash(temp_file.sha256)
 
             if existing_document:
                 document = ChatDocument(
-                    id=PydanticObjectId(),
+                    id=document_id,
                     chat_id=chat_id,
                     filename=file.filename,
-                    mime_type=file.content_type,
-                    size=file.size,
-                    status="READY",
+                    mime_type=existing_document.mime_type,
+                    size=existing_document.size,
+                    status=existing_document.status,
                     file_path=existing_document.file_path,
-                    file_hash=file_hash,
+                    file_hash=existing_document.file_hash,
                 )
 
                 created = await self.document_repository.create(
@@ -86,26 +88,24 @@ class ChatService:
                 if not created:
                     raise Exception()  # TODO
                 
+                self.storage.reject_file(temp_file.path)
+                
                 # TODO: conditionally queue document processing jobs
 
                 return
+            
+            final_path = self.storage.finalize_file(temp_file.path, f"{document_id}.pdf")
 
             document = ChatDocument(
-                id=PydanticObjectId(),
+                id=document_id,
                 chat_id=chat_id,
                 filename=file.filename,
                 mime_type=file.content_type,
                 size=file.size,
                 status="QUEUED",
-                file_path="",
-                file_hash=file_hash,
+                file_path=final_path,
+                file_hash=temp_file.sha256,
             )
-
-            stored_file = await self.storage.save(
-                f"{str(document.id)}.{file.filename.split(".")[1]}", file
-            )
-
-            document.file_path = stored_file.path
 
             created = await self.document_repository.create(user_id, chat_id, document)
 
