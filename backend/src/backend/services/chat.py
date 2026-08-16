@@ -1,3 +1,4 @@
+from arq import ArqRedis
 from fastapi import UploadFile
 
 from beanie import PydanticObjectId
@@ -20,9 +21,11 @@ class ChatService:
         chat_repository: ChatRepository,
         document_repository: DocumentRepository,
         storage: StorageService,
+        queue: ArqRedis,
     ):
         self.chat_repository = chat_repository
         self.document_repository = document_repository
+        self.queue = queue
         self.storage = storage
 
     async def get_all_chats(self, user_id: PydanticObjectId) -> list[Chat]:
@@ -89,8 +92,16 @@ class ChatService:
                     raise Exception()  # TODO
                 
                 self.storage.reject_file(temp_file.path)
-                
-                # TODO: conditionally queue document processing jobs
+
+                # TODO: have one document update all other documents
+                # that point to the same physical file on disk (compare hash!)
+                if existing_document.status != "READY":
+                    existing_document.status = document.status = "QUEUED"
+                    
+                    await existing_document.save()
+                    await document.save()
+                    
+                    await self.queue.enqueue_job("process_document", user_id, document.id)
 
                 return
             
@@ -111,8 +122,8 @@ class ChatService:
 
             if not created:
                 raise Exception()  # TODO
-            
-            # TODO: Queue document processing jobs
+
+            await self.queue.enqueue_job("process_document", user_id, document.id)
 
     async def get_all_documents(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[ChatDocument]:
         return await self.document_repository.find_all(user_id, chat_id)

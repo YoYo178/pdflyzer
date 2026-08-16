@@ -1,9 +1,12 @@
 from arq.connections import RedisSettings
 
 from backend.core.database import connect_db
+from backend.jobs.document import process_document
 
 class WorkerSettings:
-    functions = []
+    functions = [
+        process_document
+    ]
 
     redis_settings = RedisSettings(
         host="localhost",
