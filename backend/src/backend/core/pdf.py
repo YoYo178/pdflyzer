@@ -1,7 +1,7 @@
 import pymupdf
 
 from backend.core.text import TextService
-from backend.types.document import DocumentPage, DocumentParagraph
+from backend.types.document import ProcessedPage, ProcessedParagraph
 
 class PDFService:
     
@@ -11,7 +11,7 @@ class PDFService:
     ):
         self.text_service = text_service
 
-    def extract_pages(self, file_path: str) -> list[DocumentPage]:
+    def extract_pages(self, file_path: str) -> list[ProcessedPage]:
         out = []
         
         document = pymupdf.open(file_path)
@@ -24,7 +24,7 @@ class PDFService:
                 normalized_text = self.text_service.normalize(page_text)
                 
                 out.append(
-                    DocumentPage(
+                    ProcessedPage(
                         page_number=page_index + 1,
                         text=normalized_text
                     )
@@ -35,7 +35,7 @@ class PDFService:
             
         return out
     
-    def prepare_paragraphs(self, pages: list[DocumentPage]) -> list[DocumentParagraph]:
+    def prepare_paragraphs(self, pages: list[ProcessedPage]) -> list[ProcessedParagraph]:
         result = []
         
         paragraph_index = 1
@@ -50,7 +50,7 @@ class PDFService:
                     continue
             
                 result.append(
-                    DocumentParagraph(
+                    ProcessedParagraph(
                         page_number=page.page_number,
                         paragraph_index=paragraph_index,
                         text=paragraph

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
 @dataclass
-class DocumentPage:
+class ProcessedPage:
     page_number: int
     text: str
     
 @dataclass
-class DocumentParagraph:
+class ProcessedParagraph:
     page_number: int
     paragraph_index: int
     text: str
