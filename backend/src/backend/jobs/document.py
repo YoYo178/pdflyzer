@@ -1,5 +1,6 @@
 from beanie import PydanticObjectId
 
+from backend.core.text import TextService
 from backend.core.pdf import PDFService
 
 from backend.repositories.chat import ChatRepository
@@ -13,7 +14,8 @@ async def process_document(
     chat_repository = ChatRepository()
     document_repository = DocumentRepository(chat_repository)
     
-    pdf_service = PDFService()
+    text_service = TextService()
+    pdf_service = PDFService(text_service)
 
     document = await document_repository.find_by_id(
         PydanticObjectId(user_id), PydanticObjectId(document_id)

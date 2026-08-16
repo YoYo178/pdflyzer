@@ -4,6 +4,13 @@ from backend.core.text import TextService
 from backend.types.document import DocumentPage, DocumentParagraph
 
 class PDFService:
+    
+    def __init__(
+        self,
+        text_service: TextService
+    ):
+        self.text_service = text_service
+
     def extract_pages(self, file_path: str) -> list[DocumentPage]:
         out = []
         
@@ -14,11 +21,12 @@ class PDFService:
                 page = document[page_index]
                 
                 page_text = str(page.get_text())
+                normalized_text = self.text_service.normalize(page_text)
                 
                 out.append(
                     DocumentPage(
                         page_number=page_index + 1,
-                        text=page_text
+                        text=normalized_text
                     )
                 )
                 

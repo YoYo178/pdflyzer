@@ -1,5 +1,5 @@
 from arq import ArqRedis
-from fastapi import Request
+from fastapi import Request, Depends
 
 from backend.core.storage import StorageService
 from backend.core.pdf import PDFService
@@ -14,5 +14,7 @@ def get_storage_service() -> StorageService:
 def get_text_service() -> TextService:
     return TextService()
 
-def get_pdf_service() -> PDFService:
-    return PDFService()
+def get_pdf_service(
+    text_service: TextService = Depends(get_text_service)
+) -> PDFService:
+    return PDFService(text_service)
