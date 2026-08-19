@@ -1,8 +1,12 @@
 from beanie import PydanticObjectId
 
+from backend.core.chunk import ChunkService
 from backend.core.text import TextService
 from backend.core.pdf import PDFService
 
+from backend.models.document_chunk import DocumentChunk
+
+from backend.repositories.document_chunk import DocumentChunkRepository
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
 
@@ -13,9 +17,11 @@ async def process_document(
 ):
     chat_repository = ChatRepository()
     document_repository = DocumentRepository(chat_repository)
+    document_chunk_repository = DocumentChunkRepository()
     
     text_service = TextService()
     pdf_service = PDFService(text_service)
+    chunk_service = ChunkService()
 
     document = await document_repository.find_by_id(
         PydanticObjectId(user_id), PydanticObjectId(document_id)
@@ -34,6 +40,27 @@ async def process_document(
         
         parsed_pages = pdf_service.extract_pages(file_path)
         paragraphs = pdf_service.prepare_paragraphs(parsed_pages)
+
+        chunks = chunk_service.prepare_chunks(paragraphs)
+        
+        chunk_documents = [
+            DocumentChunk(
+                id=PydanticObjectId(),
+                
+                document_id=PydanticObjectId(document.id),
+                chunk_index=chunk.chunk_index,
+                text=chunk.text,
+                embeddings=[],
+                
+                page_start=chunk.page_start,
+                page_end=chunk.page_end,
+                
+                paragraph_start=chunk.paragraph_start,
+                paragraph_end=chunk.paragraph_end
+            ) for chunk in chunks
+        ]
+        
+        await document_chunk_repository.create_many(chunk_documents)
 
         document.status = "ready"
         await document.save()
