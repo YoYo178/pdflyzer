@@ -1,83 +1,55 @@
-from fastapi import APIRouter, Depends, UploadFile, File, status
 from beanie import PydanticObjectId
+from fastapi import APIRouter, Depends, status
 
 from backend.dependencies.auth import get_current_user
 from backend.dependencies.services import get_chat_service
-
 from backend.models.user import User
-from backend.services.chat import ChatService
 from backend.schemas.chat import ChatMeta
+from backend.services.chat import ChatService
 
 router = APIRouter(prefix="/chats", tags=["Chats"])
 
-# Chat Routes
 @router.get("/")
 async def get_all_chats(
+    current_user: User = Depends(get_current_user),
     service: ChatService = Depends(get_chat_service),
-    current_user: User = Depends(get_current_user)
 ):
-    return await service.get_all_chats(PydanticObjectId(current_user.id))
+    return await service.get_all_chats(
+        PydanticObjectId(current_user.id),
+    )
 
 @router.get("/{chat_id}")
 async def get_chat_by_id(
     chat_id: PydanticObjectId,
+    current_user: User = Depends(get_current_user),
     service: ChatService = Depends(get_chat_service),
-    current_user: User = Depends(get_current_user)
 ):
     return await service.get_chat_by_id(
         PydanticObjectId(current_user.id),
-        chat_id
+        chat_id,
     )
 
-@router.post("/")
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_new_chat(
     chat_data: ChatMeta,
+    current_user: User = Depends(get_current_user),
     service: ChatService = Depends(get_chat_service),
-    current_user: User = Depends(get_current_user)
 ):
-    return await service.create_new_chat(
-        chat_data,
-        PydanticObjectId(current_user.id)
-    )
+    return await service.create_new_chat(PydanticObjectId(current_user.id), chat_data)
 
 @router.patch("/{chat_id}")
 async def update_chat(
     chat_id: PydanticObjectId,
     update_data: ChatMeta,
+    current_user: User = Depends(get_current_user),
     service: ChatService = Depends(get_chat_service),
-    current_user: User = Depends(get_current_user)
 ):
-    return await service.update_chat(
-        PydanticObjectId(current_user.id),
-        chat_id,
-        update_data
-    )
+    return await service.update_chat(PydanticObjectId(current_user.id), chat_id, update_data)
 
-@router.delete("/{chat_id}")
+@router.delete("/{chat_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_chat(
     chat_id: PydanticObjectId,
+    current_user: User = Depends(get_current_user),
     service: ChatService = Depends(get_chat_service),
-    current_user: User = Depends(get_current_user)
 ):
-    return await service.delete_chat(
-        PydanticObjectId(current_user.id),
-        chat_id
-    )
-
-# Chat Document routes
-@router.post("/{chat_id}/documents", status_code=status.HTTP_201_CREATED)
-async def upload_document(
-    chat_id: PydanticObjectId,
-    files: list[UploadFile],
-    service: ChatService = Depends(get_chat_service),
-    current_user: User = Depends(get_current_user)
-):
-    return await service.upload_document(PydanticObjectId(current_user.id), chat_id, files)
-
-@router.get("/{chat_id}/documents")
-async def get_all_documents(
-    chat_id: PydanticObjectId,
-    service: ChatService = Depends(get_chat_service),
-    current_user: User = Depends(get_current_user)
-):
-    return await service.get_all_documents(PydanticObjectId(current_user.id), chat_id)
+    await service.delete_chat(PydanticObjectId(current_user.id), chat_id)

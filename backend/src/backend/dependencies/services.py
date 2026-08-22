@@ -14,7 +14,7 @@ from backend.repositories.document import DocumentRepository
 from backend.repositories.user import UserRepository
 
 from backend.dependencies.core import get_storage_service, get_queue
-from backend.dependencies.repositories import get_user_repository, get_document_repository, get_chat_repository
+from backend.dependencies.repositories import get_user_repository, get_document_repository, get_chat_repository, get_message_repository
 from backend.dependencies.hasher import get_password_hasher
 
 def get_auth_service(
@@ -32,19 +32,17 @@ def get_user_service(
     return UserService(user_repository)
 
 def get_document_service(
-    document_repository: DocumentRepository = Depends(get_document_repository)
-) -> DocumentService:
-    return DocumentService(document_repository)
-
-def get_chat_service(
-    chat_repository: ChatRepository = Depends(get_chat_repository),
     document_repository: DocumentRepository = Depends(get_document_repository),
     storage: StorageService = Depends(get_storage_service),
     queue: ArqRedis = Depends(get_queue)
-) -> ChatService:
-    return ChatService(
-        chat_repository,
+) -> DocumentService:
+    return DocumentService(
         document_repository,
         storage,
         queue
     )
+
+def get_chat_service(
+    chat_repository: ChatRepository = Depends(get_chat_repository),
+) -> ChatService:
+    return ChatService(chat_repository)
