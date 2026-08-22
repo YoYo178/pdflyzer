@@ -17,10 +17,10 @@ class ChatService:
     async def get_chat_by_id(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> Chat:
         return await self.repo.find_by_id(user_id, chat_id)
 
-    async def create_new_chat(self, user_id: PydanticObjectId, chat_data: ChatMeta) -> Chat:
+    async def create_new_chat(self, user_id: PydanticObjectId) -> Chat:
         chat = Chat(
             owner_id=user_id,
-            name=chat_data.name
+            name="New Chat"
         )
 
         return await self.repo.create(chat)

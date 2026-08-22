@@ -31,11 +31,10 @@ async def get_chat_by_id(
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_new_chat(
-    chat_data: ChatMeta,
     current_user: User = Depends(get_current_user),
     service: ChatService = Depends(get_chat_service),
 ):
-    return await service.create_new_chat(PydanticObjectId(current_user.id), chat_data)
+    return await service.create_new_chat(PydanticObjectId(current_user.id))
 
 @router.patch("/{chat_id}")
 async def update_chat(
