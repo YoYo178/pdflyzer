@@ -1,6 +1,7 @@
 from beanie import PydanticObjectId
 
 from backend.core.chunk import ChunkService
+from backend.core.embedding import EmbeddingService
 from backend.core.text import TextService
 from backend.core.pdf import PDFService
 
@@ -22,6 +23,7 @@ async def process_document(
     text_service = TextService()
     pdf_service = PDFService(text_service)
     chunk_service = ChunkService()
+    embedding_service = EmbeddingService()
 
     document = await document_repository.find_by_id(
         PydanticObjectId(user_id), PydanticObjectId(document_id)
@@ -43,6 +45,10 @@ async def process_document(
 
         chunks = chunk_service.prepare_chunks(paragraphs)
         
+        embeddings = embedding_service.generate(
+            [chunk.text for chunk in chunks]
+        )
+        
         chunk_documents = [
             DocumentChunk(
                 id=PydanticObjectId(),
@@ -50,14 +56,14 @@ async def process_document(
                 document_id=PydanticObjectId(document.id),
                 chunk_index=chunk.chunk_index,
                 text=chunk.text,
-                embeddings=[],
+                embeddings=embedding,
                 
                 page_start=chunk.page_start,
                 page_end=chunk.page_end,
                 
                 paragraph_start=chunk.paragraph_start,
                 paragraph_end=chunk.paragraph_end
-            ) for chunk in chunks
+            ) for chunk, embedding in zip(chunks, embeddings)
         ]
         
         await document_chunk_repository.create_many(chunk_documents)
