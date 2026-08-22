@@ -1,5 +1,5 @@
+from fastapi import Request
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
 
 from beanie import PydanticObjectId
 from jwt.exceptions import ExpiredSignatureError
@@ -12,16 +12,17 @@ from backend.dependencies.repositories import get_user_repository
 from backend.repositories.user import UserRepository
 from backend.utils.jwt import decode_access_token
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/auth/login"
-)
-
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    request: Request,
     repo: UserRepository = Depends(get_user_repository)
 ) -> User:
     try:
-        payload = decode_access_token(token)
+        access_token = request.cookies.get("access_token")
+        
+        if not access_token:
+            raise auth_exceptions.UnauthorizedUser()
+        
+        payload = decode_access_token(access_token)
 
         user_id = payload.get("sub")
 

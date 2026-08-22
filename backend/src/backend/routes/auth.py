@@ -30,12 +30,18 @@ async def handle_login(
         httponly=True,
         secure=False,
         samesite="none",
-        max_age=60 * 60 * 24 * 30
+        max_age=60 * 60 * 24 * 30 # 30 Days
+    )
+
+    response.set_cookie(
+        key="access_token",
+        value=tokens_data.access_token,
+        httponly=True,
+        secure=False,
+        samesite="none",
+        max_age=60 * 15 # 15 Minutes
     )
 
     return {
         "message": "Logged in successfully!",
-        "data": {
-            "access_token": tokens_data.access_token
-        }
     }
