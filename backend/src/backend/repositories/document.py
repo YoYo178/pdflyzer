@@ -1,5 +1,6 @@
 from beanie import PydanticObjectId
 
+import backend.exceptions.chat as chat_exceptions
 import backend.exceptions.document as document_exceptions
 
 from backend.models.chat_document import ChatDocument
@@ -85,7 +86,7 @@ class DocumentRepository:
         )
 
         if document.chat_id != chat_id:
-            raise document_exceptions.DocumentChatMismatch()
+            raise chat_exceptions.ChatMismatch()
 
         await document.save()
 

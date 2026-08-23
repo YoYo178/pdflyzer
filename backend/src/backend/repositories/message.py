@@ -1,6 +1,6 @@
 from beanie import PydanticObjectId
 
-import backend.exceptions.document as document_exceptions
+import backend.exceptions.chat as chat_exceptions
 import backend.exceptions.message as message_exceptions
 
 from backend.models.message import Message
@@ -18,7 +18,7 @@ class MessageRepository:
         chat = await self.chat_repository.find_by_id(user_id, chat_id)
         
         if not chat or chat.owner_id != user_id:
-            raise document_exceptions.DocumentChatMismatch()
+            raise chat_exceptions.ChatMismatch()
     
     async def find_all(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[Message]:
         await self._verify_chat_ownership(user_id, chat_id)
