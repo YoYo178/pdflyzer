@@ -7,6 +7,7 @@ from backend.settings import settings
 from backend.models.chat import Chat
 from backend.models.chat_document import ChatDocument
 from backend.models.document_chunk import DocumentChunk
+from backend.models.message import Message
 from backend.models.user import User
 
 from beanie import init_beanie
@@ -23,5 +24,5 @@ database = db_client[settings.db_name]
 
 async def connect_db():
     print("[MongoDB] Initializing Beanie...")
-    await init_beanie(database=database, document_models=[Chat, ChatDocument, DocumentChunk, User])
+    await init_beanie(database=database, document_models=[Chat, ChatDocument, DocumentChunk, User, Message])
     print("[MongoDB] Beanie initialized successfully!")

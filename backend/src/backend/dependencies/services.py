@@ -7,10 +7,12 @@ from backend.core.storage import StorageService
 from backend.services.auth import AuthService
 from backend.services.chat import ChatService
 from backend.services.document import DocumentService
+from backend.services.message import MessageService
 from backend.services.user import UserService
 
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
+from backend.repositories.message import MessageRepository
 from backend.repositories.user import UserRepository
 
 from backend.dependencies.core import get_storage_service, get_queue
@@ -46,3 +48,8 @@ def get_chat_service(
     chat_repository: ChatRepository = Depends(get_chat_repository),
 ) -> ChatService:
     return ChatService(chat_repository)
+
+def get_message_service(
+    message_repository: MessageRepository = Depends(get_message_repository)
+) -> MessageService:
+    return MessageService(message_repository)
