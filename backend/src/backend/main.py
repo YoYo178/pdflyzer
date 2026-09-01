@@ -10,6 +10,7 @@ from backend.core.ws.connection import WebSocketConnectionManager
 from backend.exceptions.base import AppException
 
 from backend.routes.api import router as api_router
+from backend.routes.ws import router as ws_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,6 +34,9 @@ app = FastAPI(lifespan=lifespan)
 
 # Attach API router
 app.include_router(api_router)
+
+# Attach WebSocket router
+app.include_router(ws_router)
 
 # Add an exception handler
 @app.exception_handler(AppException)
