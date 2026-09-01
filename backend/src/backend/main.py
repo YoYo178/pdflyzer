@@ -12,6 +12,8 @@ from backend.exceptions.base import AppException
 from backend.routes.api import router as api_router
 from backend.routes.ws import router as ws_router
 
+from backend.sockets import register_socket_handlers
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Connect to MongoDB
@@ -23,6 +25,8 @@ async def lifespan(app: FastAPI):
     # Create a WebSocket connection manager instance and attach it to the application
     app.state.websocket_connection_manager = WebSocketConnectionManager()
     
+    register_socket_handlers()
+
     # Proceed with handling requests
     yield
 

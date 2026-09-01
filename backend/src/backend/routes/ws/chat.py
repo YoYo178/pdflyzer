@@ -5,12 +5,13 @@ from backend.core.ws.connection import WebSocketConnectionManager
 from backend.core.ws.dispatcher import WebSocketEventDispatcher
 
 from backend.dependencies.auth import get_current_websocket_user
-from backend.dependencies.services import get_chat_service
+from backend.dependencies.services import get_chat_service, get_message_service
 from backend.dependencies.ws import get_websocket_connection_manager, get_websocket_event_dispatcher
 
 from backend.models.user import User
 
 from backend.services.chat import ChatService
+from backend.services.message import MessageService
 
 from backend.types.ws import WebSocketContext
 
@@ -27,6 +28,8 @@ async def handle_websocket_connection(
     event_dispatcher: WebSocketEventDispatcher = Depends(get_websocket_event_dispatcher),
     
     current_user: User = Depends(get_current_websocket_user),
+    
+    message_service: MessageService = Depends(get_message_service),
 ):
     # To verify chat ownership, raises an exception otherwise
     await chat_service.get_chat_by_id(PydanticObjectId(current_user.id), chat_id)
@@ -47,9 +50,12 @@ async def handle_websocket_connection(
                     websocket=websocket,
                     chat_id=chat_id,
                     connection_manager=connection_manager,
-                    user=current_user
+                    user=current_user,
+                    
+                    chat_service=chat_service,
+                    message_service=message_service
                 ),
-                data=event["data"] or {}
+                data=event.get("data") or {}
             )
 
     except WebSocketDisconnect:
