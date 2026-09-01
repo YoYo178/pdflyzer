@@ -5,7 +5,10 @@ from fastapi.responses import JSONResponse
 from backend.core.database import connect_db
 from backend.core.queue import create_queue
 
+from backend.core.ws.connection import WebSocketConnectionManager
+
 from backend.exceptions.base import AppException
+
 from backend.routes.api import router as api_router
 
 @asynccontextmanager
@@ -16,6 +19,9 @@ async def lifespan(app: FastAPI):
     # Create a redis queue instance and attach it to the application
     app.state.queue = await create_queue()
 
+    # Create a WebSocket connection manager instance and attach it to the application
+    app.state.websocket_connection_manager = WebSocketConnectionManager()
+    
     # Proceed with handling requests
     yield
 
