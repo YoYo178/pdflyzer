@@ -24,5 +24,5 @@ def get_pdf_service(
 def get_chunk_service() -> ChunkService:
     return ChunkService()
 
-def get_embedding_service() -> EmbeddingService:
-    return EmbeddingService()
+def get_embedding_service(request: Request) -> EmbeddingService:
+    return request.app.state.embedding_service
