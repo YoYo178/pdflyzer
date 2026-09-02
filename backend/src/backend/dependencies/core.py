@@ -4,8 +4,13 @@ from fastapi import Request, Depends
 from backend.core.chunk import ChunkService
 from backend.core.embedding import EmbeddingService
 from backend.core.pdf import PDFService
+from backend.core.retrieval import RetrievalService
 from backend.core.storage import StorageService
 from backend.core.text import TextService
+
+from backend.dependencies.repositories import get_document_chunk_repository
+
+from backend.repositories.document_chunk import DocumentChunkRepository
 
 def get_queue(request: Request) -> ArqRedis:
     return request.app.state.queue
@@ -26,3 +31,10 @@ def get_chunk_service() -> ChunkService:
 
 def get_embedding_service(request: Request) -> EmbeddingService:
     return request.app.state.embedding_service
+
+def get_retrieval_service(
+    retrieval_service: DocumentChunkRepository = Depends(get_document_chunk_repository)
+) -> RetrievalService:
+    return RetrievalService(
+        retrieval_service
+    )
