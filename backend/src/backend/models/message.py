@@ -11,6 +11,7 @@ class Message(BaseTimestampDocument):
     sender_role: Literal['user', 'system']
     
     content: str
+    embeddings: list[float]
     
     # Ensures relationship between sender_id and sender_role are maintained and enforced
     @model_validator(mode="after")
