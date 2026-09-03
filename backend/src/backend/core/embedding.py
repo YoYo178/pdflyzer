@@ -17,3 +17,5 @@ class EmbeddingService():
         )
         
         return embeddings.tolist()
+    
+embedding_service = EmbeddingService()

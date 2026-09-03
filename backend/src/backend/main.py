@@ -4,7 +4,6 @@ from fastapi.responses import JSONResponse
 
 from backend.core.database import connect_db
 from backend.core.queue import create_queue
-from backend.core.embedding import EmbeddingService
 
 from backend.core.ws.connection import WebSocketConnectionManager
 
@@ -25,9 +24,6 @@ async def lifespan(app: FastAPI):
 
     # Create a WebSocket connection manager instance and attach it to the application
     app.state.websocket_connection_manager = WebSocketConnectionManager()
-    
-    # Create the embedding service instance and attach it to the application
-    app.state.embedding_service = EmbeddingService()
     
     register_socket_handlers()
 
