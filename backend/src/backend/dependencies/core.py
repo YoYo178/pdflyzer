@@ -1,5 +1,5 @@
 from arq import ArqRedis
-from fastapi import Request, Depends, WebSocket
+from fastapi import Request, Depends
 
 from backend.core.chunk import ChunkService
 from backend.core.embedding import EmbeddingService, embedding_service
@@ -33,8 +33,8 @@ def get_embedding_service() -> EmbeddingService:
     return embedding_service
 
 def get_retrieval_service(
-    retrieval_service: DocumentChunkRepository = Depends(get_document_chunk_repository)
+    document_chunk_repository: DocumentChunkRepository = Depends(get_document_chunk_repository)
 ) -> RetrievalService:
     return RetrievalService(
-        retrieval_service
+        document_chunk_repository
     )
