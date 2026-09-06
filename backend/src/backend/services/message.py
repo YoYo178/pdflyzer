@@ -65,17 +65,17 @@ class MessageService:
             yield chunk
         
         response = "".join(response)
-        response_message = Message(
-            sender_id=None,
-            sender_role="system",
-            
-            chat_id=chat_id,
-            
-            content=response,
-            embeddings=[]
+        await self.message_repository.create(
+            Message(
+                sender_id=None,
+                sender_role="system",
+                
+                chat_id=chat_id,
+                
+                content=response,
+                embeddings=[]
+            )
         )
         
-        await self.message_repository.create(response_message)
-    
     async def delete_message(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_id: PydanticObjectId) -> None:
         return await self.message_repository.delete(user_id, chat_id, message_id)
