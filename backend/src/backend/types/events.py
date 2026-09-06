@@ -7,3 +7,7 @@ class ClientToServerEvents(StrEnum):
 
 class ServerToClientEvents(StrEnum):
     CHAT_MESSAGE_CREATED = "chat.message.created"
+    
+    CHAT_STREAM_BEGIN = "chat.stream.begin"
+    CHAT_STREAM_CHUNK = "chat.stream.chunk"
+    CHAT_STREAM_END = "chat.stream.end"
