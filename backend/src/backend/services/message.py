@@ -42,33 +42,40 @@ class MessageService:
             raise message_exceptions.NoDocumentFound()
         
         message_embeddings = self.embedding_service.generate([message_content])[0]
-        
-        message = Message(
-            sender_id=user_id,
-            sender_role="user",
 
-            chat_id=chat_id,
-            
-            content=message_content,
-            embeddings=message_embeddings
+        await self.message_repository.create(
+            Message(
+                sender_id=user_id,
+                sender_role="user",
+
+                chat_id=chat_id,
+                
+                content=message_content,
+                embeddings=message_embeddings
+            )
         )
-        
-        await self.message_repository.create(message)
         
         chunks = await self.retrieval_service.retrieve(chat_id, message_embeddings)
         
-        response_chunks = self.llm_service.stream(message_content, chunks)
+        response = []
+        response_generator = self.llm_service.stream(message_content, chunks)
         
-        response_text_arr = []
-        
-        async for chunk in response_chunks:
-            response_text_arr.append(chunk)
+        async for chunk in response_generator:
+            response.append(chunk)
             yield chunk
         
-        # TODO: save AI message
-        #await self.message_repository.create(message)
-    
-        return
+        response = "".join(response)
+        response_message = Message(
+            sender_id=None,
+            sender_role="system",
+            
+            chat_id=chat_id,
+            
+            content=response,
+            embeddings=[]
+        )
+        
+        await self.message_repository.create(response_message)
     
     async def delete_message(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_id: PydanticObjectId) -> None:
         return await self.message_repository.delete(user_id, chat_id, message_id)

@@ -89,5 +89,3 @@ class LLMService():
                 continue
             
             yield chunk.text
-        
-        return
