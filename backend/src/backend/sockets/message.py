@@ -1,16 +1,44 @@
 from beanie import PydanticObjectId
 
 from backend.events.message import event_message_created
+
+from backend.events.chat import (
+    event_chat_stream_begin,
+    event_chat_stream_chunk,
+    event_chat_stream_end,
+)
 from backend.types.ws import WebSocketContext
 
 async def handle_create_message(
     ctx: WebSocketContext,
     data: str,
 ):
-    messages = await ctx.message_service.get_all_messages(PydanticObjectId(ctx.user.id), ctx.chat_id)
+    chat_id = str(ctx.chat_id)
+    
+    response_generator = ctx.message_service.create_message(
+        PydanticObjectId(ctx.user.id),
+        ctx.chat_id,
+        data
+    )
     
     await ctx.connection_manager.broadcast(
-        str(ctx.chat_id),
+        chat_id,
+        event_chat_stream_begin()
+    )
+    
+    async for chunk in response_generator:
+        await ctx.connection_manager.broadcast(
+            chat_id,
+            event_chat_stream_chunk(chunk)
+        )
+    
+    await ctx.connection_manager.broadcast(
+        chat_id,
+        event_chat_stream_end()
+    )
+    
+    await ctx.connection_manager.broadcast(
+        chat_id,
         event_message_created({
             "sender_id": str(ctx.user.id),
             "sender_role": "user",

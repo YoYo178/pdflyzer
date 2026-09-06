@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from fastapi.sse import EventSourceResponse
 from beanie import PydanticObjectId
 
 from backend.dependencies.auth import get_current_user
@@ -29,14 +30,17 @@ async def get_message(
 ):
     return await service.get_message_by_id(PydanticObjectId(current_user.id), chat_id, message_id)
 
-@chat_messages_router.post("/{chat_id}/messages")
+@chat_messages_router.post("/{chat_id}/messages", response_class=EventSourceResponse)
 async def create_message(
     chat_id: PydanticObjectId,
     message_data: PayloadMessage,
     current_user: User = Depends(get_current_user),
     service: MessageService = Depends(get_message_service)
 ):
-    return await service.create_message(PydanticObjectId(current_user.id), chat_id, message_data)
+    async for chunk in service.create_message(PydanticObjectId(current_user.id), chat_id, message_data.content):
+        yield chunk
+        
+    return
 
 @chat_messages_router.delete("/{chat_id}/messages/{message_id}")
 async def delete_message(
