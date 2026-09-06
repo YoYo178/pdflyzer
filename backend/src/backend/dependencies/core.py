@@ -3,6 +3,7 @@ from fastapi import Request, Depends
 
 from backend.core.chunk import ChunkService
 from backend.core.embedding import EmbeddingService, embedding_service
+from backend.core.llm import LLMService
 from backend.core.pdf import PDFService
 from backend.core.retrieval import RetrievalService
 from backend.core.storage import StorageService
@@ -38,3 +39,6 @@ def get_retrieval_service(
     return RetrievalService(
         document_chunk_repository
     )
+
+def get_llm_service() -> LLMService:
+    return LLMService()
