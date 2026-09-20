@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 
 function resolveAlias(pathString: string) {
-  return path.resolve(__dirname, pathString);
+  return path.resolve(import.meta.dirname, pathString);
 }
 
 // https://vite.dev/config/
