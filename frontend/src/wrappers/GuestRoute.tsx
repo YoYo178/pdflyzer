@@ -1,5 +1,8 @@
+import { Outlet } from 'react-router';
+
+// TODO
 function GuestRoute() {
-  return <div>GuestRoute</div>;
+  return <Outlet />;
 }
 
 export default GuestRoute;
