@@ -58,9 +58,6 @@ function Hero() {
 
       <Container>
         <div className='mx-auto max-w-3xl text-center'>
-          <Reveal>
-            <Badge icon={IconSparkles}>RAG-powered document intelligence</Badge>
-          </Reveal>
 
           <Reveal delay={80}>
             <h1 className='mt-6 text-balance text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl'>
