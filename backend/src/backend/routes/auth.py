@@ -4,19 +4,27 @@ from backend.dependencies.services import get_auth_service
 
 from backend.services.auth import AuthService
 
+from backend.schemas.api import APIResponse
+
 from backend.schemas.user import UserSelf
 from backend.schemas.auth import RegisterRequest, LoginRequest
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/register", response_model=UserSelf)
+@router.post("/register", response_model=APIResponse[UserSelf])
 async def create_user(
     register_data: RegisterRequest,
     service: AuthService = Depends(get_auth_service)
 ):
-    return await service.create_user(register_data)
+    user = await service.create_user(register_data)
+    
+    return APIResponse(
+        status=True,
+        message="User created sucessfully",
+        data=UserSelf.model_validate_json(user.model_dump_json())
+    )
 
-@router.post("/login", status_code=200)
+@router.post("/login", status_code=200, response_model=APIResponse[None])
 async def handle_login(
     login_data: LoginRequest,
     response: Response,
@@ -41,7 +49,9 @@ async def handle_login(
         samesite="none",
         max_age=60 * 15 # 15 Minutes
     )
-
-    return {
-        "message": "Logged in successfully!",
-    }
+    
+    return APIResponse(
+        status=True,
+        message="Logged in successfully!",
+        data=None
+    )
