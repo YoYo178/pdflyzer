@@ -1,20 +1,20 @@
 import { API } from '@/api/client';
 
 import type {
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
-  RegisterResponse,
+  ILoginRequest,
+  ILoginResponse,
+  IRegisterRequest,
+  TRegisterResponse,
 } from './types';
 
-async function login(data: LoginRequest) {
-  const response = await API.post<LoginResponse>('/api/auth/login', data);
+async function login(data: ILoginRequest) {
+  const response = await API.post<ILoginResponse>('/auth/login', data);
 
   return response.data;
 }
 
-async function register(data: RegisterRequest) {
-  const response = await API.post<RegisterResponse>('/auth/register', data);
+async function register(data: IRegisterRequest) {
+  const response = await API.post<TRegisterResponse>('/auth/register', data);
 
   return response.data;
 }
