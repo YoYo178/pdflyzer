@@ -1,11 +1,14 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.core.database import connect_db
 from backend.core.queue import create_queue
 
 from backend.core.ws.connection import WebSocketConnectionManager
+
+from backend.config.cors import CORS_CONFIG
 
 from backend.exceptions.base import AppException
 
@@ -35,6 +38,12 @@ async def lifespan(app: FastAPI):
 
 # Create the FastAPI App instance
 app = FastAPI(lifespan=lifespan)
+
+# Attach CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    **CORS_CONFIG
+)
 
 # Attach API router
 app.include_router(api_router)

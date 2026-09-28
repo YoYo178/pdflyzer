@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     refresh_token_secret: str
     
     gemini_api_key: str
+    
+    frontend_url: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
