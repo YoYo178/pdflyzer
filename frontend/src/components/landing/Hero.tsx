@@ -1,15 +1,13 @@
-import { useRef, type MouseEvent } from 'react';
-import { motion } from 'motion/react';
 import {
   IconArrowRight,
   IconCheck,
   IconLock,
   IconQuote,
-  IconSparkles,
 } from '@tabler/icons-react';
+import { motion } from 'motion/react';
+import { useRef, type MouseEvent } from 'react';
 
 import { ButtonLink } from '@/components/ui/button';
-import Badge from '@/components/ui/badge';
 import Container from '@/components/ui/container';
 import FloatingLabel from '@/components/ui/floating-label';
 import Reveal from '@/components/ui/reveal';
@@ -58,7 +56,6 @@ function Hero() {
 
       <Container>
         <div className='mx-auto max-w-3xl text-center'>
-
           <Reveal delay={80}>
             <h1 className='mt-6 text-balance text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl'>
               Chat with your documents.
