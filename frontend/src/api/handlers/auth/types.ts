@@ -17,3 +17,9 @@ export interface IRegisterRequest {
 }
 
 export type TRegisterResponse = IUser;
+
+export const OAUTH_PROVIDERS = ['google', 'github'] as const;
+
+export type TOAuthProvider = (typeof OAUTH_PROVIDERS)[number];
+
+export type TOAuthMode = 'login' | 'register';
