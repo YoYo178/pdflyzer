@@ -118,30 +118,6 @@ function RegisterForm() {
         {...register('confirmPassword')}
       />
 
-      <div className='space-y-1.5 pt-1'>
-        <label className='flex items-start gap-2.5 text-[13px] text-muted-foreground'>
-          <input
-            type='checkbox'
-            className='mt-0.5 h-4 w-4 shrink-0 accent-teal-600 dark:accent-teal-300'
-            {...register('agree')}
-          />
-          <span>
-            I agree to the{' '}
-            <span className='font-medium text-teal-600 dark:text-teal-300'>
-              Terms
-            </span>{' '}
-            and{' '}
-            <span className='font-medium text-teal-600 dark:text-teal-300'>
-              Privacy Policy
-            </span>
-            .
-          </span>
-        </label>
-        {errors.agree?.message && (
-          <p className='text-xs text-destructive'>{errors.agree.message}</p>
-        )}
-      </div>
-
       <div className='flex justify-center pt-1'>
         <Button
           type='submit'

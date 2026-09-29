@@ -49,14 +49,6 @@ export const registerFormSchema = v.config(
         v.string('Invalid confirm password value'),
         v.minLength(1, 'Confirm password is required'),
       ),
-
-      agree: v.pipe(
-        v.boolean(),
-        v.check(
-          (input) => input,
-          'Please agree to the terms and privacy policy',
-        ),
-      ),
     }),
     v.forward(
       v.partialCheck(
