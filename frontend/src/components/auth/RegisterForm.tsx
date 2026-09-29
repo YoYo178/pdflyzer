@@ -108,7 +108,7 @@ function RegisterForm() {
         icon={IconShieldCheck}
         placeholder='Re-enter your password'
         autoComplete='new-password'
-        error={errors.agree?.message}
+        error={errors.confirmPassword?.message}
         trailing={
           <PasswordToggle
             shown={showConfirm}
