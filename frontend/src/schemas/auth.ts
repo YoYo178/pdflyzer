@@ -1,5 +1,23 @@
 import * as v from 'valibot';
 
+export const loginFormSchema = v.config(
+  v.object({
+    email: v.pipe(
+      v.string('Invalid email value'),
+      v.trim(),
+      v.minLength(1, 'Email is required'),
+      v.email('Invalid email'),
+    ),
+    password: v.pipe(
+      v.string('Invalid password value'),
+      v.minLength(1, 'Password is required'),
+    ),
+  }),
+  { abortPipeEarly: false },
+);
+
+export type TLoginSchema = v.InferOutput<typeof loginFormSchema>;
+
 export const registerFormSchema = v.config(
   v.pipe(
     v.object({
