@@ -22,7 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import useTheme from '@/lib/useTheme';
+import { useTheme } from 'next-themes';
+
 import { cn } from '@/lib/utils';
 
 const SOURCES = [
@@ -51,8 +52,9 @@ function Avatar({ className }: { className?: string }) {
 }
 
 function UserMenu() {
-  const { theme, toggle } = useTheme();
-  const isDark = theme === 'dark';
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   return (
     <DropdownMenu
@@ -77,7 +79,7 @@ function UserMenu() {
       <DropdownMenuSeparator />
       <DropdownMenuItem icon={<IconSettings />}>Settings</DropdownMenuItem>
       <DropdownMenuItem icon={<IconKeyboard />}>Keyboard shortcuts</DropdownMenuItem>
-      <DropdownMenuItem onClick={toggle} icon={isDark ? <IconSun /> : <IconMoon />}>
+      <DropdownMenuItem onClick={toggleTheme} icon={isDark ? <IconSun /> : <IconMoon />}>
         {isDark ? 'Light mode' : 'Dark mode'}
       </DropdownMenuItem>
       <DropdownMenuSeparator />

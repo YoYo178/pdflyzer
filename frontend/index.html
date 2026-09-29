@@ -10,17 +10,6 @@
     />
     <meta name="theme-color" content="#09090b" />
     <title>pdflyzer — Chat with your documents</title>
-    <script>
-      (function () {
-        try {
-          var stored = localStorage.getItem('pdflyzer-theme');
-          var dark = stored ? stored === 'dark' : true;
-          var root = document.documentElement;
-          root.classList.toggle('dark', dark);
-          root.style.colorScheme = dark ? 'dark' : 'light';
-        } catch (e) {}
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>

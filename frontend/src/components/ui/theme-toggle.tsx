@@ -1,6 +1,6 @@
 import { IconMoon, IconSun } from '@tabler/icons-react';
+import { useTheme } from 'next-themes';
 
-import useTheme from '@/lib/useTheme';
 import { cn } from '@/lib/utils';
 
 interface ThemeToggleProps {
@@ -8,13 +8,13 @@ interface ThemeToggleProps {
 }
 
 function ThemeToggle({ className }: ThemeToggleProps) {
-  const { theme, toggle } = useTheme();
-  const isDark = theme === 'dark';
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className={cn(
