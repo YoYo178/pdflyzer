@@ -56,7 +56,7 @@ function RegisterForm() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className='mx-auto mt-5 max-w-sm space-y-5 text-left'
+      className='space-y-5 text-left'
     >
       <div className='grid gap-5 sm:grid-cols-2'>
         <AuthField
