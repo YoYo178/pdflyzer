@@ -2,29 +2,16 @@ import {
   IconArrowRight,
   IconArrowUpRight,
   IconBroadcast,
-  IconChevronDown,
   IconFileDigit,
   IconFileText,
-  IconKeyboard,
   IconListCheck,
-  IconLogout,
   IconMessage2,
-  IconMoon,
-  IconSettings,
   IconSparkles,
-  IconSun,
 } from '@tabler/icons-react';
 
 import { motion } from 'motion/react';
 
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { useTheme } from 'next-themes';
-
-import { cn } from '@/lib/utils';
+import UserMenu from '@/components/dashboard/UserMenu';
 
 const SOURCES = [
   { file: 'Service-Agreement-2025.pdf', page: 'Page 4', section: 'Invoicing', icon: IconFileText },
@@ -37,58 +24,6 @@ const DOCS = [
   { name: 'Statement of Work', meta: 'PDF · 12 pages', icon: IconFileText },
   { name: 'Renewal Addendum', meta: 'PDF · 6 pages', icon: IconFileText },
 ];
-
-function Avatar({ className }: { className?: string }) {
-  return (
-    <span
-      className={cn(
-        'flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 font-bold text-white',
-        className ?? 'h-8 w-8 text-[10px]',
-      )}
-    >
-      AK
-    </span>
-  );
-}
-
-function UserMenu() {
-  const { resolvedTheme, setTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
-
-  return (
-    <DropdownMenu
-      className="ml-auto"
-      menuClassName="w-60"
-      triggerClassName="flex items-center gap-2 rounded-full border border-border bg-secondary/40 p-1 transition-colors hover:bg-secondary sm:py-1 sm:pl-1 sm:pr-2.5"
-      trigger={
-        <>
-          <Avatar className="h-6 w-6 text-[9px]" />
-          <span className="hidden text-xs font-medium text-foreground sm:block">Anna Kim</span>
-          <IconChevronDown className="hidden h-3.5 w-3.5 text-muted-foreground sm:block" />
-        </>
-      }
-    >
-      <div className="flex items-center gap-3 rounded-lg px-2.5 py-2">
-        <Avatar />
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-foreground">Anna Kim</p>
-          <p className="truncate text-xs text-muted-foreground">anna@pdflyzer.app</p>
-        </div>
-      </div>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem icon={<IconSettings />}>Settings</DropdownMenuItem>
-      <DropdownMenuItem icon={<IconKeyboard />}>Keyboard shortcuts</DropdownMenuItem>
-      <DropdownMenuItem onClick={toggleTheme} icon={isDark ? <IconSun /> : <IconMoon />}>
-        {isDark ? 'Light mode' : 'Dark mode'}
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem variant="destructive" icon={<IconLogout />}>
-        Sign out
-      </DropdownMenuItem>
-    </DropdownMenu>
-  );
-}
 
 function ChatMock() {
   return (
@@ -104,7 +39,7 @@ function ChatMock() {
           <span className="h-1.5 w-1.5 rounded-full bg-teal-500 dark:bg-teal-300" />
           pdflyzer.app/chat/contracts
         </div>
-        <UserMenu />
+        <UserMenu className="ml-auto" />
       </div>
 
       <div className="grid lg:grid-cols-[220px_minmax(0,1fr)]">

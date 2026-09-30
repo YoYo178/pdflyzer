@@ -129,3 +129,26 @@
     scroll-behavior: smooth;
     }
 }
+
+@layer utilities {
+  .scrollbar-slim {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    border-radius: 9999px;
+  }
+}
