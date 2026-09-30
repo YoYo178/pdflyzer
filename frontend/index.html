@@ -10,6 +10,22 @@
     />
     <meta name="theme-color" content="#09090b" />
     <title>pdflyzer — Chat with your documents</title>
+
+    <script>
+      (function () {
+        const savedTheme = localStorage.getItem('theme');
+        // Fallback to system preference if no saved theme exists
+        const systemPrefersDark = window.matchMedia(
+          '(prefers-color-scheme: dark)',
+        ).matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
