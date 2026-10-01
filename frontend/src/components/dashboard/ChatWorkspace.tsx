@@ -7,36 +7,38 @@ import ChatThread from './ChatThread';
 import ChatTopbar from './ChatTopbar';
 import Drawer from '@/components/ui/drawer';
 import Logo from '@/components/ui/logo';
-import { MOCK_CHATS, MOCK_DOCUMENTS, MOCK_THREADS } from './mock-chat';
+import {
+  MOCK_CHATS,
+  MOCK_DOCUMENTS,
+  MOCK_THREADS,
+  MOCK_TRANSPORT,
+} from './mock-chat';
 import useChatThread from './useChatThread';
-import type { TChatMode } from '@/types/chat.types';
+import { formatFileCount } from '@/lib/format';
+
+import type { IDocument } from '@/types/chat.types';
 
 function titleFrom(prompt: string) {
   const words = prompt.replace(/\s+/g, ' ').trim().split(' ').slice(0, 6).join(' ');
   return words.length > 48 ? `${words.slice(0, 48).trimEnd()}…` : words;
 }
 
-const READY_DOCUMENTS = MOCK_DOCUMENTS.filter((document) => document.status === 'ready');
-const INDEXING_COUNT = MOCK_DOCUMENTS.length - READY_DOCUMENTS.length;
-const CONTEXT_LABEL = [
-  `${READY_DOCUMENTS.length} documents`,
-  `${READY_DOCUMENTS.reduce((total, document) => total + document.pages, 0)} pages in context`,
-  INDEXING_COUNT > 0 ? `${INDEXING_COUNT} indexing` : null,
-]
-  .filter(Boolean)
-  .join(' · ');
-
 function ChatWorkspace() {
   const [chats, setChats] = useState(MOCK_CHATS);
+  const [documents, setDocuments] = useState<IDocument[]>(MOCK_DOCUMENTS);
   const [activeChatId, setActiveChatId] = useState<string | null>(MOCK_CHATS[0].id);
-  const [mode, setMode] = useState<TChatMode>('ask');
   const [query, setQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const thread = useChatThread(MOCK_THREADS[MOCK_CHATS[0].id] ?? []);
+  const thread = useChatThread(MOCK_THREADS[MOCK_CHATS[0].id] ?? [], MOCK_TRANSPORT);
   const { load, send, messages, isStreaming, statusLabel, stop, regenerate, rate } = thread;
 
   const activeChat = chats.find((chat) => chat.id === activeChatId) ?? null;
+  const readyCount = documents.filter((document) => document.status === 'ready').length;
+  const pageCount = documents
+    .filter((document) => document.status === 'ready')
+    .reduce((total, document) => total + document.pages, 0);
+  const contextLabel = `${formatFileCount(readyCount)} · ${pageCount} pages in context`;
 
   function openChat(id: string) {
     setActiveChatId(id);
@@ -50,9 +52,7 @@ function ChatWorkspace() {
     setSidebarOpen(false);
   }
 
-  function ask(prompt: string, nextMode: TChatMode) {
-    setMode(nextMode);
-
+  function ask(prompt: string) {
     if (activeChatId === null) {
       const id = `chat-${Date.now()}`;
       setChats((current) => [
@@ -68,7 +68,14 @@ function ChatWorkspace() {
       );
     }
 
-    send(prompt, nextMode);
+    send(prompt);
+  }
+
+  function renameChat(id: string, title: string) {
+    setChats((current) =>
+      current.map((chat) => (chat.id === id ? { ...chat, title } : chat)),
+    );
+    toast.success('Chat renamed', { position: 'bottom-center' });
   }
 
   function deleteChat(id: string) {
@@ -80,34 +87,57 @@ function ChatWorkspace() {
     toast.success('Chat deleted', { position: 'bottom-center' });
   }
 
-  function requestUpload() {
-    toast.info('Uploading a PDF…', {
-      description: 'Document ingestion is not connected yet.',
+  function addDocuments(files: File[]) {
+    const added: IDocument[] = files.map((file, index) => ({
+      id: `doc-${Date.now()}-${index}`,
+      name: file.name,
+      size: file.size,
+      pages: 0,
+      status: 'queued',
+    }));
+
+    setDocuments((current) => [...current, ...added]);
+    toast.success(`${files.length} ${files.length === 1 ? 'PDF' : 'PDFs'} added`, {
+      description: 'Ingestion is not connected to the backend yet.',
       position: 'bottom-center',
     });
+  }
+
+  function deleteDocument(id: string) {
+    setDocuments((current) => current.filter((document) => document.id !== id));
+    toast.success('PDF removed', { position: 'bottom-center' });
+  }
+
+  function retryDocument(id: string) {
+    setDocuments((current) =>
+      current.map((document) =>
+        document.id === id ? { ...document, status: 'queued' as const } : document,
+      ),
+    );
+    toast.success('Re-queued for processing', { position: 'bottom-center' });
   }
 
   const sidebar = (
     <AppSidebar
       chats={chats}
-      documents={MOCK_DOCUMENTS}
+      documents={documents}
       activeChatId={activeChatId}
       query={query}
       onQueryChange={setQuery}
       onSelectChat={openChat}
       onNewChat={newChat}
+      onRenameChat={renameChat}
       onDeleteChat={deleteChat}
-      onRequestUpload={requestUpload}
+      onAddDocuments={addDocuments}
+      onDeleteDocument={deleteDocument}
+      onRetryDocument={retryDocument}
     />
   );
 
   return (
     <div className="flex h-dvh w-full overflow-hidden overscroll-none bg-background text-foreground antialiased selection:bg-teal-300/30 selection:text-teal-900 dark:selection:text-teal-100">
-      <aside className="hidden w-[268px] shrink-0 flex-col border-r border-border bg-secondary/20 md:flex">
-        <div className="flex min-h-0 flex-1 flex-col p-3">
-          <Logo size="sm" className="mb-4 px-1" />
-          {sidebar}
-        </div>
+      <aside className="hidden w-[268px] shrink-0 flex-col border-r border-border md:flex">
+        {sidebar}
       </aside>
 
       <Drawer
@@ -123,7 +153,7 @@ function ChatWorkspace() {
       <main className="flex min-w-0 flex-1 flex-col">
         <ChatTopbar
           title={activeChat?.title ?? 'New chat'}
-          contextLabel={CONTEXT_LABEL}
+          contextLabel={contextLabel}
           isStreaming={isStreaming}
           onOpenSidebar={() => setSidebarOpen(true)}
           onNewChat={newChat}
@@ -132,9 +162,10 @@ function ChatWorkspace() {
         <ChatThread
           threadKey={activeChatId}
           messages={messages}
-          documents={MOCK_DOCUMENTS}
+          documents={documents}
           isStreaming={isStreaming}
           statusLabel={statusLabel}
+          transport={MOCK_TRANSPORT}
           onSuggestion={ask}
           onRegenerate={regenerate}
           onRate={rate}
@@ -146,13 +177,7 @@ function ChatWorkspace() {
             className="pointer-events-none absolute inset-x-0 -top-10 h-10 bg-gradient-to-t from-background to-transparent"
           />
           <div className="relative mx-auto w-full max-w-3xl">
-            <ChatComposer
-              mode={mode}
-              onModeChange={setMode}
-              onSend={(text) => ask(text, mode)}
-              onStop={stop}
-              isStreaming={isStreaming}
-            />
+            <ChatComposer onSend={ask} onStop={stop} isStreaming={isStreaming} />
           </div>
         </div>
       </main>

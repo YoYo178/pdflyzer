@@ -130,7 +130,20 @@
     }
 }
 
+@keyframes pdflyzer-indeterminate {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(410%);
+  }
+}
+
 @layer utilities {
+  .progress-indeterminate {
+    animation: pdflyzer-indeterminate 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+
   .scrollbar-slim {
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;

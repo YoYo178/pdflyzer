@@ -1,31 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { CANNED_REPLIES, FALLBACK_REPLY } from './mock-chat';
-import type { IChatMessage, ISource, TChatMode } from '@/types/chat.types';
+import { CANNED_REPLIES, FALLBACK_REPLY_CANNED } from './mock-chat';
+import type { IChatMessage, TStreamTransport } from '@/types/chat.types';
 
 const CHUNK_MS = 26;
 const FIRST_TOKEN_MS = 420;
 
-interface ICannedReply {
-  status: string[];
-  sources: ISource[];
-  ask: string;
-  dive: string;
-  text: string;
-}
-
-function resolveReply(prompt: string, mode: TChatMode): ICannedReply {
-  const match = CANNED_REPLIES.find((reply) => reply.match.test(prompt)) ?? FALLBACK_REPLY;
-  return { ...match, text: mode === 'dive' ? match.dive : match.ask };
-}
-
-function useChatThread(initial: IChatMessage[]) {
+function useChatThread(initial: IChatMessage[], transport: TStreamTransport) {
   const [messages, setMessages] = useState<IChatMessage[]>(initial);
   const [isStreaming, setIsStreaming] = useState(false);
   const [statusLabel, setStatusLabel] = useState('');
   const timers = useRef<number[]>([]);
   const sequence = useRef(0);
-  const lastMode = useRef<TChatMode>('ask');
 
   const clearTimers = useCallback(() => {
     timers.current.forEach((timer) => window.clearTimeout(timer));
@@ -35,10 +21,10 @@ function useChatThread(initial: IChatMessage[]) {
   useEffect(() => clearTimers, [clearTimers]);
 
   const stream = useCallback(
-    (prompt: string, mode: TChatMode) => {
+    (prompt: string) => {
       clearTimers();
 
-      const reply = resolveReply(prompt, mode);
+      const reply = CANNED_REPLIES.find((item) => item.match.test(prompt)) ?? FALLBACK_REPLY_CANNED;
       const id = `stream-${++sequence.current}`;
 
       setMessages((current) => [
@@ -60,7 +46,7 @@ function useChatThread(initial: IChatMessage[]) {
         );
       });
 
-      const tokens = reply.text.split(' ');
+      const tokens = reply.reply.split(' ');
 
       tokens.forEach((token, index) => {
         timers.current.push(
@@ -94,11 +80,9 @@ function useChatThread(initial: IChatMessage[]) {
   );
 
   const send = useCallback(
-    (prompt: string, mode: TChatMode) => {
+    (prompt: string) => {
       const text = prompt.trim();
       if (!text) return;
-
-      lastMode.current = mode;
 
       setMessages((current) => [
         ...current,
@@ -110,7 +94,7 @@ function useChatThread(initial: IChatMessage[]) {
           status: 'done',
         },
       ]);
-      stream(text, mode);
+      stream(text);
     },
     [stream],
   );
@@ -139,7 +123,7 @@ function useChatThread(initial: IChatMessage[]) {
       }
       return trimmed;
     });
-    stream(lastUser.content, lastMode.current);
+    stream(lastUser.content);
   }, [messages, stream]);
 
   const rate = useCallback((id: string, rating: 'up' | 'down' | null) => {
@@ -158,7 +142,7 @@ function useChatThread(initial: IChatMessage[]) {
     [clearTimers],
   );
 
-  return { messages, isStreaming, statusLabel, send, stop, regenerate, rate, load };
+  return { messages, isStreaming, statusLabel, transport, send, stop, regenerate, rate, load };
 }
 
 export default useChatThread;

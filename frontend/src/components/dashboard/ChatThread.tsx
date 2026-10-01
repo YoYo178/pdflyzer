@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import ChatEmptyState from './ChatEmptyState';
 import ChatMessage from './ChatMessage';
-import type { IDocument, IChatMessage, TChatMode } from '@/types/chat.types';
+import type { IDocument, IChatMessage, TStreamTransport } from '@/types/chat.types';
 import { cn } from '@/lib/utils';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -28,7 +28,8 @@ interface ChatThreadProps {
   documents: IDocument[];
   isStreaming: boolean;
   statusLabel: string;
-  onSuggestion: (prompt: string, mode: TChatMode) => void;
+  transport: TStreamTransport;
+  onSuggestion: (prompt: string) => void;
   onRegenerate: () => void;
   onRate: (id: string, rating: 'up' | 'down' | null) => void;
 }
@@ -39,6 +40,7 @@ function ChatThread({
   documents,
   isStreaming,
   statusLabel,
+  transport,
   onSuggestion,
   onRegenerate,
   onRate,
@@ -148,14 +150,15 @@ function ChatThread({
                       isLast={message.id === lastAssistantId}
                       isStreaming={isStreaming && message.id === lastAssistantId}
                       statusLabel={statusLabel}
+                      transport={transport}
                       activeCitation={
                         activeCitation?.messageId === message.id ? activeCitation.index : null
                       }
                       onCitationClick={(index) => onCitationClick(message.id, index)}
                       onRegenerate={onRegenerate}
                       onRate={onRate}
-/>
-                </motion.div>
+                    />
+                  </motion.div>
               </div>
             ))}
           </div>

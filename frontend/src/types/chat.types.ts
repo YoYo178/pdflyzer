@@ -2,17 +2,16 @@ export type TMessageRole = 'user' | 'assistant';
 
 export type TMessageStatus = 'streaming' | 'done' | 'error';
 
-export type TDocumentStatus = 'ready' | 'processing' | 'error';
+export type TDocumentStatus = 'queued' | 'processing' | 'ready' | 'failed';
 
-export type TChatMode = 'ask' | 'dive';
+export type TStreamTransport = 'websocket' | 'sse';
 
 export interface IDocument {
   id: string;
   name: string;
+  size: number;
   pages: number;
-  size: string;
   status: TDocumentStatus;
-  progress?: number;
 }
 
 export interface ISource {

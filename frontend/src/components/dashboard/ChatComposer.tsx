@@ -1,25 +1,17 @@
 import { IconArrowUp, IconPaperclip, IconPlayerStop, IconX } from '@tabler/icons-react';
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react';
 
-import type { TChatMode } from '@/types/chat.types';
 import { cn } from '@/lib/utils';
 
 const MAX_LENGTH = 4000;
 
-const MODES: { value: TChatMode; label: string; hint: string }[] = [
-  { value: 'ask', label: 'Ask', hint: 'Concise answer with page citations' },
-  { value: 'dive', label: 'Deep dive', hint: 'Clause-by-clause breakdown' },
-];
-
 interface ChatComposerProps {
-  mode: TChatMode;
-  onModeChange: (mode: TChatMode) => void;
   onSend: (text: string) => void;
   onStop: () => void;
   isStreaming: boolean;
 }
 
-function ChatComposer({ mode, onModeChange, onSend, onStop, isStreaming }: ChatComposerProps) {
+function ChatComposer({ onSend, onStop, isStreaming }: ChatComposerProps) {
   const [value, setValue] = useState('');
   const [files, setFiles] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -55,7 +47,7 @@ function ChatComposer({ mode, onModeChange, onSend, onStop, isStreaming }: ChatC
   }
 
   const canSend = value.trim().length > 0;
-  const activeMode = MODES.find((item) => item.value === mode) ?? MODES[0];
+  const showCounter = value.length > MAX_LENGTH - 800;
 
   return (
     <form
@@ -117,11 +109,7 @@ function ChatComposer({ mode, onModeChange, onSend, onStop, isStreaming }: ChatC
           maxLength={MAX_LENGTH}
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={onKeyDown}
-          placeholder={
-            mode === 'ask'
-              ? 'Ask a question about your documents…'
-              : 'Ask for a detailed, clause-by-clause breakdown…'
-          }
+          placeholder="Ask a question about your documents…"
           className="scrollbar-slim max-h-[220px] min-h-[2.25rem] flex-1 resize-none bg-transparent py-2 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/60"
         />
 
@@ -146,41 +134,14 @@ function ChatComposer({ mode, onModeChange, onSend, onStop, isStreaming }: ChatC
         </button>
       </div>
 
-      <div className="flex items-center gap-3 border-t border-border/70 px-1.5 pt-2 pb-1">
-        <div
-          role="group"
-          aria-label="Answer depth"
-          className="flex items-center gap-0.5 rounded-lg border border-border bg-secondary/40 p-0.5"
-        >
-          {MODES.map((item) => (
-            <button
-              key={item.value}
-              type="button"
-              onClick={() => onModeChange(item.value)}
-              aria-pressed={mode === item.value}
-              className={cn(
-                'rounded-md px-2 py-1 text-[11px] font-medium transition-colors',
-                mode === item.value
-                  ? 'bg-card text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <span className="hidden min-w-0 flex-1 truncate text-[11px] text-muted-foreground/80 sm:block">
-          {activeMode.hint}
-        </span>
-
-        {value.length > MAX_LENGTH - 800 && (
+      <div className="flex items-center justify-end gap-3 px-1.5 pb-1 pt-2">
+        {showCounter && (
           <span className="text-[11px] tabular-nums text-muted-foreground">
             {value.length}/{MAX_LENGTH}
           </span>
         )}
 
-        <span className="ml-auto hidden text-[11px] text-muted-foreground/80 md:block">
+        <span className="hidden text-[11px] text-muted-foreground/80 md:block">
           <kbd className="rounded border border-border bg-secondary/60 px-1 py-0.5 font-sans text-[10px]">
             Enter
           </kbd>{' '}

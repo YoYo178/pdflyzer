@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 
 import MessageContent from './MessageContent';
 import SourceList from './SourceList';
-import type { IChatMessage } from '@/types/chat.types';
+import type { IChatMessage, TStreamTransport } from '@/types/chat.types';
 import { cn } from '@/lib/utils';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -68,7 +68,12 @@ function ThinkingDots() {
   );
 }
 
-function StreamingStatus({ label }: { label: string }) {
+const TRANSPORT_LABEL: Record<TStreamTransport, string> = {
+  websocket: 'WebSocket',
+  sse: 'SSE',
+};
+
+function StreamingStatus({ label, transport }: { label: string; transport: TStreamTransport }) {
   return (
     <div className="space-y-2">
       {label && (
@@ -92,7 +97,7 @@ function StreamingStatus({ label }: { label: string }) {
 
       <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
         <IconBroadcast className="h-3 w-3 animate-pulse" />
-        Receiving tokens over WebSocket
+        Receiving tokens over {TRANSPORT_LABEL[transport]}
       </div>
     </div>
   );
@@ -103,6 +108,7 @@ interface ChatMessageProps {
   isLast: boolean;
   isStreaming: boolean;
   statusLabel: string;
+  transport: TStreamTransport;
   activeCitation: number | null;
   onCitationClick: (index: number) => void;
   onRegenerate: () => void;
@@ -114,6 +120,7 @@ function ChatMessage({
   isLast,
   isStreaming,
   statusLabel,
+  transport,
   activeCitation,
   onCitationClick,
   onRegenerate,
@@ -165,7 +172,7 @@ function ChatMessage({
           <ThinkingDots />
         )}
 
-        {isStreaming && <StreamingStatus label={statusLabel} />}
+        {isStreaming && <StreamingStatus label={statusLabel} transport={transport} />}
 
         {!isStreaming && (
           <>

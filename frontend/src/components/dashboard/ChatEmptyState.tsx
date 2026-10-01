@@ -2,18 +2,17 @@ import { IconFileText, IconSparkles } from '@tabler/icons-react';
 import { motion } from 'motion/react';
 
 import { SUGGESTIONS } from './mock-chat';
-import type { IDocument, TChatMode } from '@/types/chat.types';
+import type { IDocument } from '@/types/chat.types';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 interface ChatEmptyStateProps {
   documents: IDocument[];
-  onPick: (prompt: string, mode: TChatMode) => void;
+  onPick: (prompt: string) => void;
 }
 
 function ChatEmptyState({ documents, onPick }: ChatEmptyStateProps) {
   const ready = documents.filter((document) => document.status === 'ready');
-  const pages = ready.reduce((total, document) => total + document.pages, 0);
 
   return (
     <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center px-1 py-10">
@@ -53,21 +52,12 @@ function ChatEmptyState({ documents, onPick }: ChatEmptyStateProps) {
         ))}
       </motion.div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.18, ease: EASE }}
-        className="mt-3 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground/80"
-      >
-        {ready.length} documents · {pages} pages indexed
-      </motion.p>
-
       <div className="mt-8 grid gap-3 sm:grid-cols-2">
         {SUGGESTIONS.map((suggestion, index) => (
           <motion.button
             key={suggestion.label}
             type="button"
-            onClick={() => onPick(suggestion.prompt, suggestion.mode)}
+            onClick={() => onPick(suggestion.prompt)}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.22 + index * 0.06, ease: EASE }}
