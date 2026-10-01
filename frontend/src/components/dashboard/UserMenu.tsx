@@ -6,6 +6,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { Blobatar } from '@blobatar/react';
+import { useGaze } from '@blobatar/react/gaze';
 import {
   IconChevronDown,
   IconKeyboard,
@@ -15,6 +17,8 @@ import {
   IconSun,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
+import 'blobatar/gaze.css';
+import 'blobatar/motion.css';
 import { useTheme } from 'next-themes';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
@@ -24,16 +28,28 @@ interface UserMenuProps {
   triggerClassName?: string;
 }
 
-function Avatar({ className }: { className?: string }) {
+function Avatar({
+  className,
+  followPointer = false,
+}: {
+  className?: string;
+  followPointer?: boolean;
+}) {
+  const { ref } = useGaze({ travel: 15, lookAt: 'pointer' });
+  const { user } = useAuth();
+
+  if (!user) return;
+
   return (
-    <span
+    <Blobatar
+      ref={followPointer ? ref : undefined}
+      name={user.name ?? ''}
+      animate='always'
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 font-bold text-white',
-        className ?? 'h-8 w-8 text-[10px]',
+        'flex shrink-0 items-center justify-center',
+        className ?? 'h-10 w-10 text-[10px]',
       )}
-    >
-      {MOCK_USER.initials}
-    </span>
+    />
   );
 }
 
@@ -75,8 +91,8 @@ function UserMenu({ className, triggerClassName }: UserMenuProps) {
         </>
       }
     >
-        <Avatar />
       <div className='flex items-center gap-3 rounded-lg px-2.5 py-2'>
+        <Avatar followPointer />
         <div className='min-w-0'>
           <p className='truncate text-sm font-semibold text-foreground'>
             {user.name}
