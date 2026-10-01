@@ -19,7 +19,14 @@ async function register(data: IRegisterRequest) {
   return response.data;
 }
 
+async function logout() {
+  const response = await API.post('/auth/logout');
+
+  return response.data;
+}
+
 export default {
   login,
   register,
+  logout,
 };
