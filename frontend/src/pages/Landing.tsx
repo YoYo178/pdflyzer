@@ -9,7 +9,7 @@ import Security from '@/components/landing/Security';
 
 function Landing() {
   return (
-    <div className="min-h-screen bg-background text-foreground antialiased selection:bg-teal-300/30 selection:text-teal-900 dark:selection:text-teal-100">
+    <div className='min-h-screen bg-background text-foreground antialiased selection:bg-teal-300/30 selection:text-teal-900 dark:selection:text-teal-100'>
       <Navbar />
       <main>
         <Hero />

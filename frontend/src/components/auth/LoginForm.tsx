@@ -7,8 +7,10 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { AuthField, PasswordToggle } from './AuthField';
+import { useQueryClient } from '@tanstack/react-query';
 
 function LoginForm() {
+  const queryClient = useQueryClient();
   const { mutateAsync, isPending, error } = useLogin();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -32,9 +34,9 @@ function LoginForm() {
         position: 'bottom-center',
       });
 
-      // TODO: Redirect user to dashboard or chat
+      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
     },
-    [mutateAsync],
+    [mutateAsync, queryClient],
   );
 
   useEffect(() => {

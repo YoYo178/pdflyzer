@@ -12,8 +12,10 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { AuthField, PasswordToggle } from './AuthField';
+import { useQueryClient } from '@tanstack/react-query';
 
 function RegisterForm() {
+  const queryClient = useQueryClient();
   const { mutateAsync, isPending, error } = useRegister();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -41,9 +43,11 @@ function RegisterForm() {
         { position: 'bottom-center' },
       );
 
-      // TODO: Redirect user to dashboard or chat
+      // Invalidate the /me endpoint so user gets redirected to chat automatically
+      // TODO: Return tokens from /register on backend
+      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
     },
-    [mutateAsync],
+    [mutateAsync, queryClient],
   );
 
   useEffect(() => {
