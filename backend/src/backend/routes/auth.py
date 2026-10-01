@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, status
 
 from backend.dependencies.services import get_auth_service
+from backend.dependencies.auth import get_current_user
 
 from backend.services.auth import AuthService
 
@@ -55,3 +56,10 @@ async def handle_login(
         message="Logged in successfully!",
         data=None
     )
+
+@router.post(path="/logout", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_current_user)])
+def handle_logout(
+    res: Response,
+):
+    res.delete_cookie('access_token')
+    res.delete_cookie('refresh_token')
