@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 export const useAuth = () => {
   const { data, isError, error: rawError } = useGetMe();
 
-  const isAuthenticated = !!data?.id;
+  const isAuthenticated = !!data?.id && !isError;
 
   const name = data?.name ?? '';
   const initials = useMemo(() => {
@@ -17,8 +17,8 @@ export const useAuth = () => {
     );
   }, [name]);
 
-  const user: Partial<IUser> & { initials: string } = {
-    ...data,
+  const user: IUser & { initials: string } = {
+    ...(data as IUser),
     initials,
   };
 
