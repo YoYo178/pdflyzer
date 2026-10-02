@@ -328,7 +328,7 @@ function AppSidebar({
                 <ul className='space-y-1'>
                   {documents.map((document) => (
                     <DocumentRow
-                      key={document.id}
+                      key={document._id}
                       document={document}
                       onDelete={onDeleteDocument}
                     />
@@ -412,7 +412,7 @@ function DocumentRow({ document, onDelete }: DocumentRowProps) {
           <button
             type='button'
             aria-label={`Delete ${document.filename}`}
-            onClick={() => onDelete(document.id)}
+            onClick={() => onDelete(document._id)}
             className='flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-destructive focus-visible:bg-accent focus-visible:text-destructive focus-visible:opacity-100 focus-visible:outline-none'
           >
             <IconTrash className='h-3.5 w-3.5' />

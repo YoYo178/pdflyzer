@@ -69,7 +69,7 @@ function ChatNeedsDocuments({
         >
           {documents.map((document) => (
             <li
-              key={document.id}
+              key={document._id}
               className='rounded-xl border border-border bg-secondary/40 px-3.5 py-3'
             >
               <div className='flex items-center gap-2.5'>

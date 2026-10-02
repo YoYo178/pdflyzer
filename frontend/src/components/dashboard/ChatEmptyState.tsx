@@ -77,7 +77,7 @@ function ChatEmptyState({ documents, onPick }: ChatEmptyStateProps) {
       >
         {documents.map((document) => (
           <span
-            key={document.id}
+            key={document._id}
             className={cn(
               'inline-flex max-w-[14rem] items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground',
               document.status !== 'READY' && 'opacity-60',
