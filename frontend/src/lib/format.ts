@@ -1,7 +1,8 @@
 const BYTE_UNITS = ['B', 'KB', 'MB', 'GB'];
 
 export function formatBytes(bytes?: number) {
-  if (typeof bytes !== 'number' || Number.isNaN(bytes) || bytes <= 0) return '—';
+  if (typeof bytes !== 'number' || Number.isNaN(bytes) || bytes <= 0)
+    return '—';
 
   let value = bytes;
   let unit = 0;
@@ -16,7 +17,10 @@ export function formatBytes(bytes?: number) {
 }
 
 export function formatRelativeTime(iso: string) {
-  const seconds = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  const seconds = Math.max(
+    0,
+    Math.round((Date.now() - new Date(iso).getTime()) / 1000),
+  );
 
   if (seconds < 60) return 'now';
   const minutes = Math.round(seconds / 60);
@@ -26,7 +30,10 @@ export function formatRelativeTime(iso: string) {
   const days = Math.round(hours / 24);
   if (days < 7) return `${days}d`;
 
-  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 export function formatAbsoluteTime(iso: string) {
@@ -38,4 +45,8 @@ export function formatAbsoluteTime(iso: string) {
 
 export function formatFileCount(count: number) {
   return `${count} ${count === 1 ? 'document' : 'documents'}`;
+}
+
+export function formatChatCount(count: number) {
+  return `${count} ${count === 1 ? 'chat' : 'chats'}`;
 }
