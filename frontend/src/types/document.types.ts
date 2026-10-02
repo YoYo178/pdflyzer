@@ -4,5 +4,5 @@ export interface IDocument {
   size: number;
   status: 'QUEUED' | 'PROCESSING' | 'READY' | 'FAILED';
 
-  pages: number; // TODO: add in backend
+  pages: number; // TODO: Add at backend
 }

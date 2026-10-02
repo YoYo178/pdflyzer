@@ -3,5 +3,5 @@ export interface IChat {
   name: string;
   owner_id: string;
   updated_at: string;
-  pinned?: boolean; // TODO: add in backend
+  pinned?: boolean; // TODO: Add at backend
 }

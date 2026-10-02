@@ -16,7 +16,7 @@ function oauthAuthorizeUrl(provider: TOAuthProvider, mode: TOAuthMode) {
   return url.toString();
 }
 
-// TODO: backend exposes no /auth/oauth/* routes yet — see backend/src/backend/routes/auth.py
+// TODO: Implement OAuth2 flow at the backend
 export function startOAuth(provider: TOAuthProvider, mode: TOAuthMode) {
   window.location.assign(oauthAuthorizeUrl(provider, mode));
 }

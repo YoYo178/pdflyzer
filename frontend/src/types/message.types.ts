@@ -1,4 +1,4 @@
-// TODO: Add this at backend
+// TODO: Add at backend
 export interface IMessageSource {
   file: string;
   page: number;
@@ -14,12 +14,12 @@ export interface IMessage {
   sender_role: 'user' | 'assistant' | 'system';
 
   content: string;
-  embeddings: number[]; // TODO: stop sending this from backend
+  embeddings: number[]; // TODO: Enforce a response model at the backend excluding embeddings
 
   created_at: string;
   updated_at: string;
 
-  status?: 'streaming' | 'done' | 'error'; // TODO: add in backend
-  sources?: IMessageSource[]; // TODO: add in backend
-  rating?: 'up' | 'down' | null; // TODO: add in backend
+  status?: 'streaming' | 'done' | 'error'; // TODO: Add at backend
+  sources?: IMessageSource[]; // TODO: Add at backend
+  rating?: 'up' | 'down' | null; // TODO: Add at backend
 }
