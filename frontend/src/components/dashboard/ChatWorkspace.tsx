@@ -1,31 +1,78 @@
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
+
+import { useCreateChat } from '@/api/mutations/chats/useCreateChat';
+import { useDeleteChat } from '@/api/mutations/chats/useDeleteChat';
+import { useUpdateChat } from '@/api/mutations/chats/useUpdateChat';
+import { useDeleteDocument } from '@/api/mutations/documents/useDeleteDocument';
+import { useUploadDocuments } from '@/api/mutations/documents/useUploadDocuments';
 import { useGetAllChats } from '@/api/queries/chats/useGetAllChats';
+import { useGetChat } from '@/api/queries/chats/useGetChat';
+import { useGetDocuments } from '@/api/queries/documents/useGetDocuments';
+import { useDocumentLiveUpdates } from '@/api/queries/documents/useDocumentLiveUpdates';
+import { getErrorMessage } from '@/api/utils';
 import Drawer from '@/components/ui/drawer';
 import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
-import { formatFileCount } from '@/lib/format';
-import type { IChat, IDocument } from '@/types/chat.types';
-import { useCallback, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { formatChatCount, formatFileCount } from '@/lib/format';
+
 import AppSidebar from './AppSidebar';
 import ChatComposer from './ChatComposer';
+import ChatNotFound from './ChatNotFound';
 import ChatThread from './ChatThread';
 import ChatTopbar from './ChatTopbar';
-import { MOCK_TRANSPORT } from './mock-chat';
+import DashboardHome from './DashboardHome';
 import useChatThread from './useChatThread';
 
-function ChatWorkspace() {
-  const { user } = useAuth();
-  const { data } = useGetAllChats();
+export type TWorkspaceMode = 'dashboard' | 'new' | 'chat';
 
-  const [chats, setChats] = useState<IChat[]>([]);
-  const [documents, setDocuments] = useState<IDocument[]>([]);
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
+interface ChatWorkspaceProps {
+  mode: TWorkspaceMode;
+  chatId?: string;
+}
+
+const TOAST = { position: 'bottom-center' } as const;
+
+function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const { data: chats = [] } = useGetAllChats();
+  const documentsChatId = mode === 'chat' ? chatId : undefined;
+  const { data: documents = [] } = useGetDocuments(documentsChatId);
+
+  // Realtime indexing updates over the shared chat socket, with the documents
+  // query keeping its HTTP polling fallback whenever the socket is unavailable.
+  useDocumentLiveUpdates(documentsChatId);
+  const {
+    data: fetchedChat,
+    isPending: isChatPending,
+    isError: isChatMissing,
+  } = useGetChat(mode === 'chat' ? chatId : undefined);
+
+  const createChat = useCreateChat();
+  const updateChat = useUpdateChat();
+  const removeChat = useDeleteChat();
+  const uploadDocuments = useUploadDocuments();
+  const removeDocument = useDeleteDocument();
+
   const [query, setQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [localChatId, setLocalChatId] = useState<string | null>(null);
+  const pendingChat = useRef<Promise<string> | null>(null);
 
-  const thread = useChatThread(activeChatId ?? '', MOCK_TRANSPORT);
+  const activeChatId = mode === 'chat' ? (chatId ?? null) : null;
+  const hasActiveChat = mode !== 'dashboard';
+  const threadKey = activeChatId ?? mode;
+
+  // A chat created in this session must never be re-seeded from the server, or
+  // the empty message list would wipe the thread the user just started.
+  const seedFromServer =
+    activeChatId === null || activeChatId !== localChatId;
+
+  const thread = useChatThread(activeChatId ?? '', seedFromServer);
   const {
-    load,
     send,
     messages,
     isStreaming,
@@ -33,135 +80,191 @@ function ChatWorkspace() {
     stop,
     regenerate,
     rate,
+    transport,
   } = thread;
 
-  const activeChat = chats.find((chat) => chat._id === activeChatId) ?? null;
-  const readyCount = documents.filter(
-    (document) => document.status === 'ready',
-  ).length;
-  const pageCount = documents
-    .filter((document) => document.status === 'ready')
-    .reduce((total, document) => total + document.pages, 0);
-  const contextLabel = `${formatFileCount(readyCount)} · ${pageCount} pages in context`;
-
-  useEffect(() => {
-    if (!data) return;
-
-    setChats(data);
-  }, [data]);
-
-  const openChat = useCallback((id: string) => {
-    setActiveChatId(id);
-    setSidebarOpen(false);
-  }, []);
-
-  const newChat = useCallback(() => {
-    setActiveChatId(null);
-    load([]);
-    setSidebarOpen(false);
-  }, [load]);
-
-  const ask = useCallback(
-    (prompt: string) => {
-      if (!user) return;
-
-      if (activeChatId === null) {
-        const id = `chat-${Date.now()}`;
-        setChats((current) => [
-          {
-            _id: id,
-            name: 'New chat', // TODO: backend should be providing this
-            owner_id: user.id,
-            updated_at: new Date().toISOString(),
-          },
-          ...current,
-        ]);
-        setActiveChatId(id);
-      } else {
-        setChats((current) =>
-          current.map((chat) =>
-            chat._id === activeChatId
-              ? { ...chat, updated_at: new Date().toISOString() }
-              : chat,
-          ),
-        );
-      }
-
-      send(prompt);
-    },
-    [send, activeChatId, user],
+  const activeChat = useMemo(
+    () =>
+      chats.find((chat) => chat._id === activeChatId) ?? fetchedChat ?? null,
+    [chats, activeChatId, fetchedChat],
   );
 
-  const renameChat = useCallback((id: string, title: string) => {
-    setChats((current) =>
-      current.map((chat) => (chat._id === id ? { ...chat, title } : chat)),
-    );
-    toast.success('Chat renamed', { position: 'bottom-center' });
-  }, []);
+  const readyCount = documents.filter(
+    (document) => document.status === 'READY',
+  ).length;
+  const pageCount = documents
+    .filter((document) => document.status === 'READY')
+    .reduce((total, document) => total + document.pages, 0);
+
+  const contextLabel =
+    mode === 'dashboard'
+      ? formatChatCount(chats.length)
+      : pageCount > 0
+        ? `${formatFileCount(readyCount)} · ${pageCount} pages in context`
+        : formatFileCount(readyCount);
+
+  const title =
+    mode === 'dashboard'
+      ? 'Dashboard'
+      : mode === 'new'
+        ? 'New chat'
+        : (activeChat?.name ?? 'Chat');
+
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+
+  const openChat = useCallback(
+    (id: string) => {
+      closeSidebar();
+      navigate(`/chats/${id}`);
+    },
+    [closeSidebar, navigate],
+  );
+
+  const newChat = useCallback(() => {
+    closeSidebar();
+    navigate('/chats/new');
+  }, [closeSidebar, navigate]);
+
+  const goToDashboard = useCallback(() => {
+    closeSidebar();
+    navigate('/dashboard');
+  }, [closeSidebar, navigate]);
+
+  /**
+   * Resolves the chat id to write against, persisting a draft only once the
+   * user actually does something with it. This keeps abandoned drafts out of
+   * the sidebar while still letting `/chats/new` behave like a real chat.
+   */
+  const ensureChatId = useCallback(async () => {
+    if (activeChatId) return activeChatId;
+    if (pendingChat.current) return pendingChat.current;
+
+    const request = createChat
+      .mutateAsync()
+      .then((chat) => {
+        setLocalChatId(chat._id);
+        navigate(`/chats/${chat._id}`, { replace: true });
+        return chat._id;
+      })
+      .finally(() => {
+        pendingChat.current = null;
+      });
+
+    pendingChat.current = request;
+    return request;
+  }, [activeChatId, createChat, navigate]);
+
+  const ask = useCallback(
+    async (prompt: string) => {
+      try {
+        // The chat must exist before a message can be streamed to it, so resolve
+        // the id first rather than firing optimistically into `/chats/new`.
+        const targetChatId = await ensureChatId();
+        await send(prompt, targetChatId);
+      } catch (error) {
+        toast.error('Could not send message', {
+          description: getErrorMessage(error),
+          ...TOAST,
+        });
+      }
+    },
+    [ensureChatId, send],
+  );
+
+  const uploadFiles = useCallback(
+    async (files: File[]) => {
+      if (files.length === 0) return;
+
+      try {
+        const targetChatId = await ensureChatId();
+        await uploadDocuments.mutateAsync({ chatId: targetChatId, files });
+
+        toast.success(
+          `${files.length} ${files.length === 1 ? 'PDF' : 'PDFs'} added`,
+          {
+            description: 'Indexing runs in the background.',
+            ...TOAST,
+          },
+        );
+      } catch (error) {
+        toast.error('Upload failed', {
+          description: getErrorMessage(error),
+          ...TOAST,
+        });
+      }
+    },
+    [ensureChatId, uploadDocuments],
+  );
+
+  const renameChat = useCallback(
+    (id: string, name: string) => {
+      updateChat.mutate(
+        { chatId: id, name },
+        {
+          onSuccess: () => toast.success('Chat renamed', TOAST),
+          onError: (error) =>
+            toast.error('Could not rename this chat', {
+              description: getErrorMessage(error),
+              ...TOAST,
+            }),
+        },
+      );
+    },
+    [updateChat],
+  );
 
   const deleteChat = useCallback(
     (id: string) => {
-      setChats((current) => current.filter((chat) => chat._id !== id));
-      if (id === activeChatId) {
-        setActiveChatId(null);
-        load([]);
-      }
-      toast.success('Chat deleted', { position: 'bottom-center' });
+      removeChat.mutate(id, {
+        onSuccess: () => {
+          toast.success('Chat deleted', TOAST);
+          if (id === activeChatId) goToDashboard();
+        },
+        onError: (error) =>
+          toast.error('Could not delete this chat', {
+            description: getErrorMessage(error),
+            ...TOAST,
+          }),
+      });
     },
-    [activeChatId, load],
+    [activeChatId, goToDashboard, removeChat],
   );
 
-  const addDocuments = useCallback((files: File[]) => {
-    const added: IDocument[] = files.map((file, index) => ({
-      id: `doc-${Date.now()}-${index}`,
-      name: file.name,
-      size: file.size,
-      pages: 0,
-      status: 'queued',
-    }));
+  const deleteDocument = useCallback(
+    (documentId: string) => {
+      if (!activeChatId) return;
 
-    setDocuments((current) => [...current, ...added]);
-    toast.success(
-      `${files.length} ${files.length === 1 ? 'PDF' : 'PDFs'} added`,
-      {
-        description: 'Ingestion is not connected to the backend yet.',
-        position: 'bottom-center',
-      },
-    );
-  }, []);
+      removeDocument.mutate(
+        { chatId: activeChatId, documentId },
+        {
+          onSuccess: () => toast.success('PDF removed', TOAST),
+          onError: (error) =>
+            toast.error('Could not remove this PDF', {
+              description: getErrorMessage(error),
+              ...TOAST,
+            }),
+        },
+      );
+    },
+    [activeChatId, removeDocument],
+  );
 
-  const deleteDocument = useCallback((id: string) => {
-    setDocuments((current) => current.filter((document) => document.id !== id));
-    toast.success('PDF removed', { position: 'bottom-center' });
-  }, []);
-
-  const retryDocument = useCallback((id: string) => {
-    setDocuments((current) =>
-      current.map((document) =>
-        document.id === id
-          ? { ...document, status: 'queued' as const }
-          : document,
-      ),
-    );
-    toast.success('Re-queued for processing', { position: 'bottom-center' });
-  }, []);
-
-  if (!chats || !user) return;
+  if (!user) return null;
 
   const sidebar = (
     <AppSidebar
       chats={chats}
       documents={documents}
       activeChatId={activeChatId}
+      hasActiveChat={hasActiveChat}
       query={query}
       onQueryChange={setQuery}
       onSelectChat={openChat}
       onNewChat={newChat}
       onRenameChat={renameChat}
       onDeleteChat={deleteChat}
-      onAddDocuments={addDocuments}
+      onAddDocuments={uploadFiles}
       onDeleteDocument={deleteDocument}
-      onRetryDocument={retryDocument}
     />
   );
 
@@ -174,7 +277,7 @@ function ChatWorkspace() {
       <Drawer
         id='chats-sidebar'
         open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
+        onClose={closeSidebar}
         side='left'
         title={<Logo size='sm' />}
       >
@@ -183,38 +286,68 @@ function ChatWorkspace() {
 
       <main className='flex min-w-0 flex-1 flex-col'>
         <ChatTopbar
-          title={activeChat?.name ?? 'New chat'}
+          title={title}
           contextLabel={contextLabel}
           isStreaming={isStreaming}
           onOpenSidebar={() => setSidebarOpen(true)}
-          onNewChat={newChat}
         />
 
-        <ChatThread
-          threadKey={activeChatId}
-          messages={messages}
-          documents={documents}
-          isStreaming={isStreaming}
-          statusLabel={statusLabel}
-          transport={MOCK_TRANSPORT}
-          onSuggestion={ask}
-          onRegenerate={regenerate}
-          onRate={rate}
-        />
-
-        <div className='relative shrink-0 px-3 pb-3 pt-1 sm:px-6 sm:pb-4'>
-          <span
-            aria-hidden='true'
-            className='pointer-events-none absolute inset-x-0 -top-10 h-10 bg-gradient-to-t from-background to-transparent'
-          />
-          <div className='relative mx-auto w-full max-w-3xl'>
-            <ChatComposer
-              onSend={ask}
-              onStop={stop}
-              isStreaming={isStreaming}
+        {mode === 'dashboard' ? (
+          <div className='scrollbar-slim min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-6'>
+            <DashboardHome
+              userName={user.name}
+              chats={chats}
+              onNewChat={newChat}
+              onSelectChat={openChat}
             />
           </div>
-        </div>
+        ) : isChatMissing ? (
+          <div className='scrollbar-slim min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 sm:px-6'>
+            <ChatNotFound onBack={goToDashboard} />
+          </div>
+        ) : mode === 'chat' && isChatPending ? (
+          <div
+            role='status'
+            aria-label='Loading chat'
+            className='flex min-h-0 flex-1 items-center justify-center'
+          >
+            <span className='h-5 w-5 animate-spin rounded-full border-2 border-border border-t-teal-600 dark:border-t-teal-300' />
+          </div>
+        ) : (
+          <>
+            <ChatThread
+              threadKey={threadKey}
+              messages={messages}
+              documents={documents}
+              isStreaming={isStreaming}
+              statusLabel={statusLabel}
+              transport={transport}
+              onSuggestion={ask}
+              onUpload={uploadFiles}
+              isUploading={uploadDocuments.isPending}
+              onRegenerate={regenerate}
+              onRate={rate}
+            />
+
+            {/* A chat can only be conversed once the backend has indexed at
+                least one document, so the composer stays hidden until then. */}
+            {readyCount > 0 && (
+              <div className='relative shrink-0 px-3 pb-3 pt-1 sm:px-6 sm:pb-4'>
+                <span
+                  aria-hidden='true'
+                  className='pointer-events-none absolute inset-x-0 -top-10 h-10 bg-gradient-to-t from-background to-transparent'
+                />
+                <div className='relative mx-auto w-full max-w-3xl'>
+                  <ChatComposer
+                    onSend={ask}
+                    onStop={stop}
+                    isStreaming={isStreaming}
+                  />
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </main>
     </div>
   );

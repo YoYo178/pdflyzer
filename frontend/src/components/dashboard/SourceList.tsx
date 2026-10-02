@@ -1,12 +1,16 @@
-import { IconCheck, IconCopy, IconFileText, IconListCheck } from '@tabler/icons-react';
+import { cn } from '@/lib/utils';
+import type { IMessageSource } from '@/types/message.types';
+import {
+  IconCheck,
+  IconCopy,
+  IconFileText,
+  IconListCheck,
+} from '@tabler/icons-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import type { ISource } from '@/types/chat.types';
-import { cn } from '@/lib/utils';
-
 interface SourceListProps {
-  sources: ISource[];
+  sources: IMessageSource[];
   messageId: string;
   activeIndex: number | null;
 }
@@ -17,7 +21,7 @@ function SourceList({ sources, messageId, activeIndex }: SourceListProps) {
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  function copy(source: ISource, index: number) {
+  function copy(source: IMessageSource, index: number) {
     const reference = `${source.file} — p.${source.page} · ${source.section}`;
     void navigator.clipboard?.writeText(reference);
     setCopied(index);
@@ -27,13 +31,13 @@ function SourceList({ sources, messageId, activeIndex }: SourceListProps) {
   }
 
   return (
-    <div className="space-y-2 border-t border-border pt-3">
-      <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        <IconListCheck className="h-3 w-3" />
+    <div className='space-y-2 border-t border-border pt-3'>
+      <p className='flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground'>
+        <IconListCheck className='h-3 w-3' />
         Sources
       </p>
 
-      <ul className="space-y-1.5">
+      <ul className='space-y-1.5'>
         {sources.map((source, index) => {
           const position = index + 1;
           const isActive = activeIndex === position;
@@ -43,7 +47,7 @@ function SourceList({ sources, messageId, activeIndex }: SourceListProps) {
             <li key={`${source.file}-${source.page}`}>
               <button
                 id={`source-${messageId}-${position}`}
-                type="button"
+                type='button'
                 onClick={() => copy(source, position)}
                 aria-label={`Copy reference to ${source.file}, page ${source.page}`}
                 className={cn(
@@ -53,25 +57,25 @@ function SourceList({ sources, messageId, activeIndex }: SourceListProps) {
                     'border-teal-600/60 bg-teal-500/10 ring-2 ring-teal-500/20 dark:border-teal-300/50 dark:bg-teal-300/10 dark:ring-teal-300/25',
                 )}
               >
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-teal-500/15 text-[9px] font-bold text-teal-700 dark:bg-teal-300/15 dark:text-teal-300">
+                <span className='flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-teal-500/15 text-[9px] font-bold text-teal-700 dark:bg-teal-300/15 dark:text-teal-300'>
                   {position}
                 </span>
 
-                <IconFileText className="h-3.5 w-3.5 shrink-0 text-teal-600 dark:text-teal-300" />
+                <IconFileText className='h-3.5 w-3.5 shrink-0 text-teal-600 dark:text-teal-300' />
 
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[11px] font-medium text-foreground">
+                <div className='min-w-0 flex-1'>
+                  <p className='truncate text-[11px] font-medium text-foreground'>
                     {source.file}
                   </p>
-                  <p className="truncate text-[10px] text-muted-foreground">
+                  <p className='truncate text-[10px] text-muted-foreground'>
                     Page {source.page} · {source.section}
                   </p>
                 </div>
 
                 {isCopied ? (
-                  <IconCheck className="h-3.5 w-3.5 shrink-0 text-teal-600 dark:text-teal-300" />
+                  <IconCheck className='h-3.5 w-3.5 shrink-0 text-teal-600 dark:text-teal-300' />
                 ) : (
-                  <IconCopy className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
+                  <IconCopy className='h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100' />
                 )}
               </button>
             </li>

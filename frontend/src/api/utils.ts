@@ -11,3 +11,10 @@ export class APIError extends Error {
     this.data = data;
   }
 }
+
+export function getErrorMessage(
+  error: unknown,
+  fallback = 'Something went wrong',
+) {
+  return error instanceof Error && error.message ? error.message : fallback;
+}

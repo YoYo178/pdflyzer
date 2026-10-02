@@ -49,7 +49,11 @@ export const router = createBrowserRouter([
                 element: <Dashboard />,
               },
               {
-                path: '/chat/:chatId',
+                path: '/chats/new',
+                element: <Chat />,
+              },
+              {
+                path: '/chats/:chat_id',
                 element: <Chat />,
               },
               {

@@ -1,7 +1,7 @@
 import ChatWorkspace from '@/components/dashboard/ChatWorkspace';
 
 function Dashboard() {
-  return <ChatWorkspace />;
+  return <ChatWorkspace mode='dashboard' />;
 }
 
 export default Dashboard;

@@ -1,20 +1,32 @@
+import type { TStreamTransport } from '@/lib/stream/types';
+import { cn } from '@/lib/utils';
+import type { IDocument } from '@/types/document.types';
+import type { IMessage } from '@/types/message.types';
 import { IconArrowDown } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-
 import ChatEmptyState from './ChatEmptyState';
 import ChatMessage from './ChatMessage';
-import type { IDocument, IChatMessage, TStreamTransport } from '@/types/chat.types';
-import { cn } from '@/lib/utils';
+import ChatNeedsDocuments from './ChatNeedsDocuments';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 function dayLabel(iso: string) {
   const date = new Date(iso);
   const today = new Date();
-  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const days = Math.round((startOfToday.getTime() - startOfDate.getTime()) / 86_400_000);
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+  const startOfDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+  );
+  const days = Math.round(
+    (startOfToday.getTime() - startOfDate.getTime()) / 86_400_000,
+  );
 
   if (days <= 0) return 'Today';
   if (days === 1) return 'Yesterday';
@@ -24,12 +36,14 @@ function dayLabel(iso: string) {
 
 interface ChatThreadProps {
   threadKey: string | null;
-  messages: IChatMessage[];
+  messages: IMessage[];
   documents: IDocument[];
   isStreaming: boolean;
   statusLabel: string;
   transport: TStreamTransport;
   onSuggestion: (prompt: string) => void;
+  onUpload: (files: File[]) => void;
+  isUploading: boolean;
   onRegenerate: () => void;
   onRate: (id: string, rating: 'up' | 'down' | null) => void;
 }
@@ -42,12 +56,17 @@ function ChatThread({
   statusLabel,
   transport,
   onSuggestion,
+  onUpload,
+  isUploading,
   onRegenerate,
   onRate,
 }: ChatThreadProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const pinnedRef = useRef(true);
-  const [jumpState, setJumpState] = useState({ key: threadKey, visible: false });
+  const [jumpState, setJumpState] = useState({
+    key: threadKey,
+    visible: false,
+  });
   const showJump = jumpState.key === threadKey && jumpState.visible;
   const [activeCitation, setActiveCitation] = useState<{
     messageId: string;
@@ -72,7 +91,8 @@ function ChatThread({
   function onScroll() {
     const element = scrollRef.current;
     if (!element) return;
-    const distance = element.scrollHeight - element.scrollTop - element.clientHeight;
+    const distance =
+      element.scrollHeight - element.scrollTop - element.clientHeight;
     pinnedRef.current = distance < 120;
     setJumpState({ key: threadKey, visible: distance > 240 });
   }
@@ -88,14 +108,18 @@ function ChatThread({
   function onCitationClick(messageId: string, index: number) {
     setActiveCitation({ messageId, index });
     window.clearTimeout(citationTimer.current);
-    citationTimer.current = window.setTimeout(() => setActiveCitation(null), 2000);
+    citationTimer.current = window.setTimeout(
+      () => setActiveCitation(null),
+      2000,
+    );
     document
       .getElementById(`source-${messageId}-${index}`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   const rows = useMemo(() => {
-    const result: { message: IChatMessage; day: string; showDivider: boolean }[] = [];
+    const result: { message: IMessage; day: string; showDivider: boolean }[] =
+      [];
     let previousDay = '';
 
     for (const message of messages) {
@@ -109,58 +133,72 @@ function ChatThread({
 
   const lastAssistantId = [...messages]
     .reverse()
-    .find((message) => message.sender_role === 'system')?._id; // TODO: change to assistant
+    .find((message) => message.sender_role === 'assistant')?._id;
 
-    console.log({ messages })
+  const readyCount = documents.filter(
+    (document) => document.status === 'READY',
+  ).length;
 
   return (
-    <div className="relative min-h-0 flex-1">
+    <div className='relative min-h-0 flex-1'>
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        role="log"
+        role='log'
         aria-live={isStreaming ? 'off' : 'polite'}
-        aria-relevant="additions text"
-        aria-label="Conversation"
+        aria-relevant='additions text'
+        aria-label='Conversation'
         aria-busy={isStreaming}
         tabIndex={0}
-        className="scrollbar-slim h-full overflow-y-auto overscroll-contain px-4 py-6 sm:px-6"
+        className='scrollbar-slim h-full overflow-y-auto overscroll-contain px-4 py-6 sm:px-6'
       >
         {messages.length === 0 ? (
-          <ChatEmptyState documents={documents} onPick={onSuggestion} />
+          readyCount > 0 ? (
+            <ChatEmptyState documents={documents} onPick={onSuggestion} />
+          ) : (
+            <ChatNeedsDocuments
+              documents={documents}
+              isUploading={isUploading}
+              onUpload={onUpload}
+            />
+          )
         ) : (
-          <div className="mx-auto w-full max-w-3xl space-y-6">
+          <div className='mx-auto w-full max-w-3xl space-y-6'>
             {rows.map(({ message, day, showDivider }) => (
-              <div key={message._id} className="space-y-6">
-                  {showDivider && (
-                    <div className="flex items-center gap-3">
-                      <span className="h-px flex-1 bg-border" />
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                        {day}
-                      </span>
-                      <span className="h-px flex-1 bg-border" />
-                    </div>
-                  )}
+              <div key={message._id} className='space-y-6'>
+                {showDivider && (
+                  <div className='flex items-center gap-3'>
+                    <span className='h-px flex-1 bg-border' />
+                    <span className='text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground'>
+                      {day}
+                    </span>
+                    <span className='h-px flex-1 bg-border' />
+                  </div>
+                )}
 
-                  <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, ease: EASE }}
-                  >
-                    <ChatMessage
-                      message={message}
-                      isLast={message._id === lastAssistantId}
-                      isStreaming={isStreaming && message._id === lastAssistantId}
-                      statusLabel={statusLabel}
-                      transport={transport}
-                      activeCitation={
-                        activeCitation?.messageId === message._id ? activeCitation.index : null
-                      }
-                      onCitationClick={(index) => onCitationClick(message._id, index)}
-                      onRegenerate={onRegenerate}
-                      onRate={onRate}
-                    />
-                  </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                >
+                  <ChatMessage
+                    message={message}
+                    isLast={message._id === lastAssistantId}
+                    isStreaming={isStreaming && message._id === lastAssistantId}
+                    statusLabel={statusLabel}
+                    transport={transport}
+                    activeCitation={
+                      activeCitation?.messageId === message._id
+                        ? activeCitation.index
+                        : null
+                    }
+                    onCitationClick={(index) =>
+                      onCitationClick(message._id, index)
+                    }
+                    onRegenerate={onRegenerate}
+                    onRate={onRate}
+                  />
+                </motion.div>
               </div>
             ))}
           </div>
@@ -170,9 +208,9 @@ function ChatThread({
       <AnimatePresence>
         {showJump && (
           <motion.button
-            type="button"
+            type='button'
             onClick={jumpToBottom}
-            aria-label="Scroll to latest message"
+            aria-label='Scroll to latest message'
             initial={{ opacity: 0, y: 8, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
@@ -182,7 +220,7 @@ function ChatThread({
               'border border-border bg-card text-muted-foreground shadow-lg transition-colors hover:text-foreground',
             )}
           >
-            <IconArrowDown className="h-4 w-4" />
+            <IconArrowDown className='h-4 w-4' />
           </motion.button>
         )}
       </AnimatePresence>

@@ -1,194 +1,172 @@
+import { useGetAllMessages } from '@/api/queries/messages/useGetAllMessages';
+import { useStreamMessage } from '@/api/queries/messages/useStreamMessage';
+import type { IMessage } from '@/types/message.types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { CANNED_REPLIES, FALLBACK_REPLY_CANNED } from './mock-chat';
-import type { IChatMessage, TStreamTransport } from '@/types/chat.types';
-import { useGetAllMessages } from '@/api/queries/messages/useGetAllMessages';
+function useChatThread(activeChatId: string, seedFromServer = true) {
+  const { data } = useGetAllMessages(
+    activeChatId,
+    seedFromServer && Boolean(activeChatId),
+  );
 
-const CHUNK_MS = 26;
-const FIRST_TOKEN_MS = 420;
+  const stream = useStreamMessage();
 
-function useChatThread(activeChatId: string, transport: TStreamTransport) {
-  const { data } = useGetAllMessages(activeChatId);
-
-  const [messages, setMessages] = useState<IChatMessage[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [statusLabel, setStatusLabel] = useState('');
-  const timers = useRef<number[]>([]);
+
   const sequence = useRef(0);
+  const seededRef = useRef<string | null>(null);
+  const streamingIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!data) return;
+    if (seededRef.current === activeChatId) {
+      if (seedFromServer && data) setMessages(data);
+      return;
+    }
 
-    setMessages(data);
-  }, [data]);
+    const previousId = seededRef.current;
+    seededRef.current = activeChatId;
 
-  const clearTimers = useCallback(() => {
-    timers.current.forEach((timer) => window.clearTimeout(timer));
-    timers.current = [];
+    if (seedFromServer) {
+      setMessages(data ?? []);
+      return;
+    }
+
+    // A chat created in this session has no server history yet, so re-seeding
+    // would wipe the live thread. Only keep it when arriving straight from the
+    // draft; coming back to it later means the thread is genuinely gone.
+    if (previousId) setMessages([]);
+  }, [activeChatId, data, seedFromServer]);
+
+  const appendChunk = useCallback((id: string, chunk: string) => {
+    setMessages((current) =>
+      current.map((message) =>
+        message._id === id
+          ? { ...message, content: message.content + chunk }
+          : message,
+      ),
+    );
   }, []);
 
-  useEffect(() => clearTimers, [clearTimers]);
-
-  const stream = useCallback(
-    (prompt: string) => {
-      clearTimers();
-
-      const reply =
-        CANNED_REPLIES.find((item) => item.match.test(prompt)) ??
-        FALLBACK_REPLY_CANNED;
+  const runStream = useCallback(
+    async (chatId: string, prompt: string) => {
       const id = `stream-${++sequence.current}`;
+      streamingIdRef.current = id;
 
       setMessages((current) => [
         ...current,
         {
           _id: id,
-          sender_role: 'system', // TODO: change to assistant
-          content: '',
-          created_at: new Date().toISOString(),
-          status: 'streaming',
-          chat_id: '',
-          embeddings: [],
+          chat_id: chatId,
           sender_id: '',
-          updated_at: '',
+          sender_role: 'assistant',
+          content: '',
+          embeddings: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          status: 'streaming',
         },
       ]);
       setIsStreaming(true);
-      setStatusLabel(reply.status[0]);
+      setStatusLabel('Thinking');
 
-      reply.status.slice(1).forEach((label, index) => {
-        timers.current.push(
-          window.setTimeout(() => setStatusLabel(label), 900 + index * 1100),
-        );
-      });
+      await stream.send(chatId, prompt, (chunk) => appendChunk(id, chunk));
 
-      const tokens = reply.reply.split(' ');
-
-      tokens.forEach((token, index) => {
-        timers.current.push(
-          window.setTimeout(
-            () => {
-              setMessages((current) =>
-                current.map((message) =>
-                  message._id === id
-                    ? {
-                        ...message,
-                        content: message.content
-                          ? `${message.content} ${token}`
-                          : token,
-                      }
-                    : message,
-                ),
-              );
-            },
-            FIRST_TOKEN_MS + index * CHUNK_MS,
-          ),
-        );
-      });
-
-      timers.current.push(
-        window.setTimeout(
-          () => {
-            setMessages((current) =>
-              current.map((message) =>
-                message._id === id
-                  ? { ...message, status: 'done', sources: reply.sources }
-                  : message,
-              ),
-            );
-            setIsStreaming(false);
-            setStatusLabel('');
-          },
-          FIRST_TOKEN_MS + tokens.length * CHUNK_MS + 240,
+      setMessages((current) =>
+        current.map((message) =>
+          message._id === id ? { ...message, status: 'done' } : message,
         ),
       );
+      setIsStreaming(false);
+      setStatusLabel('');
+      streamingIdRef.current = null;
     },
-    [clearTimers],
+    [appendChunk, stream],
   );
 
   const send = useCallback(
-    (prompt: string) => {
+    async (prompt: string, chatId?: string) => {
       const text = prompt.trim();
-      if (!text) return;
+      if (!text || !chatId) return;
 
       setMessages((current) => [
         ...current,
         {
           _id: `user-${++sequence.current}`,
+          chat_id: chatId,
+          sender_id: '',
           sender_role: 'user',
           content: text,
-          created_at: new Date().toISOString(),
-          status: 'done',
-          chat_id: '',
           embeddings: [],
-          sender_id: '',
-          updated_at: '',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          status: 'done',
         },
       ]);
-      stream(text);
+
+      await runStream(chatId, text);
     },
-    [stream],
+    [runStream],
   );
 
   const stop = useCallback(() => {
-    clearTimers();
-    setMessages((current) =>
-      current.map((message, index) =>
-        index === current.length - 1 && message.status === 'streaming'
-          ? { ...message, status: 'done' }
-          : message,
-      ),
-    );
+    stream.abort();
+
+    if (streamingIdRef.current) {
+      const id = streamingIdRef.current;
+      streamingIdRef.current = null;
+
+      setMessages((current) =>
+        current.map((message) =>
+          message._id === id ? { ...message, status: 'done' } : message,
+        ),
+      );
+    }
+
     setIsStreaming(false);
     setStatusLabel('');
-  }, [clearTimers]);
+  }, [stream]);
 
-  const regenerate = useCallback(() => {
+  const regenerate = useCallback(async () => {
     const lastUser = [...messages]
       .reverse()
       .find((message) => message.sender_role === 'user');
-    if (!lastUser) return;
+    if (!lastUser || !lastUser.chat_id) return;
+
+    stop();
 
     setMessages((current) => {
       const trimmed = [...current];
       while (
         trimmed.length > 0 &&
-        trimmed[trimmed.length - 1].sender_role === 'system' // TODO: change to assistant
+        trimmed[trimmed.length - 1].sender_role === 'assistant'
       ) {
         trimmed.pop();
       }
       return trimmed;
     });
-    stream(lastUser.content);
-  }, [messages, stream]);
 
-  const rate = useCallback((id: string, rating: 'up' | 'down' | null) => {
+    await runStream(lastUser.chat_id, lastUser.content);
+  }, [messages, runStream, stop]);
+
+  const rate = useCallback((id: string, value: 'up' | 'down' | null) => {
     setMessages((current) =>
       current.map((message) =>
-        message._id === id ? { ...message, rating } : message,
+        message._id === id ? { ...message, rating: value } : message,
       ),
     );
   }, []);
-
-  const load = useCallback(
-    (thread: IChatMessage[]) => {
-      clearTimers();
-      setMessages(thread);
-      setIsStreaming(false);
-      setStatusLabel('');
-    },
-    [clearTimers],
-  );
 
   return {
     messages,
     isStreaming,
     statusLabel,
-    transport,
+    transport: stream.transport,
     send,
     stop,
     regenerate,
     rate,
-    load,
   };
 }
 
