@@ -22,6 +22,7 @@ import ChatComposer from './ChatComposer';
 import ChatNotFound from './ChatNotFound';
 import ChatThread from './ChatThread';
 import ChatTopbar from './ChatTopbar';
+import ComposerUploadNotice from './ComposerUploadNotice';
 import DashboardHome from './DashboardHome';
 import useChatThread from './useChatThread';
 
@@ -95,6 +96,10 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
   const pageCount = documents
     .filter((document) => document.status === 'READY')
     .reduce((total, document) => total + document.pages, 0);
+
+  // Mirrors ChatThread: with no messages and nothing indexed, the thread owns
+  // the whole screen with its own upload call to action, so no bottom bar.
+  const showComposerSlot = messages.length > 0 || readyCount > 0;
 
   const contextLabel =
     mode === 'dashboard'
@@ -351,20 +356,30 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
               onRate={rate}
             />
 
-            {/* A chat can only be conversed once the backend has indexed at
-                least one document, so the composer stays hidden until then. */}
-            {readyCount > 0 && (
+{/* A chat can only be conversed once the backend has indexed a
+                document, so the input is replaced by an upload prompt rather
+                than removed — the slot keeps its place, and the user gets a
+                way forward. */}
+            {showComposerSlot && (
               <div className='relative shrink-0 px-3 pb-3 pt-1 sm:px-6 sm:pb-4'>
                 <span
                   aria-hidden='true'
                   className='pointer-events-none absolute inset-x-0 -top-10 h-10 bg-gradient-to-t from-background to-transparent'
                 />
                 <div className='relative mx-auto w-full max-w-3xl'>
-                  <ChatComposer
-                    onSend={ask}
-                    onStop={stop}
-                    isStreaming={isStreaming}
-                  />
+                  {readyCount > 0 ? (
+                    <ChatComposer
+                      onSend={ask}
+                      onStop={stop}
+                      isStreaming={isStreaming}
+                    />
+                  ) : (
+                    <ComposerUploadNotice
+                      documents={documents}
+                      isUploading={uploadDocuments.isPending}
+                      onUpload={uploadFiles}
+                    />
+                  )}
                 </div>
               </div>
             )}
