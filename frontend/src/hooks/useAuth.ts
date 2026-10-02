@@ -1,28 +1,28 @@
 import { useGetMe } from '@/api/queries/users/useGetMe';
-import type { IUser } from '@/types/user.types';
 import { useMemo } from 'react';
 
 export const useAuth = () => {
-  const { data, isError, error: rawError } = useGetMe();
+  const { data, isPending, isError, error } = useGetMe();
 
   const isAuthenticated = !!data?.id && !isError;
 
-  const name = data?.name ?? '';
-  const initials = useMemo(() => {
-    return (
-      name
-        .split(' ')
-        .map((arg) => arg[0])
-        .join('') ?? ''
-    );
-  }, [name]);
+  const initials = useMemo(
+    () =>
+      data?.name
+        ?.trim()
+        .split(/\s+/)
+        .map((part) => part[0])
+        .join('') ?? '',
+    [data?.name],
+  );
 
-  const user: IUser & { initials: string } = {
-    ...(data as IUser),
-    initials,
+  const user = data ? { ...data, initials } : null;
+
+  return {
+    user,
+    isAuthenticated,
+    isLoading: isPending,
+    isError,
+    error,
   };
-
-  const error = isError ? rawError : null;
-
-  return { isAuthenticated, user, error };
 };

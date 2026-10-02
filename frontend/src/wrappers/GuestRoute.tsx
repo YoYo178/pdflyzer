@@ -2,9 +2,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { Navigate, Outlet } from 'react-router';
 
 function GuestRoute() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading, isError } = useAuth();
 
-  if (isAuthenticated) return <Navigate to='/dashboard' />;
+  if (isLoading) return <h1>Loading...</h1>; // TODO
+
+  if (isError) return <Navigate to='/' replace />;
+
+  if (isAuthenticated) {
+    return <Navigate to='/dashboard' replace />;
+  }
 
   return <Outlet />;
 }
