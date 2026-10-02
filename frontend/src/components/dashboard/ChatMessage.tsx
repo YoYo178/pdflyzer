@@ -131,7 +131,7 @@ function ChatMessage({
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  if (message.role === 'user') {
+  if (message.sender_role === 'user') {
     return (
       <div className="flex justify-end">
         <div className="max-w-[85%] rounded-2xl rounded-br-md border border-teal-600/25 bg-teal-500/10 px-4 py-2.5 text-pretty text-sm leading-relaxed text-foreground sm:max-w-[75%] dark:border-teal-300/20 dark:bg-teal-300/[0.08]">
@@ -151,7 +151,7 @@ function ChatMessage({
 
   function rate(value: 'up' | 'down') {
     const next = message.rating === value ? null : value;
-    onRate(message.id, next);
+    onRate(message._id, next);
     if (next) toast.success('Thanks for the feedback', { position: 'bottom-center' });
   }
 
@@ -179,7 +179,7 @@ function ChatMessage({
             {message.sources && message.sources.length > 0 && (
               <SourceList
                 sources={message.sources}
-                messageId={message.id}
+                messageId={message._id}
                 activeIndex={activeCitation}
               />
             )}

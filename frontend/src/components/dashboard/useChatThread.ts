@@ -2,16 +2,25 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { CANNED_REPLIES, FALLBACK_REPLY_CANNED } from './mock-chat';
 import type { IChatMessage, TStreamTransport } from '@/types/chat.types';
+import { useGetAllMessages } from '@/api/queries/messages/useGetAllMessages';
 
 const CHUNK_MS = 26;
 const FIRST_TOKEN_MS = 420;
 
-function useChatThread(initial: IChatMessage[], transport: TStreamTransport) {
-  const [messages, setMessages] = useState<IChatMessage[]>(initial);
+function useChatThread(activeChatId: string, transport: TStreamTransport) {
+  const { data } = useGetAllMessages(activeChatId);
+
+  const [messages, setMessages] = useState<IChatMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [statusLabel, setStatusLabel] = useState('');
   const timers = useRef<number[]>([]);
   const sequence = useRef(0);
+
+  useEffect(() => {
+    if (!data) return;
+
+    setMessages(data);
+  }, [data]);
 
   const clearTimers = useCallback(() => {
     timers.current.forEach((timer) => window.clearTimeout(timer));
@@ -24,17 +33,23 @@ function useChatThread(initial: IChatMessage[], transport: TStreamTransport) {
     (prompt: string) => {
       clearTimers();
 
-      const reply = CANNED_REPLIES.find((item) => item.match.test(prompt)) ?? FALLBACK_REPLY_CANNED;
+      const reply =
+        CANNED_REPLIES.find((item) => item.match.test(prompt)) ??
+        FALLBACK_REPLY_CANNED;
       const id = `stream-${++sequence.current}`;
 
       setMessages((current) => [
         ...current,
         {
-          id,
-          role: 'assistant',
+          _id: id,
+          sender_role: 'system', // TODO: change to assistant
           content: '',
-          createdAt: new Date().toISOString(),
+          created_at: new Date().toISOString(),
           status: 'streaming',
+          chat_id: '',
+          embeddings: [],
+          sender_id: '',
+          updated_at: '',
         },
       ]);
       setIsStreaming(true);
@@ -50,30 +65,41 @@ function useChatThread(initial: IChatMessage[], transport: TStreamTransport) {
 
       tokens.forEach((token, index) => {
         timers.current.push(
-          window.setTimeout(() => {
-            setMessages((current) =>
-              current.map((message) =>
-                message.id === id
-                  ? { ...message, content: message.content ? `${message.content} ${token}` : token }
-                  : message,
-              ),
-            );
-          }, FIRST_TOKEN_MS + index * CHUNK_MS),
+          window.setTimeout(
+            () => {
+              setMessages((current) =>
+                current.map((message) =>
+                  message._id === id
+                    ? {
+                        ...message,
+                        content: message.content
+                          ? `${message.content} ${token}`
+                          : token,
+                      }
+                    : message,
+                ),
+              );
+            },
+            FIRST_TOKEN_MS + index * CHUNK_MS,
+          ),
         );
       });
 
       timers.current.push(
-        window.setTimeout(() => {
-          setMessages((current) =>
-            current.map((message) =>
-              message.id === id
-                ? { ...message, status: 'done', sources: reply.sources }
-                : message,
-            ),
-          );
-          setIsStreaming(false);
-          setStatusLabel('');
-        }, FIRST_TOKEN_MS + tokens.length * CHUNK_MS + 240),
+        window.setTimeout(
+          () => {
+            setMessages((current) =>
+              current.map((message) =>
+                message._id === id
+                  ? { ...message, status: 'done', sources: reply.sources }
+                  : message,
+              ),
+            );
+            setIsStreaming(false);
+            setStatusLabel('');
+          },
+          FIRST_TOKEN_MS + tokens.length * CHUNK_MS + 240,
+        ),
       );
     },
     [clearTimers],
@@ -87,11 +113,15 @@ function useChatThread(initial: IChatMessage[], transport: TStreamTransport) {
       setMessages((current) => [
         ...current,
         {
-          id: `user-${++sequence.current}`,
-          role: 'user',
+          _id: `user-${++sequence.current}`,
+          sender_role: 'user',
           content: text,
-          createdAt: new Date().toISOString(),
+          created_at: new Date().toISOString(),
           status: 'done',
+          chat_id: '',
+          embeddings: [],
+          sender_id: '',
+          updated_at: '',
         },
       ]);
       stream(text);
@@ -113,12 +143,17 @@ function useChatThread(initial: IChatMessage[], transport: TStreamTransport) {
   }, [clearTimers]);
 
   const regenerate = useCallback(() => {
-    const lastUser = [...messages].reverse().find((message) => message.role === 'user');
+    const lastUser = [...messages]
+      .reverse()
+      .find((message) => message.sender_role === 'user');
     if (!lastUser) return;
 
     setMessages((current) => {
       const trimmed = [...current];
-      while (trimmed.length > 0 && trimmed[trimmed.length - 1].role === 'assistant') {
+      while (
+        trimmed.length > 0 &&
+        trimmed[trimmed.length - 1].sender_role === 'system' // TODO: change to assistant
+      ) {
         trimmed.pop();
       }
       return trimmed;
@@ -128,7 +163,9 @@ function useChatThread(initial: IChatMessage[], transport: TStreamTransport) {
 
   const rate = useCallback((id: string, rating: 'up' | 'down' | null) => {
     setMessages((current) =>
-      current.map((message) => (message.id === id ? { ...message, rating } : message)),
+      current.map((message) =>
+        message._id === id ? { ...message, rating } : message,
+      ),
     );
   }, []);
 
@@ -142,7 +179,17 @@ function useChatThread(initial: IChatMessage[], transport: TStreamTransport) {
     [clearTimers],
   );
 
-  return { messages, isStreaming, statusLabel, transport, send, stop, regenerate, rate, load };
+  return {
+    messages,
+    isStreaming,
+    statusLabel,
+    transport,
+    send,
+    stop,
+    regenerate,
+    rate,
+    load,
+  };
 }
 
 export default useChatThread;

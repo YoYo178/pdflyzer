@@ -1,24 +1,17 @@
-import { useState } from 'react';
-import { toast } from 'sonner';
-
+import { useGetAllChats } from '@/api/queries/chats/useGetAllChats';
 import Drawer from '@/components/ui/drawer';
 import Logo from '@/components/ui/logo';
+import { useAuth } from '@/hooks/useAuth';
 import { formatFileCount } from '@/lib/format';
+import type { IChat, IDocument } from '@/types/chat.types';
+import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import AppSidebar from './AppSidebar';
 import ChatComposer from './ChatComposer';
 import ChatThread from './ChatThread';
 import ChatTopbar from './ChatTopbar';
-import {
-  MOCK_CHATS,
-  MOCK_DOCUMENTS,
-  MOCK_THREADS,
-  MOCK_TRANSPORT,
-} from './mock-chat';
+import { MOCK_TRANSPORT } from './mock-chat';
 import useChatThread from './useChatThread';
-
-import { useGetAllChats } from '@/api/queries/chats/useGetAllChats';
-import { useAuth } from '@/hooks/useAuth';
-import type { IDocument } from '@/types/chat.types';
 
 function titleFrom(prompt: string) {
   const words = prompt
@@ -34,20 +27,15 @@ function ChatWorkspace() {
   const { data } = useGetAllChats();
   const { user } = useAuth();
 
-  console.log({ data });
-
-  const [chats, setChats] = useState(data ?? []);
-  const [documents, setDocuments] = useState<IDocument[]>(MOCK_DOCUMENTS);
+  const [chats, setChats] = useState<IChat[]>([]);
+  const [documents, setDocuments] = useState<IDocument[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(
-    MOCK_CHATS[0]._id,
+    chats[0]?._id,
   );
   const [query, setQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const thread = useChatThread(
-    MOCK_THREADS[MOCK_CHATS[0]._id] ?? [],
-    MOCK_TRANSPORT,
-  );
+  const thread = useChatThread(activeChatId ?? '', MOCK_TRANSPORT);
   const {
     load,
     send,
@@ -68,63 +56,74 @@ function ChatWorkspace() {
     .reduce((total, document) => total + document.pages, 0);
   const contextLabel = `${formatFileCount(readyCount)} · ${pageCount} pages in context`;
 
-  if (!chats || !user) return;
+  useEffect(() => {
+    if (!data) return;
 
-  function openChat(id: string) {
+    setChats(data);
+  }, [data]);
+
+  const openChat = useCallback((id: string) => {
     setActiveChatId(id);
-    load(MOCK_THREADS[id] ?? []);
     setSidebarOpen(false);
-  }
+  }, []);
 
-  function newChat() {
+  const newChat = useCallback(() => {
     setActiveChatId(null);
     load([]);
     setSidebarOpen(false);
-  }
+  }, [load]);
 
-  function ask(prompt: string) {
-    if (activeChatId === null) {
-      const id = `chat-${Date.now()}`;
-      setChats((current) => [
-        {
-          _id: id,
-          name: titleFrom(prompt),
-          owner_id: user.id,
-          updated_at: new Date().toISOString(),
-        },
-        ...current,
-      ]);
-      setActiveChatId(id);
-    } else {
-      setChats((current) =>
-        current.map((chat) =>
-          chat._id === activeChatId
-            ? { ...chat, updated_at: new Date().toISOString() }
-            : chat,
-        ),
-      );
-    }
+  const ask = useCallback(
+    (prompt: string) => {
+      if (!user) return;
 
-    send(prompt);
-  }
+      if (activeChatId === null) {
+        const id = `chat-${Date.now()}`;
+        setChats((current) => [
+          {
+            _id: id,
+            name: titleFrom(prompt),
+            owner_id: user.id,
+            updated_at: new Date().toISOString(),
+          },
+          ...current,
+        ]);
+        setActiveChatId(id);
+      } else {
+        setChats((current) =>
+          current.map((chat) =>
+            chat._id === activeChatId
+              ? { ...chat, updated_at: new Date().toISOString() }
+              : chat,
+          ),
+        );
+      }
 
-  function renameChat(id: string, title: string) {
+      send(prompt);
+    },
+    [send, activeChatId, user],
+  );
+
+  const renameChat = useCallback((id: string, title: string) => {
     setChats((current) =>
       current.map((chat) => (chat._id === id ? { ...chat, title } : chat)),
     );
     toast.success('Chat renamed', { position: 'bottom-center' });
-  }
+  }, []);
 
-  function deleteChat(id: string) {
-    setChats((current) => current.filter((chat) => chat._id !== id));
-    if (id === activeChatId) {
-      setActiveChatId(null);
-      load([]);
-    }
-    toast.success('Chat deleted', { position: 'bottom-center' });
-  }
+  const deleteChat = useCallback(
+    (id: string) => {
+      setChats((current) => current.filter((chat) => chat._id !== id));
+      if (id === activeChatId) {
+        setActiveChatId(null);
+        load([]);
+      }
+      toast.success('Chat deleted', { position: 'bottom-center' });
+    },
+    [activeChatId, load],
+  );
 
-  function addDocuments(files: File[]) {
+  const addDocuments = useCallback((files: File[]) => {
     const added: IDocument[] = files.map((file, index) => ({
       id: `doc-${Date.now()}-${index}`,
       name: file.name,
@@ -141,14 +140,14 @@ function ChatWorkspace() {
         position: 'bottom-center',
       },
     );
-  }
+  }, []);
 
-  function deleteDocument(id: string) {
+  const deleteDocument = useCallback((id: string) => {
     setDocuments((current) => current.filter((document) => document.id !== id));
     toast.success('PDF removed', { position: 'bottom-center' });
-  }
+  }, []);
 
-  function retryDocument(id: string) {
+  const retryDocument = useCallback((id: string) => {
     setDocuments((current) =>
       current.map((document) =>
         document.id === id
@@ -157,7 +156,9 @@ function ChatWorkspace() {
       ),
     );
     toast.success('Re-queued for processing', { position: 'bottom-center' });
-  }
+  }, []);
+
+  if (!chats || !user) return;
 
   const sidebar = (
     <AppSidebar

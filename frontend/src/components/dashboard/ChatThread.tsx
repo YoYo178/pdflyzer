@@ -99,7 +99,7 @@ function ChatThread({
     let previousDay = '';
 
     for (const message of messages) {
-      const day = dayLabel(message.createdAt);
+      const day = dayLabel(message.created_at);
       result.push({ message, day, showDivider: day !== previousDay });
       previousDay = day;
     }
@@ -109,7 +109,9 @@ function ChatThread({
 
   const lastAssistantId = [...messages]
     .reverse()
-    .find((message) => message.role === 'assistant')?.id;
+    .find((message) => message.sender_role === 'system')?._id; // TODO: change to assistant
+
+    console.log({ messages })
 
   return (
     <div className="relative min-h-0 flex-1">
@@ -129,7 +131,7 @@ function ChatThread({
         ) : (
           <div className="mx-auto w-full max-w-3xl space-y-6">
             {rows.map(({ message, day, showDivider }) => (
-              <div key={message.id} className="space-y-6">
+              <div key={message._id} className="space-y-6">
                   {showDivider && (
                     <div className="flex items-center gap-3">
                       <span className="h-px flex-1 bg-border" />
@@ -147,14 +149,14 @@ function ChatThread({
                   >
                     <ChatMessage
                       message={message}
-                      isLast={message.id === lastAssistantId}
-                      isStreaming={isStreaming && message.id === lastAssistantId}
+                      isLast={message._id === lastAssistantId}
+                      isStreaming={isStreaming && message._id === lastAssistantId}
                       statusLabel={statusLabel}
                       transport={transport}
                       activeCitation={
-                        activeCitation?.messageId === message.id ? activeCitation.index : null
+                        activeCitation?.messageId === message._id ? activeCitation.index : null
                       }
-                      onCitationClick={(index) => onCitationClick(message.id, index)}
+                      onCitationClick={(index) => onCitationClick(message._id, index)}
                       onRegenerate={onRegenerate}
                       onRate={onRate}
                     />
