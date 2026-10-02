@@ -72,10 +72,13 @@ class DocumentRepository:
         )
 
         if document:
-            await self._verify_chat_ownership(
-                user_id,
-                document.chat_id,
-            )
+            try:
+                await self._verify_chat_ownership(
+                    user_id,
+                    document.chat_id,
+                )
+            except chat_exceptions.ChatNotFound:
+                return None
 
         return document
 
