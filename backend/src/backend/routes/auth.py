@@ -64,7 +64,7 @@ async def handle_login(
         value=tokens_data.refresh_token,
         httponly=True,
         secure=False,
-        samesite="none",
+        samesite="lax",
         max_age=60 * 60 * 24 * 30 # 30 Days
     )
 
@@ -73,8 +73,8 @@ async def handle_login(
         value=tokens_data.access_token,
         httponly=True,
         secure=False,
-        samesite="none",
         max_age=60 * 15 # 15 Minutes
+        samesite="lax",
     )
     
     return APIResponse(
