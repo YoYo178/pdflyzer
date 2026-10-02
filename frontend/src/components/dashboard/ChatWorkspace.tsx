@@ -29,9 +29,7 @@ function ChatWorkspace() {
 
   const [chats, setChats] = useState<IChat[]>([]);
   const [documents, setDocuments] = useState<IDocument[]>([]);
-  const [activeChatId, setActiveChatId] = useState<string | null>(
-    chats[0]?._id,
-  );
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
