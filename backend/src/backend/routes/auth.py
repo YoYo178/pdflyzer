@@ -15,9 +15,35 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 @router.post("/register", response_model=APIResponse[UserSelf])
 async def create_user(
     register_data: RegisterRequest,
+    response: Response,
     service: AuthService = Depends(get_auth_service)
 ):
     user = await service.create_user(register_data)
+    
+    tokens_data = await service.handle_login(
+        LoginRequest(
+            login=user.email,
+            password=register_data.password
+        )
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens_data.refresh_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=60 * 60 * 24 * 30 # 30 Days
+    )
+
+    response.set_cookie(
+        key="access_token",
+        value=tokens_data.access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=60 * 15 # 15 Minutes
+    )
     
     return APIResponse(
         status=True,

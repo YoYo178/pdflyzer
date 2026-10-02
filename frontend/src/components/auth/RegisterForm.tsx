@@ -1,10 +1,10 @@
 import { useRegister } from '@/api/mutations/auth/useRegister';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import {
-  IconLock,
-  IconMail,
-  IconShieldCheck,
-  IconUser,
+    IconLock,
+    IconMail,
+    IconShieldCheck,
+    IconUser,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
@@ -108,7 +108,6 @@ function RegisterForm() {
       );
 
       // Invalidate the /me endpoint so user gets redirected to chat automatically
-      // TODO: Return tokens from /register on backend
       queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
     },
     [mutateAsync, queryClient],
