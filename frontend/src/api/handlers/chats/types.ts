@@ -1,18 +1,14 @@
 import type { IChat } from '@/types/chat.types';
 
-// TODO!!
-
-export interface IGetAllChatsRequest {}
 export type TGetAllChatsResponse = IChat[];
 
-export interface IGetChatRequest {}
-export interface IGetChatResponse {}
+export type TGetChatResponse = IChat;
 
-export interface ICreateChatRequest {}
-export interface ICreateChatResponse {}
+export type TCreateChatResponse = IChat;
 
-export interface IUpdateChatRequest {}
-export interface IUpdateChatResponse {}
+export interface IUpdateChatRequest {
+  name: string;
+};
+export type TUpdateChatResponse = IChat;
 
-export interface IDeleteChatRequest {}
-export interface IDeleteChatResponse {}
+export type TDeleteChatResponse = void;

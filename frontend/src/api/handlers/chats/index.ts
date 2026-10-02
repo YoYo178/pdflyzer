@@ -1,11 +1,11 @@
 import { API } from '@/api/client';
 import type {
-  ICreateChatRequest,
-  ICreateChatResponse,
-  IGetChatResponse,
   IUpdateChatRequest,
-  IUpdateChatResponse,
+  TCreateChatResponse,
+  TDeleteChatResponse,
   TGetAllChatsResponse,
+  TGetChatResponse,
+  TUpdateChatResponse,
 } from './types';
 
 async function getAllChats() {
@@ -14,23 +14,25 @@ async function getAllChats() {
 }
 
 async function getChat(chatId: string) {
-  const response = await API.get<IGetChatResponse>(`/chats/${chatId}`);
+  const response = await API.get<TGetChatResponse>(`/chats/${chatId}`);
   return response.data;
 }
 
-async function createChat(data: ICreateChatRequest) {
-  const response = await API.get<ICreateChatResponse>('/chats/', data);
+async function createChat() {
+  const response = await API.post<TCreateChatResponse>('/chats/');
   return response.data;
 }
 
-async function updateChat(data: IUpdateChatRequest) {
-  const response = await API.get<IUpdateChatResponse>('/chats/', data);
+async function updateChat(chatId: string, data: IUpdateChatRequest) {
+  const response = await API.patch<TUpdateChatResponse>(
+    `/chats/${chatId}`,
+    data,
+  );
   return response.data;
 }
 
-async function deleteChat() {
-  const response = await API.get('/chats/');
-  return response.data;
+async function deleteChat(chatId: string) {
+  await API.delete<TDeleteChatResponse>(`/chats/${chatId}`);
 }
 
 export default { getAllChats, getChat, createChat, updateChat, deleteChat };
