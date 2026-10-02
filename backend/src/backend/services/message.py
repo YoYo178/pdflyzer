@@ -68,7 +68,7 @@ class MessageService:
         await self.message_repository.create(
             Message(
                 sender_id=None,
-                sender_role="system",
+                sender_role="assistant",
                 
                 chat_id=chat_id,
                 

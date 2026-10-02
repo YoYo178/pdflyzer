@@ -4,7 +4,7 @@ from backend.types.events import ServerToClientEvents
 
 class MessageCreatedBody(TypedDict):
     sender_id: str
-    sender_role: Literal['user', 'system']
+    sender_role: Literal['user', 'assistant', 'system']
     
     content: str
     
