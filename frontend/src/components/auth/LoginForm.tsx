@@ -1,13 +1,31 @@
 import { useLogin } from '@/api/mutations/auth/useLogin';
-import { loginFormSchema, type TLoginSchema } from '@/schemas/auth';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import { IconLock, IconMail } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import * as v from 'valibot';
 import { Button } from '../ui/button';
 import { AuthField, PasswordToggle } from './AuthField';
-import { useQueryClient } from '@tanstack/react-query';
+
+const loginFormSchema = v.config(
+  v.object({
+    email: v.pipe(
+      v.string('Invalid email value'),
+      v.trim(),
+      v.minLength(1, 'Email is required'),
+      v.email('Invalid email'),
+    ),
+    password: v.pipe(
+      v.string('Invalid password value'),
+      v.minLength(1, 'Password is required'),
+    ),
+  }),
+  { abortPipeEarly: false },
+);
+
+type TLoginSchema = v.InferOutput<typeof loginFormSchema>;
 
 function LoginForm() {
   const queryClient = useQueryClient();
