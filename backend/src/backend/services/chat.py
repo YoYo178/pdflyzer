@@ -26,7 +26,7 @@ class ChatService:
         return await self.repo.create(chat)
 
     async def update_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, update_data: ChatMeta) -> Chat:
-        return await self.repo.update(user_id, chat_id, update_data.model_dump())
+        return await self.repo.update(user_id, chat_id, update_data.model_dump(exclude_none=True))
 
     async def delete_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> None:
         await self.repo.delete(user_id, chat_id)
