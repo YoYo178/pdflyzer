@@ -13,19 +13,9 @@ import ChatTopbar from './ChatTopbar';
 import { MOCK_TRANSPORT } from './mock-chat';
 import useChatThread from './useChatThread';
 
-function titleFrom(prompt: string) {
-  const words = prompt
-    .replace(/\s+/g, ' ')
-    .trim()
-    .split(' ')
-    .slice(0, 6)
-    .join(' ');
-  return words.length > 48 ? `${words.slice(0, 48).trimEnd()}…` : words;
-}
-
 function ChatWorkspace() {
-  const { data } = useGetAllChats();
   const { user } = useAuth();
+  const { data } = useGetAllChats();
 
   const [chats, setChats] = useState<IChat[]>([]);
   const [documents, setDocuments] = useState<IDocument[]>([]);
@@ -80,7 +70,7 @@ function ChatWorkspace() {
         setChats((current) => [
           {
             _id: id,
-            name: titleFrom(prompt),
+            name: 'New chat', // TODO: backend should be providing this
             owner_id: user.id,
             updated_at: new Date().toISOString(),
           },
