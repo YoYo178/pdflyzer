@@ -1,15 +1,11 @@
-import type { IChatMessage } from '@/types/chat.types';
+import type { IMessage } from '@/types/message.types';
 
-// TODO !!
+export type TGetAllMessagesResponse = IMessage[];
 
-export interface IGetAllMessagesRequest {}
-export type TGetAllMessagesResponse = IChatMessage[];
+export type IGetMessageResponse = IMessage;
 
-export interface IGetMessageRequest {}
-export interface IGetMessageResponse {}
+export interface ICreateMessageRequest {
+  content: string;
+}
 
-export interface ICreateMessageRequest {}
-export interface ICreateMessageResponse {}
-
-export interface IDeleteMessageRequest {}
-export interface IDeleteMessageResponse {}
+export type TCreateMessageResponse = IMessage;
