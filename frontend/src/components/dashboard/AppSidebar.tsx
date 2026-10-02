@@ -19,6 +19,8 @@ import {
   IconFileText,
   IconPaperclip,
   IconPencil,
+  IconPin,
+  IconPinFilled,
   IconPlus,
   IconSearch,
   IconTrash,
@@ -60,6 +62,7 @@ interface AppSidebarProps {
   onSelectChat: (id: string) => void;
   onNewChat: () => void;
   onRenameChat: (id: string, name: string) => void;
+  onPinChat: (id: string, pinned: boolean) => void;
   onDeleteChat: (id: string) => void;
   onAddDocuments: (files: File[]) => void;
   onDeleteDocument: (id: string) => void;
@@ -75,6 +78,7 @@ function AppSidebar({
   onSelectChat,
   onNewChat,
   onRenameChat,
+  onPinChat,
   onDeleteChat,
   onAddDocuments,
   onDeleteDocument,
@@ -165,49 +169,88 @@ function AppSidebar({
               type='button'
               onClick={() => onSelectChat(chat._id)}
               aria-current={activeChatId === chat._id ? 'page' : undefined}
-              className='min-w-0 flex-1 pr-[4.75rem] text-left'
+              className='min-w-0 flex-1 pr-[4.25rem] text-left'
             >
               <span
                 className={cn(
-                  'block truncate text-xs',
+                  'flex items-center gap-1 truncate text-xs',
                   activeChatId === chat._id
                     ? 'font-medium text-foreground'
                     : 'text-muted-foreground',
                 )}
               >
-                {chat.name}
+                {chat.pinned && (
+                  <IconPinFilled
+                    className='h-3 w-3 shrink-0 text-teal-600 dark:text-teal-300'
+                    aria-hidden='true'
+                  />
+                )}
+                <span className='truncate'>{chat.name}</span>
               </span>
             </button>
           )}
 
           {!isRenaming && (
-            <div className='absolute right-1.5 flex shrink-0 items-center gap-0.5'>
-              <span className='pointer-events-none whitespace-nowrap text-[10px] tabular-nums text-muted-foreground/60 transition-opacity duration-150 group-hover/row:opacity-0 group-focus-within/row:opacity-0'>
-                {formatRelativeTime(chat.updated_at)}
-              </span>
+            // Pin sits in its own slot to the left of the timestamp/dots cell.
+            <div className='pointer-events-none absolute right-1.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5'>
+              <button
+                type='button'
+                onClick={() => onPinChat(chat._id, !chat.pinned)}
+                aria-label={chat.pinned ? 'Unpin chat' : 'Pin chat'}
+                aria-pressed={Boolean(chat.pinned)}
+                title={chat.pinned ? 'Unpin chat' : 'Pin chat'}
+                className={cn(
+                  'pointer-events-auto flex h-6 w-6 items-center justify-center rounded-md transition-opacity duration-150 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  'opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100 [@media(hover:none)]:hidden',
+                  chat.pinned
+                    ? 'text-teal-600 dark:text-teal-300'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                )}
+              >
+                {chat.pinned ? (
+                  <IconPinFilled className='h-3.5 w-3.5' />
+                ) : (
+                  <IconPin className='h-3.5 w-3.5' />
+                )}
+              </button>
 
-              <div className='flex shrink-0 items-center opacity-0 transition-opacity duration-150 group-hover/row:opacity-100 group-focus-within/row:opacity-100 focus-within:opacity-100 group-focus-within/row:pointer-events-auto pointer-events-auto [@media(hover:none)]:opacity-100'>
-                <DropdownMenu
-                  align='end'
-                  menuClassName='w-52'
-                  triggerClassName='flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:text-foreground focus-visible:opacity-100 focus-visible:outline-none'
-                  trigger={<IconDots className='h-3.5 w-3.5' />}
-                >
-                  <DropdownMenuItem
-                    icon={<IconPencil />}
-                    onClick={() => startRename(chat)}
+              {/* The timestamp and the dots share one cell so they cross-fade
+                  in place instead of displacing each other. */}
+              <div className='grid place-items-center'>
+                <span className='pointer-events-none col-start-1 row-start-1 whitespace-nowrap text-[10px] tabular-nums text-muted-foreground/60 transition-opacity duration-150 group-hover/row:opacity-0 group-focus-within/row:opacity-0 [@media(hover:none)]:opacity-0'>
+                  {formatRelativeTime(chat.updated_at)}
+                </span>
+
+                <div className='pointer-events-auto col-start-1 row-start-1 opacity-0 transition-opacity duration-150 group-hover/row:opacity-100 group-focus-within/row:opacity-100 focus-within:opacity-100 [@media(hover:none)]:opacity-100'>
+                  <DropdownMenu
+                    align='end'
+                    menuClassName='w-52'
+                    triggerClassName='flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:text-foreground focus-visible:opacity-100 focus-visible:outline-none'
+                    trigger={<IconDots className='h-3.5 w-3.5' />}
                   >
-                    Rename chat
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant='destructive'
-                    icon={<IconTrash />}
-                    onClick={() => onDeleteChat(chat._id)}
-                  >
-                    Delete chat
-                  </DropdownMenuItem>
-                </DropdownMenu>
+                    <DropdownMenuItem
+                      icon={chat.pinned ? <IconPinFilled /> : <IconPin />}
+                      onClick={() => onPinChat(chat._id, !chat.pinned)}
+                      className='sm:hidden'
+                    >
+                      {chat.pinned ? 'Unpin chat' : 'Pin chat'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      icon={<IconPencil />}
+                      onClick={() => startRename(chat)}
+                    >
+                      Rename chat
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      variant='destructive'
+                      icon={<IconTrash />}
+                      onClick={() => onDeleteChat(chat._id)}
+                    >
+                      Delete chat
+                    </DropdownMenuItem>
+                  </DropdownMenu>
+                </div>
               </div>
             </div>
           )}

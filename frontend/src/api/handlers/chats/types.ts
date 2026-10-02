@@ -6,9 +6,11 @@ export type TGetChatResponse = IChat;
 
 export type TCreateChatResponse = IChat;
 
+/** PATCH is partial: send only the fields being changed. */
 export interface IUpdateChatRequest {
-  name: string;
-};
+  name?: string;
+  pinned?: boolean;
+}
 export type TUpdateChatResponse = IChat;
 
 export type TDeleteChatResponse = void;

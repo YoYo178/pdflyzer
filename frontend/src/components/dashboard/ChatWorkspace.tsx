@@ -213,6 +213,27 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
     [updateChat],
   );
 
+  const pinChat = useCallback(
+    (id: string, pinned: boolean) => {
+      updateChat.mutate(
+        { chatId: id, pinned },
+        {
+          onSuccess: () =>
+            toast.success(pinned ? 'Chat pinned' : 'Chat unpinned', TOAST),
+          onError: (error) =>
+            toast.error(
+              pinned ? 'Could not pin this chat' : 'Could not unpin this chat',
+              {
+                description: getErrorMessage(error),
+                ...TOAST,
+              },
+            ),
+        },
+      );
+    },
+    [updateChat],
+  );
+
   const deleteChat = useCallback(
     (id: string) => {
       removeChat.mutate(id, {
@@ -262,6 +283,7 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
       onSelectChat={openChat}
       onNewChat={newChat}
       onRenameChat={renameChat}
+      onPinChat={pinChat}
       onDeleteChat={deleteChat}
       onAddDocuments={uploadFiles}
       onDeleteDocument={deleteDocument}
