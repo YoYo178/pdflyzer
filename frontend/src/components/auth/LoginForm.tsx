@@ -9,21 +9,18 @@ import * as v from 'valibot';
 import { Button } from '../ui/button';
 import { AuthField, PasswordToggle } from './AuthField';
 
-const loginFormSchema = v.config(
-  v.object({
-    email: v.pipe(
-      v.string('Invalid email value'),
-      v.trim(),
-      v.minLength(1, 'Email is required'),
-      v.email('Invalid email'),
-    ),
-    password: v.pipe(
-      v.string('Invalid password value'),
-      v.minLength(1, 'Password is required'),
-    ),
-  }),
-  { abortPipeEarly: false },
-);
+const loginFormSchema = v.object({
+  email: v.pipe(
+    v.string('Invalid email value'),
+    v.trim(),
+    v.minLength(1, 'Email is required'),
+    v.email('Invalid email'),
+  ),
+  password: v.pipe(
+    v.string('Invalid password value'),
+    v.minLength(1, 'Password is required'),
+  ),
+});
 
 type TLoginSchema = v.InferOutput<typeof loginFormSchema>;
 
@@ -41,27 +38,27 @@ function LoginForm() {
     resolver: valibotResolver(loginFormSchema),
   });
 
-  const onSubmit = useCallback(
-    async (data: TLoginSchema) => {
-      await mutateAsync({
-        login: data.email,
-        password: data.password,
-      });
-
-      toast.success('Signed in successfully, redirecting to dashboard...', {
-        position: 'bottom-center',
-      });
-
-      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
-    },
-    [mutateAsync, queryClient],
-  );
-
   useEffect(() => {
     if (!error?.message) return;
 
     toast.error(error.message, { position: 'bottom-center' });
   }, [error?.message]);
+
+  const onSubmit = useCallback(
+    async (data: TLoginSchema) => {
+      const { email, password } = data;
+
+      await mutateAsync({ login: email, password });
+
+      toast.success('Signed in successfully, redirecting to dashboard...', {
+        position: 'bottom-center',
+      });
+
+      // Invalidate the /me endpoint so user gets redirected to chat automatically
+      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+    },
+    [mutateAsync, queryClient],
+  );
 
   return (
     <form

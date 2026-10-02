@@ -1,10 +1,10 @@
 import { useRegister } from '@/api/mutations/auth/useRegister';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import {
-    IconLock,
-    IconMail,
-    IconShieldCheck,
-    IconUser,
+  IconLock,
+  IconMail,
+  IconShieldCheck,
+  IconUser,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
@@ -93,6 +93,12 @@ function RegisterForm() {
     resolver: valibotResolver(registerFormSchema),
   });
 
+  useEffect(() => {
+    if (!error?.message) return;
+
+    toast.error(error.message, { position: 'bottom-center' });
+  }, [error?.message]);
+
   const onSubmit = useCallback(
     async (data: TRegisterSchema) => {
       await mutateAsync({
@@ -112,12 +118,6 @@ function RegisterForm() {
     },
     [mutateAsync, queryClient],
   );
-
-  useEffect(() => {
-    if (!error?.message) return;
-
-    toast.error(error.message, { position: 'bottom-center' });
-  }, [error?.message]);
 
   return (
     <form

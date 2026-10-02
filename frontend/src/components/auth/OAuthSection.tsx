@@ -7,7 +7,6 @@ import {
 } from '@tabler/icons-react';
 import { useState, type ComponentType } from 'react';
 import { toast } from 'sonner';
-
 import { Button } from '../ui/button';
 
 interface IProviderOption {
