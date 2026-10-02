@@ -1,19 +1,22 @@
 import { createBrowserRouter } from 'react-router';
 
+import GuestRoute from '@/components/wrappers/GuestRoute';
+import ProtectedRoute from '@/components/wrappers/ProtectedRoute';
+
+import AppLayout from '@/layouts/AppLayout';
 import RootLayout from '@/layouts/RootLayout';
 
+// Global page
 import Landing from '@/pages/Landing';
 
+// Guest pages
 import Login from '@/pages/guest/Login';
 import Register from '@/pages/guest/Register';
 
+// Protected pages
 import Chat from '@/pages/protected/Chat';
 import Dashboard from '@/pages/protected/Dashboard';
 import Settings from '@/pages/protected/Settings';
-
-import GuestRoute from '@/wrappers/GuestRoute';
-import ProtectedRoute from '@/wrappers/ProtectedRoute';
-import AppLayout from '@/layouts/AppLayout';
 
 export const router = createBrowserRouter([
   {
