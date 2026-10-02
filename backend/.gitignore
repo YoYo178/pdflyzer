@@ -8,3 +8,6 @@
 
 # User generated content
 user_content
+
+# Model cache directory
+.models
