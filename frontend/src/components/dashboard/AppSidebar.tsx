@@ -37,7 +37,7 @@ function bucketOf(chat: IChat): TBucket {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
   const days = Math.floor(
-    (startOfToday.getTime() - new Date(chat.updatedAt).getTime()) / 86_400_000,
+    (startOfToday.getTime() - new Date(chat.updated_at).getTime()) / 86_400_000,
   );
 
   if (days <= 0) return 'Today';
@@ -85,7 +85,7 @@ function AppSidebar({
 
   const groups = useMemo(() => {
     const filtered = needle
-      ? chats.filter((chat) => chat.title.toLowerCase().includes(needle))
+      ? chats.filter((chat) => chat.name.toLowerCase().includes(needle))
       : chats;
 
     return BUCKETS.map((bucket) => ({
@@ -96,8 +96,8 @@ function AppSidebar({
 
   function startRename(chat: IChat) {
     cancelRenameRef.current = false;
-    setDraftTitle(chat.title);
-    setRenamingId(chat.id);
+    setDraftTitle(chat.name);
+    setRenamingId(chat._id);
   }
 
   function cancelRename() {
@@ -116,19 +116,19 @@ function AppSidebar({
   }
 
   function renderChatRow(chat: IChat) {
-    const isRenaming = renamingId === chat.id;
+    const isRenaming = renamingId === chat._id;
 
     return (
       <li
-        key={chat.id}
+        key={chat._id}
         className="group/row group-focus-within/row relative"
-        title={formatAbsoluteTime(chat.updatedAt)}
+        title={formatAbsoluteTime(chat.updated_at)}
       >
         <div
           className={cn(
             'relative flex items-center gap-2 rounded-lg px-2.5 py-2 transition-colors',
             'hover:bg-secondary focus-within:bg-secondary',
-            activeChatId === chat.id && 'bg-secondary',
+            activeChatId === chat._id && 'bg-secondary',
           )}
         >
           {isRenaming ? (
@@ -154,26 +154,26 @@ function AppSidebar({
           ) : (
             <button
               type="button"
-              onClick={() => onSelectChat(chat.id)}
-              aria-current={activeChatId === chat.id ? 'page' : undefined}
+              onClick={() => onSelectChat(chat._id)}
+              aria-current={activeChatId === chat._id ? 'page' : undefined}
               className="min-w-0 flex-1 text-left"
             >
               <span
                 className={cn(
                   'block truncate text-xs',
-                  activeChatId === chat.id
+                  activeChatId === chat._id
                     ? 'font-medium text-foreground'
                     : 'text-muted-foreground',
                 )}
               >
-                {chat.title}
+                {chat.name}
               </span>
             </button>
           )}
 
           {!isRenaming && (
             <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] tabular-nums text-muted-foreground/60 transition-opacity duration-150 group-hover/row:opacity-0 group-focus-within/row:opacity-0 [@media(hover:none)]:static">
-              {formatRelativeTime(chat.updatedAt)}
+              {formatRelativeTime(chat.updated_at)}
             </span>
           )}
 
@@ -192,7 +192,7 @@ function AppSidebar({
                 <DropdownMenuItem
                   variant="destructive"
                   icon={<IconTrash />}
-                  onClick={() => onDeleteChat(chat.id)}
+                  onClick={() => onDeleteChat(chat._id)}
                 >
                   Delete chat
                 </DropdownMenuItem>

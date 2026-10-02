@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import Drawer from '@/components/ui/drawer';
+import Logo from '@/components/ui/logo';
+import { formatFileCount } from '@/lib/format';
 import AppSidebar from './AppSidebar';
 import ChatComposer from './ChatComposer';
 import ChatThread from './ChatThread';
 import ChatTopbar from './ChatTopbar';
-import Drawer from '@/components/ui/drawer';
-import Logo from '@/components/ui/logo';
 import {
   MOCK_CHATS,
   MOCK_DOCUMENTS,
@@ -14,31 +15,60 @@ import {
   MOCK_TRANSPORT,
 } from './mock-chat';
 import useChatThread from './useChatThread';
-import { formatFileCount } from '@/lib/format';
 
+import { useGetAllChats } from '@/api/queries/chats/useGetAllChats';
+import { useAuth } from '@/hooks/useAuth';
 import type { IDocument } from '@/types/chat.types';
 
 function titleFrom(prompt: string) {
-  const words = prompt.replace(/\s+/g, ' ').trim().split(' ').slice(0, 6).join(' ');
+  const words = prompt
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .slice(0, 6)
+    .join(' ');
   return words.length > 48 ? `${words.slice(0, 48).trimEnd()}…` : words;
 }
 
 function ChatWorkspace() {
-  const [chats, setChats] = useState(MOCK_CHATS);
+  const { data } = useGetAllChats();
+  const { user } = useAuth();
+
+  console.log({ data });
+
+  const [chats, setChats] = useState(data ?? []);
   const [documents, setDocuments] = useState<IDocument[]>(MOCK_DOCUMENTS);
-  const [activeChatId, setActiveChatId] = useState<string | null>(MOCK_CHATS[0].id);
+  const [activeChatId, setActiveChatId] = useState<string | null>(
+    MOCK_CHATS[0]._id,
+  );
   const [query, setQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const thread = useChatThread(MOCK_THREADS[MOCK_CHATS[0].id] ?? [], MOCK_TRANSPORT);
-  const { load, send, messages, isStreaming, statusLabel, stop, regenerate, rate } = thread;
+  const thread = useChatThread(
+    MOCK_THREADS[MOCK_CHATS[0]._id] ?? [],
+    MOCK_TRANSPORT,
+  );
+  const {
+    load,
+    send,
+    messages,
+    isStreaming,
+    statusLabel,
+    stop,
+    regenerate,
+    rate,
+  } = thread;
 
-  const activeChat = chats.find((chat) => chat.id === activeChatId) ?? null;
-  const readyCount = documents.filter((document) => document.status === 'ready').length;
+  const activeChat = chats.find((chat) => chat._id === activeChatId) ?? null;
+  const readyCount = documents.filter(
+    (document) => document.status === 'ready',
+  ).length;
   const pageCount = documents
     .filter((document) => document.status === 'ready')
     .reduce((total, document) => total + document.pages, 0);
   const contextLabel = `${formatFileCount(readyCount)} · ${pageCount} pages in context`;
+
+  if (!chats || !user) return;
 
   function openChat(id: string) {
     setActiveChatId(id);
@@ -56,14 +86,21 @@ function ChatWorkspace() {
     if (activeChatId === null) {
       const id = `chat-${Date.now()}`;
       setChats((current) => [
-        { id, title: titleFrom(prompt), updatedAt: new Date().toISOString() },
+        {
+          _id: id,
+          name: titleFrom(prompt),
+          owner_id: user.id,
+          updated_at: new Date().toISOString(),
+        },
         ...current,
       ]);
       setActiveChatId(id);
     } else {
       setChats((current) =>
         current.map((chat) =>
-          chat.id === activeChatId ? { ...chat, updatedAt: new Date().toISOString() } : chat,
+          chat._id === activeChatId
+            ? { ...chat, updated_at: new Date().toISOString() }
+            : chat,
         ),
       );
     }
@@ -73,13 +110,13 @@ function ChatWorkspace() {
 
   function renameChat(id: string, title: string) {
     setChats((current) =>
-      current.map((chat) => (chat.id === id ? { ...chat, title } : chat)),
+      current.map((chat) => (chat._id === id ? { ...chat, title } : chat)),
     );
     toast.success('Chat renamed', { position: 'bottom-center' });
   }
 
   function deleteChat(id: string) {
-    setChats((current) => current.filter((chat) => chat.id !== id));
+    setChats((current) => current.filter((chat) => chat._id !== id));
     if (id === activeChatId) {
       setActiveChatId(null);
       load([]);
@@ -97,10 +134,13 @@ function ChatWorkspace() {
     }));
 
     setDocuments((current) => [...current, ...added]);
-    toast.success(`${files.length} ${files.length === 1 ? 'PDF' : 'PDFs'} added`, {
-      description: 'Ingestion is not connected to the backend yet.',
-      position: 'bottom-center',
-    });
+    toast.success(
+      `${files.length} ${files.length === 1 ? 'PDF' : 'PDFs'} added`,
+      {
+        description: 'Ingestion is not connected to the backend yet.',
+        position: 'bottom-center',
+      },
+    );
   }
 
   function deleteDocument(id: string) {
@@ -111,7 +151,9 @@ function ChatWorkspace() {
   function retryDocument(id: string) {
     setDocuments((current) =>
       current.map((document) =>
-        document.id === id ? { ...document, status: 'queued' as const } : document,
+        document.id === id
+          ? { ...document, status: 'queued' as const }
+          : document,
       ),
     );
     toast.success('Re-queued for processing', { position: 'bottom-center' });
@@ -135,24 +177,24 @@ function ChatWorkspace() {
   );
 
   return (
-    <div className="flex h-dvh w-full overflow-hidden overscroll-none bg-background text-foreground antialiased selection:bg-teal-300/30 selection:text-teal-900 dark:selection:text-teal-100">
-      <aside className="hidden w-[268px] shrink-0 flex-col border-r border-border md:flex">
+    <div className='flex h-dvh w-full overflow-hidden overscroll-none bg-background text-foreground antialiased selection:bg-teal-300/30 selection:text-teal-900 dark:selection:text-teal-100'>
+      <aside className='hidden w-[268px] shrink-0 flex-col border-r border-border md:flex'>
         {sidebar}
       </aside>
 
       <Drawer
-        id="chats-sidebar"
+        id='chats-sidebar'
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        side="left"
-        title={<Logo size="sm" />}
+        side='left'
+        title={<Logo size='sm' />}
       >
         {sidebar}
       </Drawer>
 
-      <main className="flex min-w-0 flex-1 flex-col">
+      <main className='flex min-w-0 flex-1 flex-col'>
         <ChatTopbar
-          title={activeChat?.title ?? 'New chat'}
+          title={activeChat?.name ?? 'New chat'}
           contextLabel={contextLabel}
           isStreaming={isStreaming}
           onOpenSidebar={() => setSidebarOpen(true)}
@@ -171,13 +213,17 @@ function ChatWorkspace() {
           onRate={rate}
         />
 
-        <div className="relative shrink-0 px-3 pb-3 pt-1 sm:px-6 sm:pb-4">
+        <div className='relative shrink-0 px-3 pb-3 pt-1 sm:px-6 sm:pb-4'>
           <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 -top-10 h-10 bg-gradient-to-t from-background to-transparent"
+            aria-hidden='true'
+            className='pointer-events-none absolute inset-x-0 -top-10 h-10 bg-gradient-to-t from-background to-transparent'
           />
-          <div className="relative mx-auto w-full max-w-3xl">
-            <ChatComposer onSend={ask} onStop={stop} isStreaming={isStreaming} />
+          <div className='relative mx-auto w-full max-w-3xl'>
+            <ChatComposer
+              onSend={ask}
+              onStop={stop}
+              isStreaming={isStreaming}
+            />
           </div>
         </div>
       </main>

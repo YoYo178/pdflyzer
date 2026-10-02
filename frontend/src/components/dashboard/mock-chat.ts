@@ -10,8 +10,8 @@ import type {
   IChatMessage,
   IDocument,
   ISource,
-  TStreamTransport,
   IUserProfile,
+  TStreamTransport,
 } from '@/types/chat.types';
 
 const NOW = Date.now();
@@ -69,16 +69,42 @@ export const MOCK_DOCUMENTS: IDocument[] = [
 
 export const MOCK_CHATS: IChat[] = [
   {
-    id: 'chat-1',
-    title: 'Supplier contract Q&A',
-    updatedAt: at(7 * MINUTE),
+    _id: 'chat-1',
+    name: 'Supplier contract Q&A',
+    updated_at: at(7 * MINUTE),
+    owner_id: '',
     pinned: true,
   },
-  { id: 'chat-2', title: 'Annual report 2025 highlights', updatedAt: at(3 * HOUR) },
-  { id: 'chat-3', title: 'Compliance review checklist', updatedAt: at(26 * HOUR) },
-  { id: 'chat-4', title: 'Vendor invoice reconciliation', updatedAt: at(3 * DAY) },
-  { id: 'chat-5', title: 'Data processing terms', updatedAt: at(6 * DAY) },
-  { id: 'chat-6', title: 'Renewal negotiation notes', updatedAt: at(19 * DAY) },
+  {
+    _id: 'chat-2',
+    name: 'Annual report 2025 highlights',
+    updated_at: at(3 * HOUR),
+    owner_id: '',
+  },
+  {
+    _id: 'chat-3',
+    name: 'Compliance review checklist',
+    updated_at: at(26 * HOUR),
+    owner_id: '',
+  },
+  {
+    _id: 'chat-4',
+    name: 'Vendor invoice reconciliation',
+    updated_at: at(3 * DAY),
+    owner_id: '',
+  },
+  {
+    _id: 'chat-5',
+    name: 'Data processing terms',
+    updated_at: at(6 * DAY),
+    owner_id: '',
+  },
+  {
+    _id: 'chat-6',
+    name: 'Renewal negotiation notes',
+    updated_at: at(19 * DAY),
+    owner_id: '',
+  },
 ];
 
 const PAYMENT_SOURCES: ISource[] = [
@@ -88,8 +114,16 @@ const PAYMENT_SOURCES: ISource[] = [
 ];
 
 const TERMINATION_SOURCES: ISource[] = [
-  { file: 'Service-Agreement-2025.pdf', page: 9, section: 'Termination for Convenience' },
-  { file: 'Service-Agreement-2025.pdf', page: 10, section: 'Termination for Cause' },
+  {
+    file: 'Service-Agreement-2025.pdf',
+    page: 9,
+    section: 'Termination for Convenience',
+  },
+  {
+    file: 'Service-Agreement-2025.pdf',
+    page: 10,
+    section: 'Termination for Cause',
+  },
   { file: 'Renewal-Addendum.pdf', page: 2, section: 'Fees on Exit' },
 ];
 
@@ -167,7 +201,8 @@ export const MOCK_THREADS: Record<string, IChatMessage[]> = {
     {
       id: 'm-3',
       role: 'user',
-      content: 'And what happens if we need to exit early — how much notice do we owe?',
+      content:
+        'And what happens if we need to exit early — how much notice do we owe?',
       createdAt: at(7 * MINUTE),
       status: 'done',
     },
@@ -207,7 +242,8 @@ export const SUGGESTIONS: {
   {
     icon: IconCoin,
     label: 'Payment terms & renewal',
-    prompt: 'What are the payment terms in both contracts, and do they change on renewal?',
+    prompt:
+      'What are the payment terms in both contracts, and do they change on renewal?',
   },
   {
     icon: IconScale,
@@ -217,11 +253,13 @@ export const SUGGESTIONS: {
   {
     icon: IconFileDescription,
     label: 'Summarise the SOW',
-    prompt: 'Summarise the Statement of Work into a short brief for the leadership review.',
+    prompt:
+      'Summarise the Statement of Work into a short brief for the leadership review.',
   },
   {
     icon: IconCalendarStats,
     label: 'Key dates & deadlines',
-    prompt: 'List every deadline, renewal window and notice period across these documents.',
+    prompt:
+      'List every deadline, renewal window and notice period across these documents.',
   },
 ];
