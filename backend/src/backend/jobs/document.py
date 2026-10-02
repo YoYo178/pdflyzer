@@ -32,7 +32,7 @@ async def process_document(
     if not document:
         return
 
-    document.status = "processing"
+    document.status = "PROCESSING"
     await document.save()
 
     file_path = document.file_path
@@ -68,12 +68,12 @@ async def process_document(
         
         await document_chunk_repository.create_many(chunk_documents)
 
-        document.status = "ready"
+        document.status = "READY"
         await document.save()
     except Exception:
         print(f"Failed to process {document.filename}")
         
-        document.status = "failed"
+        document.status = "FAILED"
         await document.save()
 
         raise
