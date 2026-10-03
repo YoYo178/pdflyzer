@@ -15,6 +15,14 @@ class DocumentChunkRepository:
         
         await DocumentChunk.insert_many(chunks)
         
+    async def delete_document_chunks(
+        self,
+        document_id: PydanticObjectId
+    ):
+        await DocumentChunk.find(
+            DocumentChunk.document_id == document_id
+        ).delete()
+        
     async def vector_search(
         self,
         chat_id: PydanticObjectId,

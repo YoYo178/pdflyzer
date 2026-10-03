@@ -9,6 +9,7 @@ import backend.exceptions.document as document_exceptions
 from backend.models.chat_document import ChatDocument
 
 from backend.repositories.document import DocumentRepository
+from backend.repositories.document_chunk import DocumentChunkRepository
 
 MAX_UPLOADS = 5
 
@@ -16,10 +17,12 @@ class DocumentService:
     def __init__(
         self,
         repo: DocumentRepository,
+        document_chunk_repository: DocumentChunkRepository,
         storage: StorageService,
         queue: ArqRedis,
     ):
         self.repo = repo
+        self.document_chunk_repository = document_chunk_repository
         self.storage = storage
         self.queue = queue
 
@@ -33,11 +36,11 @@ class DocumentService:
         return await self.repo.find_by_id_in_chat(user_id, chat_id, document_id)
 
     async def delete_document(self, user_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
-        # TODO: handle dependent chats/references before deleting.
+        await self.document_chunk_repository.delete_document_chunks(document_id)
         return await self.repo.delete(user_id, document_id)
 
     async def delete_document_in_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
-        # TODO: handle dependent chats/references before deleting.
+        await self.document_chunk_repository.delete_document_chunks(document_id)
         return await self.repo.delete_in_chat(user_id, chat_id, document_id)
 
     async def upload_document(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, files: list[UploadFile]) -> None:
