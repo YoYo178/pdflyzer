@@ -73,7 +73,7 @@ async def handle_login(
         value=tokens_data.access_token,
         httponly=True,
         secure=False,
-        max_age=60 * 15 # 15 Minutes
+        max_age=60 * 15, # 15 Minutes
         samesite="lax",
     )
     
