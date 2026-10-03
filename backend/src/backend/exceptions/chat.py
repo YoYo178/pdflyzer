@@ -6,4 +6,4 @@ class ChatNotFound(AppException):
 
 class ChatMismatch(AppException):
     status_code = 403 # Forbidden
-    detail = "Chat ID mismatch detected, Please start over again" # TODO: tweak later
+    detail = "Chat ID mismatch detected, Please start over again"
