@@ -26,6 +26,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router';
 
 const BUCKETS = [
   'Pinned',
@@ -264,9 +265,9 @@ function AppSidebar({
       className='flex h-full min-h-0 flex-col bg-background'
       aria-label='Chats and documents'
     >
-      <div className='flex shrink-0 items-center justify-between px-4 py-4'>
+      <Link to='/dashboard' className='flex shrink-0 items-center justify-between px-4 py-4 cursor-pointer'>
         <Logo size='sm' className='px-1' />
-      </div>
+      </Link>
 
       <div className='shrink-0 px-3 pb-2'>
         <label className='relative block'>
