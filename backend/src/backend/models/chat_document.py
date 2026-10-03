@@ -12,6 +12,7 @@ class ChatDocument(BaseTimestampDocument):
     file_hash: str
 
     status: str
+    pages: int = -1
 
     class Settings:
         name = "documents"

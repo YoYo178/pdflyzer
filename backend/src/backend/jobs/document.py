@@ -41,6 +41,9 @@ async def process_document(
         print(f"Processing {document.filename}")
         
         parsed_pages = pdf_service.extract_pages(file_path)
+        
+        document.pages = len(parsed_pages)
+        
         paragraphs = pdf_service.prepare_paragraphs(parsed_pages)
 
         chunks = chunk_service.prepare_chunks(paragraphs)
