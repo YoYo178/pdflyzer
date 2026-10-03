@@ -59,7 +59,7 @@ class DocumentService:
 
             # Check whether this exact file already exists
             # in this specific chat.
-            document_exists_in_same_chat = await self.repo.find_by_hash(
+            document_exists_in_same_chat = await self.repo.find_one_by_hash(
                 user_id,
                 temp_file.sha256,
                 chat_id,
@@ -71,7 +71,7 @@ class DocumentService:
 
             # Check whether the physical file already exists
             # somewhere accessible to this user.
-            existing_document = await self.repo.find_by_hash(
+            existing_document = await self.repo.find_one_by_hash(
                 user_id,
                 temp_file.sha256,
             )
@@ -108,6 +108,7 @@ class DocumentService:
                         "process_document",
                         user_id,
                         document.id,
+                        chat_id
                     )
 
                 continue
@@ -138,4 +139,5 @@ class DocumentService:
                 "process_document",
                 user_id,
                 document.id,
+                chat_id
             )

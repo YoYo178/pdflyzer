@@ -55,7 +55,30 @@ class DocumentRepository:
 
         return document
 
-    async def find_by_hash(self, user_id: PydanticObjectId, file_hash: str, chat_id: PydanticObjectId | None = None) -> ChatDocument | None:
+    async def find_by_hash(self, user_id: PydanticObjectId, file_hash: str, chat_id: PydanticObjectId | None = None) -> list[ChatDocument]:
+        if chat_id is not None:
+            await self._verify_chat_ownership(
+                user_id,
+                chat_id,
+            )
+
+            return await ChatDocument.find(
+                ChatDocument.file_hash == file_hash,
+                ChatDocument.chat_id == chat_id,
+            ).to_list()
+            
+        chats = await self.chat_repository.find_all(user_id)
+        chat_ids = [chat.id for chat in chats]
+        
+        if not chat_ids:
+            return []
+        
+        return await ChatDocument.find(
+            ChatDocument.file_hash == file_hash,
+            { "chat_id": { "$in": chat_ids } }
+        ).to_list()
+
+    async def find_one_by_hash(self, user_id: PydanticObjectId, file_hash: str, chat_id: PydanticObjectId | None = None) -> ChatDocument | None:
         if chat_id:
             await self._verify_chat_ownership(
                 user_id,
@@ -81,6 +104,27 @@ class DocumentRepository:
                 return None
 
         return document
+    
+    async def update_status_by_hash(
+        self,
+        user_id: PydanticObjectId,
+        file_hash: str,
+        chat_id: PydanticObjectId,
+        status: str,
+    ) -> bool:
+        await self._verify_chat_ownership(user_id, chat_id)
+
+        result = await ChatDocument.find(
+            ChatDocument.file_hash == file_hash,
+            ChatDocument.chat_id == chat_id,
+        ).update_many(
+            {"$set": {"status": status}}
+        )
+        
+        if result is None:
+            return False
+
+        return True
 
     async def create(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document: ChatDocument) -> ChatDocument:
         await self._verify_chat_ownership(

@@ -15,6 +15,7 @@ async def process_document(
     ctx,
     user_id: str,
     document_id: str,
+    chat_id: str
 ):
     chat_repository = ChatRepository()
     document_repository = DocumentRepository(chat_repository)
@@ -73,6 +74,8 @@ async def process_document(
 
         document.status = "READY"
         await document.save()
+        
+        await document_repository.update_status_by_hash(PydanticObjectId(user_id), document.file_hash, PydanticObjectId(chat_id), "READY")
     except Exception:
         print(f"Failed to process {document.filename}")
         
