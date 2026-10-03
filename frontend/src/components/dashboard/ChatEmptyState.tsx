@@ -107,9 +107,9 @@ function ChatEmptyState({ documents, onPick }: ChatEmptyStateProps) {
               delay: 0.22 + index * 0.06,
               ease: EASE,
             }}
-            className='group relative overflow-hidden rounded-2xl border border-border bg-secondary/40 p-4 text-left transition-colors duration-300 hover:border-teal-600/40 dark:hover:border-teal-300/30'
+            className='group relative overflow-hidden rounded-2xl border border-border bg-secondary/40 p-4 text-left transition-colors duration-300 hover:bg-teal-600/10 dark:hover:bg-secondary/40 hover:border-teal-600/40 dark:hover:border-teal-300/30'
           >
-            <div className='pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-teal-500/0 blur-3xl transition-colors duration-500 group-hover:bg-teal-500/10 dark:group-hover:bg-teal-300/10' />
+            <div className='pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-teal-500/0 blur-3xl transition-colors duration-500 group-hover:bg-teal-500/30 dark:group-hover:bg-teal-300/10' />
 
             <div className='relative flex items-start gap-3'>
               <span className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-teal-600 dark:text-teal-300'>
