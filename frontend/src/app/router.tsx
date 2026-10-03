@@ -6,8 +6,9 @@ import ProtectedRoute from '@/components/wrappers/ProtectedRoute';
 import AppLayout from '@/layouts/AppLayout';
 import RootLayout from '@/layouts/RootLayout';
 
-// Global page
+// Global pages
 import Landing from '@/pages/Landing';
+import ErrorPage from '@/pages/error/ErrorPage';
 
 // Guest pages
 import Login from '@/pages/guest/Login';
@@ -21,6 +22,7 @@ import Settings from '@/pages/protected/Settings';
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: '/',
@@ -66,6 +68,10 @@ export const router = createBrowserRouter([
             ],
           },
         ],
+      },
+      {
+        path: '*',
+        element: <ErrorPage />,
       },
     ],
   },
