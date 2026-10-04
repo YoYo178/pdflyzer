@@ -10,7 +10,7 @@ const STATUS_LABEL: Record<IDocument['status'], string> = {
   QUEUED: 'Waiting to be processed',
   PROCESSING: 'Reading text and indexing',
   READY: 'Ready',
-  FAILED: 'Could not be read',
+  FAILED: 'Could not be parsed',
 };
 
 interface ChatNeedsDocumentsProps {

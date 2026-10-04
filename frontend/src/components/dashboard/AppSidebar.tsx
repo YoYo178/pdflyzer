@@ -441,7 +441,7 @@ function DocumentRow({ document, onDelete }: DocumentRowProps) {
               )}
             >
               {DOCUMENT_STATUS_LABEL[document.status]}
-              {isFailed ? ' — could not be read' : ''}
+              {isFailed ? ' — could not be parsed' : ''}
             </p>
           )}
 
