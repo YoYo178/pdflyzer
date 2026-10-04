@@ -321,7 +321,6 @@ function AppSidebar({
         )}
       </div>
 
-      {/* TODO: make it show summary of documents on the heading: i.e "5 Parsed | 1 Failed" or "5 Documents", etc */}
       {hasActiveChat && (
         <section
           className={cn(
