@@ -188,7 +188,7 @@ function ChatThread({
                     statusLabel={statusLabel}
                     transport={transport}
                     activeCitation={
-                      activeCitation?.messageId === message._id
+                      message?._id && activeCitation?.messageId === message._id
                         ? activeCitation.index
                         : null
                     }
