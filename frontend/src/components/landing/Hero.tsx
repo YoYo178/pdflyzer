@@ -1,3 +1,8 @@
+import { ButtonLink } from '@/components/ui/button';
+import Container from '@/components/ui/container';
+import FloatingLabel from '@/components/ui/floating-label';
+import Reveal from '@/components/ui/reveal';
+import { useAuth } from '@/hooks/useAuth';
 import {
   IconArrowRight,
   IconCheck,
@@ -6,11 +11,6 @@ import {
 } from '@tabler/icons-react';
 import { motion } from 'motion/react';
 import { useRef, type MouseEvent } from 'react';
-
-import { ButtonLink } from '@/components/ui/button';
-import Container from '@/components/ui/container';
-import FloatingLabel from '@/components/ui/floating-label';
-import Reveal from '@/components/ui/reveal';
 import ChatMock from './ChatMock';
 
 const TRUST_POINTS = [
@@ -27,6 +27,7 @@ const METRICS = [
 ];
 
 function Hero() {
+  const { isAuthenticated } = useAuth();
   const glowRef = useRef<HTMLDivElement>(null);
 
   function onMove(e: MouseEvent<HTMLDivElement>) {
@@ -75,26 +76,40 @@ function Hero() {
 
           <Reveal delay={240}>
             <div className='mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row'>
-              <ButtonLink
-                to='/register'
-                variant='brand'
-                size='lg'
-                className='group w-full sm:w-auto'
-              >
-                Start chatting free
-                <IconArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-0.5' />
-              </ButtonLink>
-              <button
-                type='button'
-                onClick={() =>
-                  document
-                    .querySelector('#how-it-works')
-                    ?.scrollIntoView({ behavior: 'smooth' })
-                }
-                className='w-full rounded-xl border border-border bg-secondary/40 px-6 py-3.5 text-[15px] font-medium text-foreground transition-colors hover:bg-secondary sm:w-auto'
-              >
-                See how it works
-              </button>
+              {isAuthenticated ? (
+                <ButtonLink
+                  to='/dashboard'
+                  variant='brand'
+                  size='lg'
+                  className='group w-full sm:w-auto'
+                >
+                  Go to Dashboard
+                  <IconArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-0.5' />
+                </ButtonLink>
+              ) : (
+                <>
+                  <ButtonLink
+                    to='/register'
+                    variant='brand'
+                    size='lg'
+                    className='group w-full sm:w-auto'
+                  >
+                    Start chatting free
+                    <IconArrowRight className='h-4 w-4 transition-transform group-hover:translate-x-0.5' />
+                  </ButtonLink>
+                  <button
+                    type='button'
+                    onClick={() =>
+                      document
+                        .querySelector('#how-it-works')
+                        ?.scrollIntoView({ behavior: 'smooth' })
+                    }
+                    className='w-full rounded-xl border border-border bg-secondary/40 px-6 py-3.5 text-[15px] font-medium text-foreground transition-colors hover:bg-secondary sm:w-auto'
+                  >
+                    See how it works
+                  </button>
+                </>
+              )}
             </div>
           </Reveal>
         </div>

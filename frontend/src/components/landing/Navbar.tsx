@@ -1,15 +1,19 @@
-import { IconArrowRight, IconMenu2 } from '@tabler/icons-react';
-import { useState } from 'react';
-
 import { ButtonLink } from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Drawer from '@/components/ui/drawer';
 import Logo from '@/components/ui/logo';
 import ThemeToggle from '@/components/ui/theme-toggle';
+import { useAuth } from '@/hooks/useAuth';
+import { IconArrowRight, IconMenu2 } from '@tabler/icons-react';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { NAV_LINKS } from './nav-links';
 
 function Navbar() {
+  const { isAuthenticated, isLoading, isError, error } = useAuth();
+
+  console.count('[RENDER] Navbar');
+  console.log({ isAuthenticated, isLoading, isError, error });
   const [open, setOpen] = useState(false);
 
   return (
@@ -36,18 +40,32 @@ function Navbar() {
 
         <div className='hidden items-center justify-end gap-3 md:flex'>
           <ThemeToggle />
-          <ButtonLink to='/login' variant='ghost' size='md'>
-            Sign in
-          </ButtonLink>
-          <ButtonLink
-            to='/register'
-            variant='brand'
-            size='md'
-            className='group'
-          >
-            Get started
-            <IconArrowRight className='h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5' />
-          </ButtonLink>
+          {isAuthenticated ? (
+            <ButtonLink
+              to='/dashboard'
+              variant='brand'
+              size='md'
+              className='group'
+            >
+              Go to Dashboard
+              <IconArrowRight className='h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5' />
+            </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink to='/login' variant='ghost' size='md'>
+                Sign in
+              </ButtonLink>
+              <ButtonLink
+                to='/register'
+                variant='brand'
+                size='md'
+                className='group'
+              >
+                Get started
+                <IconArrowRight className='h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5' />
+              </ButtonLink>
+            </>
+          )}
         </div>
 
         <div className='flex items-center gap-2 md:hidden'>
@@ -85,24 +103,38 @@ function Navbar() {
         </nav>
 
         <div className='mt-6 flex flex-col gap-3 border-t border-border pt-6'>
-          <ButtonLink
-            to='/login'
-            variant='outline'
-            size='lg'
-            className='w-full'
-            onClick={() => setOpen(false)}
-          >
-            Sign in
-          </ButtonLink>
-          <ButtonLink
-            to='/register'
-            variant='brand'
-            size='lg'
-            className='w-full'
-            onClick={() => setOpen(false)}
-          >
-            Get started free
-          </ButtonLink>
+          {isAuthenticated ? (
+            <ButtonLink
+              to='/dashboard'
+              variant='outline'
+              size='lg'
+              className='w-full'
+              onClick={() => setOpen(false)}
+            >
+              Go to Dashboard
+            </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink
+                to='/login'
+                variant='outline'
+                size='lg'
+                className='w-full'
+                onClick={() => setOpen(false)}
+              >
+                Sign in
+              </ButtonLink>
+              <ButtonLink
+                to='/register'
+                variant='brand'
+                size='lg'
+                className='w-full'
+                onClick={() => setOpen(false)}
+              >
+                Get started free
+              </ButtonLink>
+            </>
+          )}
         </div>
       </Drawer>
     </header>
