@@ -6,7 +6,7 @@ export interface IMessageSource {
 }
 
 export interface IMessage {
-  _id: string;
+  id: string;
 
   chat_id: string;
 

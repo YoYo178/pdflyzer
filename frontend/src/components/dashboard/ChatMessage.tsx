@@ -161,7 +161,7 @@ function ChatMessage({
 
   function rate(value: 'up' | 'down') {
     const next = message.rating === value ? null : value;
-    onRate(message._id, next);
+    onRate(message.id, next);
     if (next)
       toast.success('Thanks for the feedback', { position: 'bottom-center' });
   }
@@ -192,7 +192,7 @@ function ChatMessage({
             {message.sources && message.sources.length > 0 && (
               <SourceList
                 sources={message.sources}
-                messageId={message._id}
+                messageId={message.id}
                 activeIndex={activeCitation}
               />
             )}

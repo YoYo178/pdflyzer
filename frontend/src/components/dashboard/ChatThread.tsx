@@ -133,7 +133,7 @@ function ChatThread({
 
   const lastAssistantId = [...messages]
     .reverse()
-    .find((message) => message.sender_role === 'assistant')?._id;
+    .find((message) => message.sender_role === 'assistant')?.id;
 
   const readyCount = documents.filter(
     (document) => document.status === 'READY',
@@ -165,7 +165,7 @@ function ChatThread({
         ) : (
           <div className='mx-auto w-full max-w-3xl space-y-6'>
             {rows.map(({ message, day, showDivider }) => (
-              <div key={message._id} className='space-y-6'>
+              <div key={message.id} className='space-y-6'>
                 {showDivider && (
                   <div className='flex items-center gap-3'>
                     <span className='h-px flex-1 bg-border' />
@@ -183,17 +183,17 @@ function ChatThread({
                 >
                   <ChatMessage
                     message={message}
-                    isLast={message._id === lastAssistantId}
-                    isStreaming={isStreaming && message._id === lastAssistantId}
+                    isLast={message.id === lastAssistantId}
+                    isStreaming={isStreaming && message.id === lastAssistantId}
                     statusLabel={statusLabel}
                     transport={transport}
                     activeCitation={
-                      message?._id && activeCitation?.messageId === message._id
+                      message?.id && activeCitation?.messageId === message.id
                         ? activeCitation.index
                         : null
                     }
                     onCitationClick={(index) =>
-                      onCitationClick(message._id, index)
+                      onCitationClick(message.id, index)
                     }
                     onRegenerate={onRegenerate}
                     onRate={onRate}

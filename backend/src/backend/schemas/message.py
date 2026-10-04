@@ -9,6 +9,7 @@ class MessageUpdatePayload(BaseModel):
     rating: Literal['up', 'down'] | None
 
 class MessageView(BaseModel):
+    id: PydanticObjectId
     chat_id: PydanticObjectId
     
     sender_id: PydanticObjectId | None

@@ -44,7 +44,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
   const appendChunk = useCallback((id: string, chunk: string) => {
     setMessages((current) =>
       current.map((message) =>
-        message._id === id
+        message.id === id
           ? { ...message, content: message.content + chunk }
           : message,
       ),
@@ -59,7 +59,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
       setMessages((current) => [
         ...current,
         {
-          _id: id,
+          id,
           chat_id: chatId,
           sender_id: '',
           sender_role: 'assistant',
@@ -78,7 +78,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
 
       setMessages((current) =>
         current.map((message) =>
-          message._id === id ? { ...message, status: 'done' } : message,
+          message.id === id ? { ...message, status: 'done' } : message,
         ),
       );
       setIsStreaming(false);
@@ -96,7 +96,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
       setMessages((current) => [
         ...current,
         {
-          _id: `user-${++sequence.current}`,
+          id: `user-${++sequence.current}`,
           chat_id: chatId,
           sender_id: '',
           sender_role: 'user',
@@ -123,7 +123,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
 
       setMessages((current) =>
         current.map((message) =>
-          message._id === id ? { ...message, status: 'done' } : message,
+          message.id === id ? { ...message, status: 'done' } : message,
         ),
       );
     }
@@ -158,7 +158,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
     async (id: string, value: 'up' | 'down' | null) => {
       setMessages((current) =>
         current.map((message) =>
-          message._id === id ? { ...message, rating: value } : message,
+          message.id === id ? { ...message, rating: value } : message,
         ),
       );
       await updateMessage.mutateAsync({
