@@ -2,8 +2,11 @@ from typing import Literal
 from beanie import PydanticObjectId
 from pydantic import BaseModel
 
-class PayloadMessage(BaseModel):
+class MessagePayload(BaseModel):
     content: str
+
+class MessageUpdatePayload(BaseModel):
+    rating: Literal['up', 'down'] | None
 
 class MessageView(BaseModel):
     chat_id: PydanticObjectId
@@ -12,3 +15,4 @@ class MessageView(BaseModel):
     sender_role: Literal['user', 'assistant', 'system']
     
     content: str
+    rating: Literal['up', 'down'] | None

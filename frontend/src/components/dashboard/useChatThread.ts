@@ -1,3 +1,4 @@
+import { useUpdateMessage } from '@/api/mutations/messages/useUpdateMessage';
 import { useGetAllMessages } from '@/api/queries/messages/useGetAllMessages';
 import { useStreamMessage } from '@/api/queries/messages/useStreamMessage';
 import type { IMessage } from '@/types/message.types';
@@ -10,6 +11,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
   );
 
   const stream = useStreamMessage();
+  const updateMessage = useUpdateMessage();
 
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -66,6 +68,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           status: 'streaming',
+          rating: null,
         },
       ]);
       setIsStreaming(true);
@@ -102,6 +105,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           status: 'done',
+          rating: null,
         },
       ]);
 
@@ -150,13 +154,21 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
     await runStream(lastUser.chat_id, lastUser.content);
   }, [messages, runStream, stop]);
 
-  const rate = useCallback((id: string, value: 'up' | 'down' | null) => {
-    setMessages((current) =>
-      current.map((message) =>
-        message._id === id ? { ...message, rating: value } : message,
-      ),
-    );
-  }, []);
+  const rate = useCallback(
+    async (id: string, value: 'up' | 'down' | null) => {
+      setMessages((current) =>
+        current.map((message) =>
+          message._id === id ? { ...message, rating: value } : message,
+        ),
+      );
+      await updateMessage.mutateAsync({
+        chatId: activeChatId,
+        messageId: id,
+        rating: value,
+      });
+    },
+    [activeChatId, updateMessage],
+  );
 
   return {
     messages,

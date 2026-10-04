@@ -18,7 +18,8 @@ export interface IMessage {
   created_at: string;
   updated_at: string;
 
+  rating: 'up' | 'down' | null;
+
   status?: 'streaming' | 'done' | 'error'; // TODO: Add at backend
   sources?: IMessageSource[]; // TODO: Add at backend
-  rating?: 'up' | 'down' | null; // TODO: Add at backend
 }

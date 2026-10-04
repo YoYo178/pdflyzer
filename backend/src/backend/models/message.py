@@ -13,6 +13,8 @@ class Message(BaseTimestampDocument):
     content: str
     embeddings: list[float]
     
+    rating: Literal['up', 'down'] | None = None
+    
     # Ensures relationship between sender_id and sender_role are maintained and enforced
     @model_validator(mode="after")
     def validate_sender(self):

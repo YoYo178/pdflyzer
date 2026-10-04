@@ -1,6 +1,6 @@
 import { API } from '@/api/client';
 import type { IMessage } from '@/types/message.types';
-import type { TGetAllMessagesResponse } from './types';
+import type { ICreateMessageRequest, IUpdateMessageRequest, TGetAllMessagesResponse } from './types';
 
 async function getAllMessages(chatId: string) {
   const response = await API.get<TGetAllMessagesResponse>(
@@ -16,8 +16,16 @@ async function getMessage(chatId: string, messageId: string) {
   return response.data;
 }
 
-async function createMessage(chatId: string, data: unknown) {
+async function createMessage(chatId: string, data: ICreateMessageRequest) {
   const response = await API.post<IMessage>(`/chats/${chatId}/messages`, data);
+  return response.data;
+}
+
+async function updateMessage(chatId: string, messageId: string, data: IUpdateMessageRequest) {
+  const response = await API.patch<IMessage>(
+    `/chats/${chatId}/messages/${messageId}`,
+    data,
+  );
   return response.data;
 }
 
@@ -26,4 +34,10 @@ async function deleteMessage(chatId: string, messageId: string) {
   return response.data;
 }
 
-export default { getAllMessages, getMessage, createMessage, deleteMessage };
+export default {
+  getAllMessages,
+  getMessage,
+  createMessage,
+  updateMessage,
+  deleteMessage,
+};

@@ -9,7 +9,7 @@ import backend.exceptions.message as message_exceptions
 
 from backend.models.message import Message
 
-from backend.schemas.message import PayloadMessage
+from backend.schemas.message import MessageUpdatePayload
 
 from backend.repositories.message import MessageRepository
 from backend.repositories.document import DocumentRepository
@@ -76,6 +76,9 @@ class MessageService:
                 embeddings=[]
             )
         )
+        
+    async def update_mesage(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_id: PydanticObjectId, message_data: MessageUpdatePayload):
+        return await self.message_repository.update(user_id, chat_id, message_id, message_data.model_dump())
         
     async def delete_message(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_id: PydanticObjectId) -> None:
         return await self.message_repository.delete(user_id, chat_id, message_id)

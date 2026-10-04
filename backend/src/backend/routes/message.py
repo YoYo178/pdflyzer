@@ -7,7 +7,7 @@ from backend.dependencies.services import get_message_service
 
 from backend.models.user import User
 
-from backend.schemas.message import PayloadMessage, MessageView
+from backend.schemas.message import MessagePayload, MessageView, MessageUpdatePayload
 
 from backend.services.message import MessageService
 
@@ -33,7 +33,7 @@ async def get_message(
 @chat_messages_router.post("/{chat_id}/messages", response_class=EventSourceResponse)
 async def create_message(
     chat_id: PydanticObjectId,
-    message_data: PayloadMessage,
+    message_data: MessagePayload,
     current_user: User = Depends(get_current_user),
     service: MessageService = Depends(get_message_service)
 ):
@@ -41,6 +41,16 @@ async def create_message(
         yield chunk
         
     return
+
+@chat_messages_router.patch("/{chat_id}/messages/{message_id}", response_model=MessageView)
+async def update_message(
+    chat_id: PydanticObjectId,
+    message_id: PydanticObjectId,
+    message_data: MessageUpdatePayload,
+    current_user: User = Depends(get_current_user),
+    service: MessageService = Depends(get_message_service)
+):
+    return await service.update_mesage(PydanticObjectId(current_user.id), chat_id, message_id, message_data)
 
 @chat_messages_router.delete("/{chat_id}/messages/{message_id}")
 async def delete_message(
