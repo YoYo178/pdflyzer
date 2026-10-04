@@ -86,6 +86,7 @@ class DocumentService:
                     status=existing_document.status,
                     file_path=existing_document.file_path,
                     file_hash=existing_document.file_hash,
+                    pages=existing_document.pages
                 )
 
                 await self.repo.create(
