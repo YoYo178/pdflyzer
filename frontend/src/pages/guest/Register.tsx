@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 
+import AuthFlow from '@/components/auth/AuthFlow';
 import AuthShell from '@/components/auth/AuthShell';
-import OAuthSection from '@/components/auth/OAuthSection';
 import RegisterForm from '@/components/auth/RegisterForm';
 import Reveal from '@/components/ui/reveal';
 
@@ -24,10 +24,7 @@ function Register() {
         </Reveal>
 
         <Reveal delay={120}>
-          <div className='mx-auto mt-5 max-w-sm'>
-            <RegisterForm />
-            <OAuthSection mode='register' />
-          </div>
+          <AuthFlow mode='register' form={<RegisterForm />} />
         </Reveal>
 
         <Reveal delay={200}>

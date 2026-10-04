@@ -146,6 +146,7 @@ function RegisterForm() {
           placeholder='Anna Kim'
           autoComplete='name'
           error={errors.fullName?.message}
+          autoFocus
           {...register('fullName')}
         />
 

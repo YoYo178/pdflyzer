@@ -75,6 +75,7 @@ function LoginForm() {
         autoComplete='email'
         spellCheck={false}
         error={errors.email?.message}
+        autoFocus
         {...register('email')}
       />
 

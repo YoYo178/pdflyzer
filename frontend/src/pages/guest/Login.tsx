@@ -1,8 +1,8 @@
 import { Link } from 'react-router';
 
+import AuthFlow from '@/components/auth/AuthFlow';
 import AuthShell from '@/components/auth/AuthShell';
 import LoginForm from '@/components/auth/LoginForm';
-import OAuthSection from '@/components/auth/OAuthSection';
 import Reveal from '@/components/ui/reveal';
 
 function Login() {
@@ -24,10 +24,7 @@ function Login() {
         </Reveal>
 
         <Reveal delay={120}>
-          <div className='mx-auto mt-5 max-w-sm'>
-            <LoginForm />
-            <OAuthSection mode='login' />
-          </div>
+          <AuthFlow mode='login' form={<LoginForm />} />
         </Reveal>
 
         <Reveal delay={200}>
