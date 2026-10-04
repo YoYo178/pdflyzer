@@ -10,10 +10,7 @@ import { Link } from 'react-router';
 import { NAV_LINKS } from './nav-links';
 
 function Navbar() {
-  const { isAuthenticated, isLoading, isError, error } = useAuth();
-
-  console.count('[RENDER] Navbar');
-  console.log({ isAuthenticated, isLoading, isError, error });
+  const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
 
   return (
