@@ -1,5 +1,7 @@
 from arq.connections import RedisSettings
 
+from backend.settings import settings
+
 from backend.core.database import connect_db
 from backend.jobs.document import process_document
 
@@ -9,8 +11,8 @@ class WorkerSettings:
     ]
 
     redis_settings = RedisSettings(
-        host="localhost",
-        port=6379
+        host=settings.redis_host,
+        port=settings.redis_port,
     )
 
     @staticmethod
