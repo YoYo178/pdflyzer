@@ -1,14 +1,21 @@
 import { API } from '@/api/client';
+import { isUnauthorized } from '@/api/utils';
 import type {
   TGetMeResponse,
   TUpdateMeRequest,
   TUpdateMeResponse,
 } from './types';
 
-async function getMe() {
-  const response = await API.get<TGetMeResponse>('/users/me');
+async function getMe(): Promise<TGetMeResponse | null> {
+  try {
+    const response = await API.get<TGetMeResponse>('/users/me');
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    if (isUnauthorized(error)) return null;
+
+    throw error;
+  }
 }
 
 async function updateMe(data: TUpdateMeRequest) {

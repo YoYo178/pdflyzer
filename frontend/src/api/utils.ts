@@ -18,3 +18,7 @@ export function getErrorMessage(
 ) {
   return error instanceof Error && error.message ? error.message : fallback;
 }
+
+export function isUnauthorized(error: unknown) {
+  return error instanceof APIError && error.status === 401;
+}
