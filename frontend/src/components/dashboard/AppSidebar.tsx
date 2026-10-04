@@ -4,6 +4,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import Logo from '@/components/ui/logo';
+import { useDocumentsHealth } from '@/hooks/useDocumentsHealth';
 import {
   formatAbsoluteTime,
   formatBytes,
@@ -25,7 +26,7 @@ import {
   IconSearch,
   IconTrash,
 } from '@tabler/icons-react';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 
 const BUCKETS = [
@@ -91,6 +92,15 @@ function AppSidebar({
 
   const [documentsOpen, setDocumentsOpen] = useState(false);
 
+  const { render: docHealthRender, documentsHealth } = useDocumentsHealth({
+    documents,
+  });
+
+  useEffect(() => {
+    if (documentsHealth === null || documentsHealth === 'HEALTHY') return;
+
+    setDocumentsOpen(true);
+  }, [documentsHealth]);
 
   const needle = query.trim().toLowerCase();
 
@@ -262,7 +272,10 @@ function AppSidebar({
       className='flex h-full min-h-0 flex-col bg-background'
       aria-label='Chats and documents'
     >
-      <Link to='/dashboard' className='flex shrink-0 items-center justify-between px-4 py-4 cursor-pointer'>
+      <Link
+        to='/dashboard'
+        className='flex shrink-0 items-center justify-between px-4 py-4 cursor-pointer'
+      >
         <Logo size='sm' className='px-1' />
       </Link>
 
@@ -335,15 +348,18 @@ function AppSidebar({
               </span>
             </button>
 
-            <button
-              type='button'
-              onClick={() => fileInputRef.current?.click()}
-              aria-label='Add a PDF'
-              title='Add a PDF'
-              className='ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:text-foreground focus-visible:outline-none'
-            >
-              <IconPaperclip className='h-3.5 w-3.5' />
-            </button>
+            <div className='ml-auto flex items-center gap-1'>
+              {docHealthRender}
+              <button
+                type='button'
+                onClick={() => fileInputRef.current?.click()}
+                aria-label='Add a PDF'
+                title='Add a PDF'
+                className='ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent focus-visible:text-foreground focus-visible:outline-none'
+              >
+                <IconPaperclip className='h-3.5 w-3.5' />
+              </button>
+            </div>
 
             <input
               ref={fileInputRef}
