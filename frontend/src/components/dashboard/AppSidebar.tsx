@@ -91,9 +91,6 @@ function AppSidebar({
 
   const [documentsOpen, setDocumentsOpen] = useState(false);
 
-  // A failed document is the one case worth interrupting the user for.
-  const showDocuments =
-    documentsOpen || documents.some((document) => document.status === 'FAILED');
 
   const needle = query.trim().toLowerCase();
 
@@ -316,21 +313,21 @@ function AppSidebar({
         <section
           className={cn(
             'flex min-h-0 flex-col border-t border-border',
-            showDocuments && documents.length > 0 && 'flex-[0_0_38%]',
-            !showDocuments && 'shrink-0',
+            documentsOpen && documents.length > 0 && 'flex-[0_0_38%]',
+            !documentsOpen && 'shrink-0',
           )}
         >
           <div className='flex shrink-0 items-center gap-1 px-3 py-2.5'>
             <button
               type='button'
               onClick={() => setDocumentsOpen((open) => !open)}
-              aria-expanded={showDocuments}
+              aria-expanded={documentsOpen}
               className='flex min-w-0 items-center gap-1.5 rounded-md px-1 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/70 transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:outline-none'
             >
               <IconChevronDown
                 className={cn(
                   'h-3 w-3 shrink-0 transition-transform',
-                  !showDocuments && '-rotate-90',
+                  !documentsOpen && '-rotate-90',
                 )}
               />
               <span className='truncate'>
@@ -362,7 +359,7 @@ function AppSidebar({
             />
           </div>
 
-          {showDocuments && (
+          {documentsOpen && (
             <div className='scrollbar-slim min-h-0 flex-1 overflow-y-auto px-3 pb-3'>
               {documents.length === 0 ? (
                 <p className='px-1 py-1 text-xs text-muted-foreground'>
