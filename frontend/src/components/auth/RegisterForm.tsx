@@ -1,6 +1,7 @@
 import { useRegister } from '@/api/mutations/auth/useRegister';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import {
+  IconAt,
   IconLock,
   IconMail,
   IconShieldCheck,
@@ -22,6 +23,17 @@ const registerFormSchema = v.config(
         v.trim(),
         v.minLength(1, 'Full name is required'),
         v.check((input) => input.includes(' '), 'Please enter your full name'),
+      ),
+      username: v.pipe(
+        v.string('Invalid username value'),
+        v.trim(),
+        v.minLength(3, 'Username must be at least 3 characters'),
+        v.maxLength(20, 'Username must not exceed 20 characters'),
+        v.check(
+          (input) => /^[a-zA-Z0-9_-]+$/.test(input),
+          'Username can only contain letters, numbers, dashes, and underscores',
+        ),
+        v.check((input) => !/\s/.test(input), 'Username cannot contain spaces'),
       ),
       email: v.pipe(
         v.string('Invalid email value'),
@@ -105,7 +117,7 @@ function RegisterForm() {
         email: data.email,
         name: data.fullName,
         password: data.password,
-        username: data.email, // TODO: add username field
+        username: data.username,
       });
 
       toast.success(
@@ -138,17 +150,29 @@ function RegisterForm() {
         />
 
         <AuthField
-          id='email'
-          type='email'
-          label='Email'
-          icon={IconMail}
-          placeholder='anna@example.com'
-          autoComplete='email'
+          id='username'
+          type='text'
+          label='Username'
+          icon={IconAt}
+          placeholder='anna_kim'
+          autoComplete='username'
           spellCheck={false}
-          error={errors.email?.message}
-          {...register('email')}
+          error={errors.username?.message}
+          {...register('username')}
         />
       </div>
+
+      <AuthField
+        id='email'
+        type='email'
+        label='Email'
+        icon={IconMail}
+        placeholder='anna@example.com'
+        autoComplete='email'
+        spellCheck={false}
+        error={errors.email?.message}
+        {...register('email')}
+      />
 
       <AuthField
         id='password'
