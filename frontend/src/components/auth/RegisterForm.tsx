@@ -179,7 +179,7 @@ function RegisterForm() {
         type={showPassword ? 'text' : 'password'}
         label='Password'
         icon={IconLock}
-        placeholder='At least 8 characters'
+        placeholder='********'
         autoComplete='new-password'
         hint='At least 8 characters — your documents are worth it.'
         error={errors.password?.message}
