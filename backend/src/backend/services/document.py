@@ -36,10 +36,14 @@ class DocumentService:
         return await self.repo.find_by_id_in_chat(user_id, chat_id, document_id)
 
     async def delete_document(self, user_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
+        # TODO: This is currently a bug, it should only delete chunks if no other documents reference it
+        # TODO: but currently it will delete all chunks even if there are multiple documents referencing them
         await self.document_chunk_repository.delete_document_chunks(document_id)
         return await self.repo.delete(user_id, document_id)
 
     async def delete_document_in_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
+        # TODO: This is currently a bug, it should only delete chunks if no other documents reference it
+        # TODO: but currently it will delete all chunks even if there are multiple documents referencing them
         await self.document_chunk_repository.delete_document_chunks(document_id)
         return await self.repo.delete_in_chat(user_id, chat_id, document_id)
 
