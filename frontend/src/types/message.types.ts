@@ -14,7 +14,6 @@ export interface IMessage {
   sender_role: 'user' | 'assistant' | 'system';
 
   content: string;
-  embeddings: number[]; // TODO: Enforce a response model at the backend excluding embeddings
 
   created_at: string;
   updated_at: string;

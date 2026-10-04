@@ -7,13 +7,13 @@ from backend.dependencies.services import get_message_service
 
 from backend.models.user import User
 
-from backend.schemas.message import PayloadMessage
+from backend.schemas.message import PayloadMessage, MessageView
 
 from backend.services.message import MessageService
 
 chat_messages_router = APIRouter(prefix="/chats", tags=["Messages"])
 
-@chat_messages_router.get("/{chat_id}/messages")
+@chat_messages_router.get("/{chat_id}/messages", response_model=list[MessageView])
 async def get_all_messages(
     chat_id: PydanticObjectId,
     current_user: User = Depends(get_current_user),
@@ -21,7 +21,7 @@ async def get_all_messages(
 ):
     return await service.get_all_messages(PydanticObjectId(current_user.id), chat_id)
 
-@chat_messages_router.get("/{chat_id}/messages/{message_id}")
+@chat_messages_router.get("/{chat_id}/messages/{message_id}", response_model=MessageView)
 async def get_message(
     chat_id: PydanticObjectId,
     message_id: PydanticObjectId,
