@@ -1,7 +1,6 @@
 from backend.core.ws.dispatcher import websocket_event_dispatcher
 
 from backend.types.events import ClientToServerEvents
-from backend.dependencies.services import get_message_service
 
 from .message import handle_create_message
 

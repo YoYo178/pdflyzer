@@ -24,7 +24,7 @@ class ProcessedChunk:
     paragraph_end: int
 
 @dataclass
-class RetrievedChunk():
+class RetrievedChunk:
     id: PydanticObjectId
     document_id: PydanticObjectId
     chunk_index: int
