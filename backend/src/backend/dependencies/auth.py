@@ -29,14 +29,36 @@ async def verify_refresh_token(refresh_token: str, repo: UserRepository) -> User
     except ExpiredSignatureError:
         raise auth_exceptions.UnauthorizedUser()
 
+async def issue_new_access_token(refresh_token: str, repo: UserRepository, response: Response):
+    user = await verify_refresh_token(refresh_token, repo)
+
+    access_token = generate_access_token(str(user.id))
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        max_age=60 * 15, # 15 Minutes
+        samesite="lax",
+    )
+    
+    return user
+
 async def verify_access_token(
-    access_token: str,
+    access_token: str | None,
     refresh_token: str,
     repo: UserRepository,
     response: Response | None,
     isWebSocket: bool = False
 ) -> User:
     try:
+        if not access_token and response != None:
+            return await issue_new_access_token(refresh_token, repo, response)
+        
+        if not access_token:
+            raise auth_exceptions.UnauthorizedUser()
+        
         payload = decode_access_token(access_token)
 
         user_id = payload.get("sub")
@@ -53,18 +75,7 @@ async def verify_access_token(
     except ExpiredSignatureError:
         # WebSocket cannot set cookies
         if not isWebSocket and response != None:
-            user = await verify_refresh_token(refresh_token, repo)
-
-            access_token = generate_access_token(str(user.id))
-
-            response.set_cookie(
-                key="access_token",
-                value=access_token,
-                httponly=True,
-                secure=False,
-                max_age=60 * 15, # 15 Minutes
-                samesite="lax",
-            )
+            return await issue_new_access_token(refresh_token, repo, response)
         
         raise auth_exceptions.UnauthorizedUser()
 
@@ -76,7 +87,7 @@ async def get_current_user(
     access_token = request.cookies.get("access_token")
     refresh_token = request.cookies.get("refresh_token")
     
-    if not access_token or not refresh_token:
+    if not refresh_token:
         raise auth_exceptions.UnauthorizedUser()
     
     return await verify_access_token(access_token, refresh_token, repo, response)
@@ -88,7 +99,7 @@ async def get_current_websocket_user(
     access_token = websocket.cookies.get("access_token")
     refresh_token = websocket.cookies.get("refresh_token")
     
-    if not access_token or not refresh_token:
+    if not refresh_token:
         raise auth_exceptions.UnauthorizedUser()
     
     return await verify_access_token(access_token, refresh_token, repo, None, True)
