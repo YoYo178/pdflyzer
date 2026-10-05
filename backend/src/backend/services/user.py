@@ -1,4 +1,3 @@
-from fastapi import Depends
 from beanie import PydanticObjectId
 
 import backend.exceptions.user as user_exceptions
