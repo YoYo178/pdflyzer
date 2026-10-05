@@ -1,3 +1,4 @@
+from arq import ArqRedis
 from beanie import PydanticObjectId
 from typing import AsyncIterator
 
@@ -12,22 +13,27 @@ from backend.models.message import Message
 from backend.schemas.message import MessageUpdatePayload
 
 from backend.repositories.message import MessageRepository
+from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
 
 class MessageService:
     def __init__(
         self,
         message_repository: MessageRepository,
+        chat_repository: ChatRepository,
         document_repository: DocumentRepository,
         embedding_service: EmbeddingService,
         retrieval_service: RetrievalService,
-        llm_service: LLMService
+        llm_service: LLMService,
+        queue: ArqRedis
     ):
         self.message_repository = message_repository
+        self.chat_repository = chat_repository
         self.document_repository = document_repository
         self.embedding_service = embedding_service
         self.retrieval_service = retrieval_service
         self.llm_service = llm_service
+        self.queue = queue
     
     async def get_all_messages(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[Message]:
         return await self.message_repository.find_all(user_id, chat_id)
@@ -54,6 +60,18 @@ class MessageService:
                 embeddings=message_embeddings
             )
         )
+        
+        chat = await self.chat_repository.find_by_id(user_id, chat_id)
+        
+        # If it's a newly generated chat, and the title is still the default
+        # then attempt to generate a meaningful title for this chat
+        if(chat.name == "New Chat"):
+            await self.queue.enqueue_job(
+                'generate_chat_title',
+                user_id,
+                chat_id,
+                message_content
+            )
         
         chunks = await self.retrieval_service.retrieve(chat_id, message_embeddings)
         

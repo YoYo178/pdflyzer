@@ -57,15 +57,19 @@ def get_chat_service(
 
 def get_message_service(
     message_repository: MessageRepository = Depends(get_message_repository),
+    chat_repository: ChatRepository = Depends(get_chat_repository),
     document_repository: DocumentRepository = Depends(get_document_repository),
     embedding_service: EmbeddingService = Depends(get_embedding_service),
     retrieval_service: RetrievalService = Depends(get_retrieval_service),
-    llm_service: LLMService = Depends(get_llm_service)
+    llm_service: LLMService = Depends(get_llm_service),
+    queue: ArqRedis = Depends(get_queue)
 ) -> MessageService:
     return MessageService(
         message_repository,
+        chat_repository,
         document_repository,
         embedding_service,
         retrieval_service,
-        llm_service
+        llm_service,
+        queue
     )

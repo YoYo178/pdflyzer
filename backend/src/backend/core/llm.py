@@ -7,7 +7,7 @@ from backend.settings import settings
 from backend.types.document import RetrievedChunk
 from backend.types.llm import LLMPrompt
 
-class LLMService():
+class LLMService:
     _client: genai.Client | None = None
     _model: str = "gemini-3.6-flash"
     
@@ -87,6 +87,44 @@ class LLMService():
             system_prompt,
             user_prompt
         )
+        
+    def _build_title_prompt(self, question: str) -> LLMPrompt:
+        system_prompt = dedent("""
+            Generate a concise title for this prompt.
+
+            Rules:
+            - Maximum 6 words.
+            - No quotation marks.
+            - No explanations.
+            - Preserve the primary topic.
+            - Return only the title.
+        """).strip()
+        
+        user_prompt = f"Prompt: \"{question}\""
+        
+        return LLMPrompt(
+            system_prompt,
+            user_prompt
+        )
+    
+    async def generate_title(self, question: str):
+        if not self._client:
+            raise RuntimeError("LLMService not initialized!")
+        
+        prompt_data = self._build_title_prompt(question)
+        
+        chat = self._client.aio.chats.create(
+            model=self._model
+        )
+        
+        response = await chat.send_message(
+            config={
+                "system_instruction": prompt_data.system_prompt
+            },
+            message=prompt_data.user_prompt,
+        )
+        
+        return response.text
                 
     async def generate(self, question: str, chunks: list[RetrievedChunk]):
         if not self._client:
