@@ -1,5 +1,6 @@
 from arq import ArqRedis
-from fastapi import Request, Depends
+from fastapi import Depends
+from starlette.requests import HTTPConnection
 
 from backend.core.chunk import ChunkService
 from backend.core.embedding import EmbeddingService, embedding_service
@@ -13,8 +14,8 @@ from backend.dependencies.repositories import get_document_chunk_repository
 
 from backend.repositories.document_chunk import DocumentChunkRepository
 
-def get_queue(request: Request) -> ArqRedis:
-    return request.app.state.queue
+def get_queue(connection: HTTPConnection) -> ArqRedis:
+    return connection.app.state.queue
 
 def get_storage_service() -> StorageService:
     return StorageService()
