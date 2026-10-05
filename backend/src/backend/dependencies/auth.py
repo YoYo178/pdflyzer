@@ -1,4 +1,4 @@
-from fastapi import Request, Depends, WebSocket
+from fastapi import Request, Depends, WebSocket, Response
 
 from beanie import PydanticObjectId
 from jwt.exceptions import ExpiredSignatureError
@@ -9,11 +9,11 @@ import backend.exceptions.auth as auth_exceptions
 
 from backend.dependencies.repositories import get_user_repository
 from backend.repositories.user import UserRepository
-from backend.utils.jwt import decode_access_token
+from backend.utils.jwt import decode_access_token, decode_refresh_token, generate_access_token
 
-async def verify_access_token(access_token: str, repo: UserRepository) -> User:
+async def verify_refresh_token(refresh_token: str, repo: UserRepository) -> User:
     try:
-        payload = decode_access_token(access_token)
+        payload = decode_refresh_token(refresh_token)
 
         user_id = payload.get("sub")
 
@@ -29,24 +29,66 @@ async def verify_access_token(access_token: str, repo: UserRepository) -> User:
     except ExpiredSignatureError:
         raise auth_exceptions.UnauthorizedUser()
 
+async def verify_access_token(
+    access_token: str,
+    refresh_token: str,
+    repo: UserRepository,
+    response: Response | None,
+    isWebSocket: bool = False
+) -> User:
+    try:
+        payload = decode_access_token(access_token)
+
+        user_id = payload.get("sub")
+
+        if not user_id:
+            raise auth_exceptions.UnauthorizedUser()
+
+        user = await repo.find_by_id(PydanticObjectId(user_id))
+
+        if not user:
+            raise auth_exceptions.UnauthorizedUser()
+
+        return user
+    except ExpiredSignatureError:
+        # WebSocket cannot set cookies
+        if not isWebSocket and response != None:
+            user = await verify_refresh_token(refresh_token, repo)
+
+            access_token = generate_access_token(str(user.id))
+
+            response.set_cookie(
+                key="access_token",
+                value=access_token,
+                httponly=True,
+                secure=False,
+                max_age=60 * 15, # 15 Minutes
+                samesite="lax",
+            )
+        
+        raise auth_exceptions.UnauthorizedUser()
+
 async def get_current_user(
     request: Request,
+    response: Response,
     repo: UserRepository = Depends(get_user_repository)
 ) -> User:
     access_token = request.cookies.get("access_token")
+    refresh_token = request.cookies.get("refresh_token")
     
-    if not access_token:
+    if not access_token or not refresh_token:
         raise auth_exceptions.UnauthorizedUser()
     
-    return await verify_access_token(access_token, repo)
+    return await verify_access_token(access_token, refresh_token, repo, response)
 
 async def get_current_websocket_user(
     websocket: WebSocket,
     repo: UserRepository = Depends(get_user_repository)
 ) -> User:
     access_token = websocket.cookies.get("access_token")
+    refresh_token = websocket.cookies.get("refresh_token")
     
-    if not access_token:
+    if not access_token or not refresh_token:
         raise auth_exceptions.UnauthorizedUser()
     
-    return await verify_access_token(access_token, repo)
+    return await verify_access_token(access_token, refresh_token, repo, None, True)
