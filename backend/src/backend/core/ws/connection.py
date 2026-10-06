@@ -27,7 +27,7 @@ class WebSocketConnectionManager:
     async def broadcast(self, chat_id: str, data: dict) -> None:
         connections = self.connections.get(chat_id, set())
         
-        for websocket in connections:
+        for websocket in connections.copy():
             try:
                 await websocket.send_json(data)
             except Exception:
