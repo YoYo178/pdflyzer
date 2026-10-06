@@ -1,7 +1,5 @@
 from beanie import PydanticObjectId
 
-from backend.events.message import event_message_created
-
 from backend.events.chat import (
     event_chat_stream_begin,
     event_chat_stream_chunk,
@@ -35,13 +33,4 @@ async def handle_create_message(
     await ctx.connection_manager.broadcast(
         chat_id,
         event_chat_stream_end()
-    )
-    
-    await ctx.connection_manager.broadcast(
-        chat_id,
-        event_message_created({
-            "sender_id": str(ctx.user.id),
-            "sender_role": "user",
-            "content": "test"
-        })
     )
