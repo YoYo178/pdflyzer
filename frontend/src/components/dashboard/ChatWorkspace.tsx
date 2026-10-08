@@ -24,7 +24,7 @@ import ChatThread from './ChatThread';
 import ChatTopbar from './ChatTopbar';
 import ComposerUploadNotice from './ComposerUploadNotice';
 import DashboardHome from './DashboardHome';
-import useChatThread from './useChatThread';
+import useChatThread from '../../hooks/useChatThread';
 
 export type TWorkspaceMode = 'dashboard' | 'new' | 'chat';
 
