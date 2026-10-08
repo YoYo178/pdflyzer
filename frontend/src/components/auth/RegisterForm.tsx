@@ -1,4 +1,5 @@
 import { useRegister } from '@/api/mutations/auth/useRegister';
+import { useErrorToast } from '@/hooks/useErrorToast';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import {
   IconAt,
@@ -105,11 +106,7 @@ function RegisterForm() {
     resolver: valibotResolver(registerFormSchema),
   });
 
-  useEffect(() => {
-    if (!error?.message) return;
-
-    toast.error(error.message, { position: 'bottom-center' });
-  }, [error?.message]);
+  useErrorToast(error?.message);
 
   const onSubmit = useCallback(
     async (data: TRegisterSchema) => {

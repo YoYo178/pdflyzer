@@ -1,4 +1,5 @@
 import { useLogin } from '@/api/mutations/auth/useLogin';
+import { useErrorToast } from '@/hooks/useErrorToast';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import { IconLock, IconMail } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -38,11 +39,7 @@ function LoginForm() {
     resolver: valibotResolver(loginFormSchema),
   });
 
-  useEffect(() => {
-    if (!error?.message) return;
-
-    toast.error(error.message, { position: 'bottom-center' });
-  }, [error?.message]);
+  useErrorToast(error?.message);
 
   const onSubmit = useCallback(
     async (data: TLoginSchema) => {
