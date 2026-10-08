@@ -111,9 +111,9 @@ class DocumentService:
 
                     await self.queue.enqueue_job(
                         "process_document",
-                        user_id,
-                        document.id,
-                        chat_id
+                        str(user_id),
+                        str(document.id),
+                        str(chat_id),
                     )
 
                 continue
@@ -142,7 +142,7 @@ class DocumentService:
 
             await self.queue.enqueue_job(
                 "process_document",
-                user_id,
-                document.id,
-                chat_id
+                str(user_id),
+                str(document.id),
+                str(chat_id),
             )
