@@ -49,7 +49,6 @@ async def handle_websocket_connection(
                 ctx=WebSocketContext(
                     websocket=websocket,
                     chat_id=chat_id,
-                    connection_manager=connection_manager,
                     user=current_user,
                     
                     chat_service=chat_service,

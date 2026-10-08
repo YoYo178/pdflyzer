@@ -32,3 +32,5 @@ class WebSocketConnectionManager:
                 await websocket.send_json(data)
             except Exception:
                 self.disconnect(chat_id, websocket)
+
+websocket_connection_manager = WebSocketConnectionManager()

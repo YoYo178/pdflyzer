@@ -6,8 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.core.database import connect_db
 from backend.core.queue import create_queue
 
-from backend.core.ws.connection import WebSocketConnectionManager
-
 from backend.config.cors import CORS_CONFIG
 
 from backend.exceptions.base import AppException
@@ -24,9 +22,6 @@ async def lifespan(app: FastAPI):
 
     # Create a redis queue instance and attach it to the application
     app.state.queue = await create_queue()
-
-    # Create a WebSocket connection manager instance and attach it to the application
-    app.state.websocket_connection_manager = WebSocketConnectionManager()
     
     register_socket_handlers()
 

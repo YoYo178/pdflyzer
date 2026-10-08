@@ -16,7 +16,5 @@ class WebSocketContext:
     user: User
     chat_id: PydanticObjectId
     
-    connection_manager: WebSocketConnectionManager
-    
     chat_service: ChatService
     message_service: MessageService
