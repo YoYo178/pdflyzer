@@ -1,3 +1,4 @@
+from typing import Literal
 from backend.types.events import ServerToClientEvents
 
 def event_chat_stream_begin():
@@ -22,4 +23,10 @@ def event_chat_stream_end():
     return {
         "type": ServerToClientEvents.CHAT_STREAM_END,
         "data": None
+    }
+
+def event_chat_title_update(title: str):
+    return {
+        "type": ServerToClientEvents.CHAT_TITLE_UPDATE,
+        "data": title
     }

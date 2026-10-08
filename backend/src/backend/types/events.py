@@ -12,3 +12,5 @@ class ServerToClientEvents(StrEnum):
     CHAT_STREAM_CHUNK = "chat.stream.chunk"
     CHAT_STREAM_SOURCES_CHUNK = "chat.stream.sources_chunk"
     CHAT_STREAM_END = "chat.stream.end"
+    
+    CHAT_TITLE_UPDATE = "chat.title.update"
