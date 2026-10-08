@@ -1,9 +1,13 @@
 from beanie import PydanticObjectId
 
 from backend.core.chunk import ChunkService
+from backend.core.events.publisher import publish_event
 from backend.core.embedding import EmbeddingService
 from backend.core.text import TextService
 from backend.core.pdf import PDFService
+
+from backend.events.chat import event_chat_document_update
+from backend.events.redis import redis_pub_event
 
 from backend.models.document_chunk import DocumentChunk
 
@@ -32,14 +36,24 @@ async def process_document(
 
     if not document:
         return
+    
+    status = 'PROCESSING'
 
-    document.status = "PROCESSING"
+    document.status = status
     await document.save()
+    
+    await publish_event(
+        ctx['redis'],
+        redis_pub_event(
+            chat_id,
+            event_chat_document_update(chat_id, document_id, status)
+        )   
+    )
 
     file_path = document.file_path
 
     try:
-        print(f"Processing {document.filename}")
+        print(f'Processing {document.filename}')
         
         parsed_pages = pdf_service.extract_pages(file_path)
         
@@ -74,15 +88,35 @@ async def process_document(
         ]
         
         await document_chunk_repository.create_many(chunk_documents)
+        
+        status = 'READY'
 
-        document.status = "READY"
+        document.status = status
         await document.save()
         
-        await document_repository.update_status_by_hash(PydanticObjectId(user_id), document.file_hash, PydanticObjectId(chat_id), "READY")
+        await document_repository.update_status_by_hash(PydanticObjectId(user_id), document.file_hash, PydanticObjectId(chat_id), status)
+    
+        await publish_event(
+            ctx['redis'],
+            redis_pub_event(
+                chat_id,
+                event_chat_document_update(chat_id, document_id, status)
+            )   
+        )
     except Exception:
-        print(f"Failed to process {document.filename}")
+        print(f'Failed to process {document.filename}')
         
-        document.status = "FAILED"
+        status = 'FAILED'
+        
+        document.status = status
         await document.save()
+    
+        await publish_event(
+            ctx['redis'],
+            redis_pub_event(
+                chat_id,
+                event_chat_document_update(chat_id, document_id, status)
+            )   
+        )
 
         raise

@@ -30,3 +30,13 @@ def event_chat_title_update(title: str):
         "type": ServerToClientEvents.CHAT_TITLE_UPDATE,
         "data": title
     }
+
+def event_chat_document_update(chat_id: str, document_id: str, status: Literal['QUEUED', 'PROCESSING', 'READY', 'FAILED']):
+    return {
+        "type": ServerToClientEvents.CHAT_DOCUMENT_UPDATE,
+        "data": {
+            "chat_id": chat_id,
+            "document_id": document_id,
+            "status": status
+        }
+    }

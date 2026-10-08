@@ -14,3 +14,5 @@ class ServerToClientEvents(StrEnum):
     CHAT_STREAM_END = "chat.stream.end"
     
     CHAT_TITLE_UPDATE = "chat.title.update"
+    
+    CHAT_DOCUMENT_UPDATE = "chat.document.update"
