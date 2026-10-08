@@ -7,7 +7,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { IconArrowRight, IconMenu2 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { NAV_LINKS } from './nav-links';
+
+const NAV_LINKS = [
+  { label: 'Features', href: '#features' },
+  { label: 'How it works', href: '#how-it-works' },
+  { label: 'Security', href: '#security' },
+  { label: 'FAQ', href: '#faq' },
+];
 
 function Navbar() {
   const { isAuthenticated } = useAuth();
