@@ -1,8 +1,13 @@
+import asyncio
+
 from contextlib import asynccontextmanager
+from redis.asyncio import Redis
+
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.core.events.subscriber import redis_event_listener
 from backend.core.database import connect_db
 from backend.core.queue import create_queue
 
@@ -15,12 +20,26 @@ from backend.routes.ws import router as ws_router
 
 from backend.sockets import register_socket_handlers
 
+from backend.settings import settings
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Setup a redis instance of pub/sub managing
+    redis = Redis(
+        host=settings.redis_host,
+        port=settings.redis_port,
+        decode_responses=True
+    )
+    
+    # Attach the subscriber for listening to published events
+    listener_task = asyncio.create_task(
+        redis_event_listener(redis)
+    )
+    
     # Connect to MongoDB
     await connect_db()
 
-    # Create a redis queue instance and attach it to the application
+    # Create another redis instance through ARQ for queueing jobs and attach it to the application
     app.state.queue = await create_queue()
     
     register_socket_handlers()
@@ -28,7 +47,17 @@ async def lifespan(app: FastAPI):
     # Proceed with handling requests
     yield
 
-    # Close the redis connection for cleanup
+    # Cleanup redis pub/sub subscriber
+    listener_task.cancel()
+    try:
+        await listener_task
+    except asyncio.CancelledError:
+        pass
+
+    # Close redis pub/sub connection
+    await redis.aclose()
+
+    # Close the ARQ redis connection
     await app.state.queue.close()
 
 # Create the FastAPI App instance
