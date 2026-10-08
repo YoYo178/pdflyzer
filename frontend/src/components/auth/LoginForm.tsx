@@ -3,12 +3,13 @@ import { useErrorToast } from '@/hooks/useErrorToast';
 import { valibotResolver } from '@hookform/resolvers/valibot';
 import { IconLock, IconMail } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import * as v from 'valibot';
 import { Button } from '../ui/button';
-import { AuthField, PasswordToggle } from './AuthField';
+import AuthField from './AuthField';
+import PasswordToggle from './PasswordToggle';
 
 const loginFormSchema = v.object({
   email: v.pipe(
