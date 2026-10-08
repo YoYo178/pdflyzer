@@ -8,24 +8,9 @@ const HINTS: Record<TOAuthMode, string> = {
   register: 'Your account is created automatically from your provider profile.',
 };
 
-/**
- * `featured` promotes the email option above a separator, `plain` lists every
- * method with the same visual weight.
- */
-type TAuthLayout = 'featured' | 'plain';
-
 interface AuthOptionsProps {
   mode: TOAuthMode;
-  layout?: TAuthLayout;
   onSelectEmail: () => void;
-}
-
-function AuthHint({ mode }: { mode: TOAuthMode }) {
-  return (
-    <p className='mt-5 text-pretty text-center text-xs leading-relaxed text-muted-foreground/80'>
-      {HINTS[mode]}
-    </p>
-  );
 }
 
 function AuthOptions({ mode, onSelectEmail }: AuthOptionsProps) {
@@ -52,7 +37,9 @@ function AuthOptions({ mode, onSelectEmail }: AuthOptionsProps) {
 
       <OAuthButtons mode={mode} />
 
-      <AuthHint mode={mode} />
+      <p className='mt-5 text-pretty text-center text-xs leading-relaxed text-muted-foreground/80'>
+        {HINTS[mode]}
+      </p>
     </div>
   );
 }
