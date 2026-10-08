@@ -25,6 +25,7 @@ import ChatTopbar from './ChatTopbar';
 import ComposerUploadNotice from './ComposerUploadNotice';
 import DashboardHome from './DashboardHome';
 import useChatThread from '../../hooks/useChatThread';
+import { useChatLiveUpdates } from '@/api/queries/chats/useChatLiveUpdates';
 
 export type TWorkspaceMode = 'dashboard' | 'new' | 'chat';
 
@@ -66,6 +67,8 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
   const activeChatId = mode === 'chat' ? (chatId ?? null) : null;
   const hasActiveChat = mode !== 'dashboard';
   const threadKey = activeChatId ?? mode;
+
+  useChatLiveUpdates(activeChatId ?? '');
 
   // A chat created in this session must never be re-seeded from the server, or
   // the empty message list would wipe the thread the user just started.
