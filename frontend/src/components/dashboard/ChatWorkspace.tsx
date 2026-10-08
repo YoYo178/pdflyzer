@@ -42,11 +42,14 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
 
   const { data: chats = [] } = useGetAllChats();
   const documentsChatId = mode === 'chat' ? chatId : undefined;
-  const { data: documents = [] } = useGetDocuments(documentsChatId);
 
-  // Realtime indexing updates over the shared chat socket, with the documents
-  // query keeping its HTTP polling fallback whenever the socket is unavailable.
-  useDocumentLiveUpdates(documentsChatId);
+  const isSocketAvailable = useDocumentLiveUpdates(documentsChatId);
+
+  const { data: documents = [] } = useGetDocuments(
+    documentsChatId,
+    !isSocketAvailable, // Fall back to polling if socket is not available
+  );
+
   const {
     data: fetchedChat,
     isPending: isChatPending,
@@ -72,8 +75,7 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
 
   // A chat created in this session must never be re-seeded from the server, or
   // the empty message list would wipe the thread the user just started.
-  const seedFromServer =
-    activeChatId === null || activeChatId !== localChatId;
+  const seedFromServer = activeChatId === null || activeChatId !== localChatId;
 
   const thread = useChatThread(activeChatId ?? '', seedFromServer);
   const {
@@ -359,7 +361,7 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
               onRate={rate}
             />
 
-{/* A chat can only be conversed once the backend has indexed a
+            {/* A chat can only be conversed once the backend has indexed a
                 document, so the input is replaced by an upload prompt rather
                 than removed — the slot keeps its place, and the user gets a
                 way forward. */}

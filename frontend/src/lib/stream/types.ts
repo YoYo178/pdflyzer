@@ -24,6 +24,7 @@ export const WS_EVENTS = {
   streamEnd: 'chat.stream.end',
 
   /** Not emitted server-side yet; wired so the client reacts as soon as it is. */
-  documentUpdated: 'chat.document.updated',
+  documentUpdated: 'chat.document.update',
+
   chatTitleUpdated: 'chat.title.update'
 } as const;

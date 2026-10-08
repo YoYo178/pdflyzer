@@ -4,7 +4,7 @@ import documentHandlers from '@/api/handlers/documents';
 
 const PROCESSING_POLL_MS = 3_000;
 
-export function useGetDocuments(chatId?: string) {
+export function useGetDocuments(chatId?: string, shouldPoll: boolean = true) {
   return useQuery({
     queryKey: ['chats', chatId, 'documents'],
     queryFn: () => documentHandlers.getAllDocuments(chatId as string),
@@ -12,6 +12,7 @@ export function useGetDocuments(chatId?: string) {
     staleTime: 30 * 1000, // 30 seconds
     retry: false,
     refetchInterval: ({ state }) =>
+      shouldPoll &&
       state.data?.some(
         (document) =>
           document.status === 'QUEUED' || document.status === 'PROCESSING',
