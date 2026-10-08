@@ -5,6 +5,8 @@ from backend.models.base import BaseTimestampDocument
 class DocumentChunk(BaseTimestampDocument):
     document_id: PydanticObjectId
     
+    filename: str
+    
     chunk_index: int
     text: str
     

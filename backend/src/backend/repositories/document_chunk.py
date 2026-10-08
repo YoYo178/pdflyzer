@@ -43,6 +43,8 @@ class DocumentChunkRepository:
                 "$project": {
                     "_id": 1,
                     "document_id": 1,
+                    
+                    "filename": 1,
     
                     "chunk_index": 1,
                     "text": 1,
@@ -66,6 +68,8 @@ class DocumentChunkRepository:
             RetrievedChunk(
                 id=result["_id"],
                 document_id=result["document_id"],
+                
+                filename=result["filename"],
 
                 chunk_index=result["chunk_index"],
                 text=result["text"],

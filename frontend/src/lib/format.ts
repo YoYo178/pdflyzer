@@ -1,3 +1,5 @@
+import type { IMessageSource } from '@/types/message.types';
+
 const BYTE_UNITS = ['B', 'KB', 'MB', 'GB'];
 
 export function formatBytes(bytes?: number) {
@@ -49,4 +51,30 @@ export function formatFileCount(count: number) {
 
 export function formatChatCount(count: number) {
   return `${count} ${count === 1 ? 'chat' : 'chats'}`;
+}
+
+export function formatPageText(source: IMessageSource) {
+  let text = 'Page';
+
+  if (source.page_start !== source.page_end) {
+    text += 's ';
+    text += `${source.page_start}-${source.page_end}`;
+  } else {
+    text += ' ' + source.page_start;
+  }
+
+  return text;
+}
+
+export function formatParagraphText(source: IMessageSource) {
+  let text = 'Paragraph';
+
+  if (source.paragraph_start !== source.paragraph_end) {
+    text += 's ';
+    text += `${source.paragraph_start}-${source.paragraph_end}`;
+  } else {
+    text += ' ' + source.paragraph_start;
+  }
+
+  return text;
 }

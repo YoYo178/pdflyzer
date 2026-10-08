@@ -1,3 +1,5 @@
+from typing import Literal
+
 from beanie import PydanticObjectId
 from backend.models.base import BaseTimestampDocument
 
@@ -11,7 +13,7 @@ class ChatDocument(BaseTimestampDocument):
     file_path: str
     file_hash: str
 
-    status: str
+    status: Literal['QUEUED', 'PROCESSING', 'READY', 'FAILED']
     pages: int = -1
 
     class Settings:

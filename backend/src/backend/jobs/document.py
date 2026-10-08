@@ -57,8 +57,11 @@ async def process_document(
             DocumentChunk(
                 id=PydanticObjectId(),
                 
+                filename=document.filename,
+                
                 document_id=PydanticObjectId(document.id),
                 chunk_index=chunk.chunk_index,
+                
                 text=chunk.text,
                 embeddings=embedding,
                 

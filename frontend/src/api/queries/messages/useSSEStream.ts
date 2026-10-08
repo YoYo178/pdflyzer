@@ -5,7 +5,7 @@ import { streamMessageOverSSE } from '@/lib/stream/sse';
 export interface ISSEStreamRequest {
   chatId: string;
   content: string;
-  onChunk?: (chunk: string) => void;
+  onChunk?: (chunk: string, chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK') => void;
   signal?: AbortSignal;
 }
 
@@ -23,7 +23,7 @@ export function useSSEStream() {
           chatId,
           content,
           {
-            onChunk: (chunk) => onChunk?.(chunk),
+            onChunk: (chunk, chunkType) => onChunk?.(chunk, chunkType),
             onDone: () => resolve(),
             onError: (error) => reject(error),
           },

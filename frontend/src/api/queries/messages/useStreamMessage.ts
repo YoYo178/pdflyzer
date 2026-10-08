@@ -23,7 +23,9 @@ export function useStreamMessage() {
 
   const invalidate = useCallback(
     (chatId: string) => {
-      queryClient.invalidateQueries({ queryKey: ['chats', chatId, 'messages'] });
+      queryClient.invalidateQueries({
+        queryKey: ['chats', chatId, 'messages'],
+      });
     },
     [queryClient],
   );
@@ -37,7 +39,10 @@ export function useStreamMessage() {
   const startPolling = useCallback(
     (chatId: string) => {
       clearPolling();
-      pollerRef.current = window.setInterval(() => invalidate(chatId), POLLING_FALLBACK_MS);
+      pollerRef.current = window.setInterval(
+        () => invalidate(chatId),
+        POLLING_FALLBACK_MS,
+      );
     },
     [clearPolling, invalidate],
   );
@@ -53,7 +58,14 @@ export function useStreamMessage() {
 
   /** Resolves false when the socket cannot carry the reply so SSE can take over. */
   const streamOverSocket = useCallback(
-    (chatId: string, content: string, onChunk: (chunk: string) => void) =>
+    (
+      chatId: string,
+      content: string,
+      onChunk: (
+        chunk: string,
+        chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK',
+      ) => void,
+    ) =>
       new Promise<boolean>((resolve) => {
         const socket = getChatSocket(chatId);
 
@@ -65,7 +77,9 @@ export function useStreamMessage() {
 
         unsubscribeRef.current = socket.subscribe((event) => {
           if (event.type === WS_EVENTS.streamChunk) {
-            onChunk(String(event.data ?? ''));
+            onChunk(String(event.data ?? ''), 'MESSAGE_CHUNK');
+          } else if (event.type === WS_EVENTS.streamSourcesChunk) {
+            onChunk(String(event.data ?? ''), 'SOURCES_CHUNK');
           } else if (event.type === WS_EVENTS.streamEnd) {
             finish(true);
           }
@@ -86,7 +100,14 @@ export function useStreamMessage() {
   );
 
   const send = useCallback(
-    async (chatId: string, content: string, onChunk: (chunk: string) => void) => {
+    async (
+      chatId: string,
+      content: string,
+      onChunk: (
+        chunk: string,
+        chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK',
+      ) => void,
+    ) => {
       clearPolling();
       abortRef.current?.abort();
 
@@ -106,7 +127,12 @@ export function useStreamMessage() {
       abortRef.current = controller;
 
       try {
-        await sseStream.mutateAsync({ chatId, content, onChunk, signal: controller.signal });
+        await sseStream.mutateAsync({
+          chatId,
+          content,
+          onChunk,
+          signal: controller.signal,
+        });
         invalidate(chatId);
       } catch {
         // Both live transports failed. The server persists the user turn
@@ -116,13 +142,7 @@ export function useStreamMessage() {
         startPolling(chatId);
       }
     },
-    [
-      clearPolling,
-      invalidate,
-      sseStream,
-      startPolling,
-      streamOverSocket,
-    ],
+    [clearPolling, invalidate, sseStream, startPolling, streamOverSocket],
   );
 
   const abort = useCallback(() => {

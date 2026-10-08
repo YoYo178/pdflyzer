@@ -1,3 +1,4 @@
+import { formatPageText, formatParagraphText } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import type { IMessageSource } from '@/types/message.types';
 import {
@@ -22,7 +23,7 @@ function SourceList({ sources, messageId, activeIndex }: SourceListProps) {
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   function copy(source: IMessageSource, index: number) {
-    const reference = `${source.file} — p.${source.page} · ${source.section}`;
+    const reference = `${source.filename} — ${formatPageText(source)} · ${formatParagraphText(source)} · ${source.section.replaceAll('\n', ' ').trim()}`;
     void navigator.clipboard?.writeText(reference);
     setCopied(index);
     window.clearTimeout(timer.current);
@@ -44,12 +45,14 @@ function SourceList({ sources, messageId, activeIndex }: SourceListProps) {
           const isCopied = copied === position;
 
           return (
-            <li key={`${source.file}-${source.page}`}>
+            <li
+              key={`${source.filename}.${source.page_start}-${source.page_end}.${source.paragraph_start}-${source.paragraph_end}`}
+            >
               <button
                 id={`source-${messageId}-${position}`}
                 type='button'
                 onClick={() => copy(source, position)}
-                aria-label={`Copy reference to ${source.file}, page ${source.page}`}
+                aria-label={`Copy reference to ${source.filename}, page ${source.page_start}`}
                 className={cn(
                   'group flex w-full scroll-mt-4 items-center gap-2.5 rounded-xl border px-2.5 py-2 text-left transition-colors duration-200',
                   'border-border bg-secondary/40 hover:border-teal-600/40 hover:bg-secondary/70 dark:hover:border-teal-300/30',
@@ -65,10 +68,11 @@ function SourceList({ sources, messageId, activeIndex }: SourceListProps) {
 
                 <div className='min-w-0 flex-1'>
                   <p className='truncate text-[11px] font-medium text-foreground'>
-                    {source.file}
+                    {source.filename}
                   </p>
                   <p className='truncate text-[10px] text-muted-foreground'>
-                    Page {source.page} · {source.section}
+                    {formatPageText(source)} · {formatParagraphText(source)} ·{' '}
+                    {source.section}
                   </p>
                 </div>
 

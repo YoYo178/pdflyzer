@@ -1,7 +1,7 @@
 import { useUpdateMessage } from '@/api/mutations/messages/useUpdateMessage';
 import { useGetAllMessages } from '@/api/queries/messages/useGetAllMessages';
 import { useStreamMessage } from '@/api/queries/messages/useStreamMessage';
-import type { IMessage } from '@/types/message.types';
+import type { IMessage, IMessageSource } from '@/types/message.types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function useChatThread(activeChatId: string, seedFromServer = true) {
@@ -41,15 +41,37 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
     if (previousId) setMessages([]);
   }, [activeChatId, data, seedFromServer]);
 
-  const appendChunk = useCallback((id: string, chunk: string) => {
-    setMessages((current) =>
-      current.map((message) =>
-        message.id === id
-          ? { ...message, content: message.content + chunk }
-          : message,
-      ),
-    );
-  }, []);
+  const appendChunk = useCallback(
+    (
+      id: string,
+      chunk: string,
+      chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK',
+    ) => {
+      switch (chunkType) {
+        case 'MESSAGE_CHUNK':
+          setMessages((current) =>
+            current.map((message) =>
+              message.id === id
+                ? { ...message, content: message.content + chunk }
+                : message,
+            ),
+          );
+          break;
+
+        case 'SOURCES_CHUNK':
+          const sources: IMessageSource[] = JSON.parse(chunk);
+          setMessages((current) =>
+            current.map((message) =>
+              message.id === id ? { ...message, sources } : message,
+            ),
+          );
+          break;
+        default:
+          break;
+      }
+    },
+    [],
+  );
 
   const runStream = useCallback(
     async (chatId: string, prompt: string) => {
@@ -74,7 +96,9 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
       setIsStreaming(true);
       setStatusLabel('Thinking');
 
-      await stream.send(chatId, prompt, (chunk) => appendChunk(id, chunk));
+      await stream.send(chatId, prompt, (chunk, chunkType) =>
+        appendChunk(id, chunk, chunkType),
+      );
 
       setMessages((current) =>
         current.map((message) =>

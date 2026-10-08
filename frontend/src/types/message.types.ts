@@ -1,7 +1,12 @@
-// TODO: Add at backend
 export interface IMessageSource {
-  file: string;
-  page: number;
+  filename: string;
+
+  page_start: number;
+  page_end: number;
+
+  paragraph_start: number;
+  paragraph_end: number;
+
   section: string;
 }
 
@@ -21,5 +26,5 @@ export interface IMessage {
   rating: 'up' | 'down' | null;
 
   status?: 'streaming' | 'done' | 'error'; // TODO: Add at backend
-  sources?: IMessageSource[]; // TODO: Add at backend
+  sources?: IMessageSource[];
 }

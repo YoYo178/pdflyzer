@@ -1,8 +1,19 @@
 from typing import Literal
 from beanie import PydanticObjectId
-from pydantic import model_validator
+from pydantic import model_validator, BaseModel
 
 from backend.models.base import BaseTimestampDocument
+
+class MessageSource(BaseModel):
+    filename: str
+    
+    page_start: int
+    page_end: int
+    
+    paragraph_start: int
+    paragraph_end: int
+    
+    section: str
 
 class Message(BaseTimestampDocument):
     chat_id: PydanticObjectId
@@ -15,6 +26,8 @@ class Message(BaseTimestampDocument):
     
     rating: Literal['up', 'down'] | None = None
     
+    sources: list[MessageSource] = []
+    
     # Ensures relationship between sender_id and sender_role are maintained and enforced
     @model_validator(mode="after")
     def validate_sender(self):
@@ -23,6 +36,9 @@ class Message(BaseTimestampDocument):
         
         if self.sender_role == "user" and self.sender_id is None:
             raise ValueError("User messages must have a sender_id")
+        
+        if(self.sender_role == "user" and len(self.sources)):
+            raise ValueError("User messages cannot contain sources")
         
         return self
     

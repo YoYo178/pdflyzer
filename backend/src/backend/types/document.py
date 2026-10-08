@@ -26,6 +26,7 @@ class ProcessedChunk:
 @dataclass
 class RetrievedChunk:
     id: PydanticObjectId
+    filename: str
     document_id: PydanticObjectId
     chunk_index: int
     text: str
