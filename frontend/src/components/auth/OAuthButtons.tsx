@@ -1,25 +1,15 @@
-import { isOAuthEnabled, startOAuth } from '@/api/handlers/auth/oauth';
+import { startOAuth } from '@/api/handlers/auth/oauth';
 import type { TOAuthMode, TOAuthProvider } from '@/api/handlers/auth/types';
-import { cn } from '@/lib/utils';
 import {
-  IconBrandGithubFilled,
-  IconBrandGoogleFilled,
-  IconLoader2,
-} from '@tabler/icons-react';
-import { type ComponentType, useState } from 'react';
+  isOAuthEnabled,
+  PROVIDERS,
+  type IProviderOption,
+} from '@/config/oauth.config';
+import { cn } from '@/lib/utils';
+import { IconLoader2 } from '@tabler/icons-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
-
-interface IProviderOption {
-  id: TOAuthProvider;
-  label: string;
-  Icon: ComponentType<{ className?: string }>;
-}
-
-const PROVIDERS: readonly IProviderOption[] = [
-  { id: 'google', label: 'Google', Icon: IconBrandGoogleFilled },
-  { id: 'github', label: 'GitHub', Icon: IconBrandGithubFilled },
-];
 
 interface OAuthButtonsProps {
   mode: TOAuthMode;
@@ -70,5 +60,4 @@ function OAuthButtons({ mode, className }: OAuthButtonsProps) {
   );
 }
 
-export { OAuthButtons };
 export default OAuthButtons;

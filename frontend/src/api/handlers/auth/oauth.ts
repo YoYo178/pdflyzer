@@ -2,8 +2,6 @@ import { API } from '@/api/client';
 
 import type { TOAuthMode, TOAuthProvider } from './types';
 
-export const isOAuthEnabled = import.meta.env.VITE_OAUTH_ENABLED === 'true';
-
 function oauthAuthorizeUrl(provider: TOAuthProvider, mode: TOAuthMode) {
   const url = new URL(
     `/auth/oauth/${provider}/authorize`,

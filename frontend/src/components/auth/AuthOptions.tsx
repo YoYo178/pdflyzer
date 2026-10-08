@@ -1,7 +1,7 @@
 import type { TOAuthMode } from '@/api/handlers/auth/types';
 import { IconMail } from '@tabler/icons-react';
 import { Button } from '../ui/button';
-import { OAuthButtons } from './OAuthButtons';
+import OAuthButtons from './OAuthButtons';
 
 const HINTS: Record<TOAuthMode, string> = {
   login: 'You will be redirected to your provider to finish signing in.',
