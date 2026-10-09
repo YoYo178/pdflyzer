@@ -59,7 +59,11 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
           break;
 
         case 'SOURCES_CHUNK':
-          const sources: IMessageSource[] = JSON.parse(chunk);
+          const rawSources = (JSON.parse(chunk) || []) as string[];
+          const sources: IMessageSource[] = rawSources.map((source) =>
+            JSON.parse(source),
+          );
+
           setMessages((current) =>
             current.map((message) =>
               message.id === id ? { ...message, sources } : message,
