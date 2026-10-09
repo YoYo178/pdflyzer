@@ -1,18 +1,17 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from beanie import PydanticObjectId
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
 from backend.core.ws.connection import WebSocketConnectionManager
 from backend.core.ws.dispatcher import WebSocketEventDispatcher
-
 from backend.dependencies.auth import get_current_websocket_user
 from backend.dependencies.services import get_chat_service, get_message_service
-from backend.dependencies.ws import get_websocket_connection_manager, get_websocket_event_dispatcher
-
+from backend.dependencies.ws import (
+    get_websocket_connection_manager,
+    get_websocket_event_dispatcher,
+)
 from backend.models.user import User
-
 from backend.services.chat import ChatService
 from backend.services.message import MessageService
-
 from backend.types.ws import WebSocketContext
 
 router = APIRouter(prefix="/chats", tags=["Chat WebSockets"])

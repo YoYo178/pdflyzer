@@ -1,5 +1,7 @@
 from collections import defaultdict
+
 from fastapi import WebSocket
+
 
 class WebSocketConnectionManager:
     def __init__(self) -> None:

@@ -3,9 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile, status
 
 from backend.dependencies.auth import get_current_user
 from backend.dependencies.services import get_document_service
-
 from backend.models.user import User
-
 from backend.services.document import DocumentService
 
 # Document router

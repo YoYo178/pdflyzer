@@ -1,16 +1,14 @@
-import dns.resolver
 import dns.asyncresolver
-
+import dns.resolver
+from beanie import init_beanie
 from pymongo import AsyncMongoClient
-from backend.settings import settings
 
 from backend.models.chat import Chat
 from backend.models.chat_document import ChatDocument
 from backend.models.document_chunk import DocumentChunk
 from backend.models.message import Message
 from backend.models.user import User
-
-from beanie import init_beanie
+from backend.settings import settings
 
 nameservers = ["8.8.8.8", "1.1.1.1"]
 

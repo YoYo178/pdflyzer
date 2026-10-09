@@ -9,10 +9,9 @@ from backend.core.pdf import PDFService
 from backend.core.retrieval import RetrievalService
 from backend.core.storage import StorageService
 from backend.core.text import TextService
-
 from backend.dependencies.repositories import get_document_chunk_repository
-
 from backend.repositories.document_chunk import DocumentChunkRepository
+
 
 def get_queue(connection: HTTPConnection) -> ArqRedis:
     return connection.app.state.queue

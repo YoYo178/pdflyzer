@@ -1,7 +1,8 @@
-from pydantic import BaseModel
 from beanie import PydanticObjectId
+from pydantic import BaseModel
 
 from backend.schemas.user import UserBase
+
 
 class RegisterRequest(UserBase):
     password: str

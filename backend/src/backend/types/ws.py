@@ -1,13 +1,12 @@
 from dataclasses import dataclass
-from fastapi import WebSocket
+
 from beanie import PydanticObjectId
+from fastapi import WebSocket
 
-from backend.core.ws.connection import WebSocketConnectionManager
-
+from backend.models.user import User
 from backend.services.chat import ChatService
 from backend.services.message import MessageService
 
-from backend.models.user import User
 
 @dataclass
 class WebSocketContext:

@@ -2,12 +2,9 @@ from arq import ArqRedis
 from beanie import PydanticObjectId
 from fastapi import UploadFile
 
-from backend.core.storage import StorageService
-
 import backend.exceptions.document as document_exceptions
-
+from backend.core.storage import StorageService
 from backend.models.chat_document import ChatDocument
-
 from backend.repositories.document import DocumentRepository
 from backend.repositories.document_chunk import DocumentChunkRepository
 

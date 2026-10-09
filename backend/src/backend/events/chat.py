@@ -1,5 +1,7 @@
 from typing import Literal
+
 from backend.types.events import ServerToClientEvents
+
 
 def event_chat_stream_begin():
     return {

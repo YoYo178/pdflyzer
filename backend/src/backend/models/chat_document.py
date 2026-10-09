@@ -1,7 +1,9 @@
 from typing import Literal
 
 from beanie import PydanticObjectId
+
 from backend.models.base import BaseTimestampDocument
+
 
 class ChatDocument(BaseTimestampDocument):
     chat_id: PydanticObjectId

@@ -2,10 +2,9 @@ from beanie import PydanticObjectId
 
 import backend.exceptions.chat as chat_exceptions
 import backend.exceptions.message as message_exceptions
-
 from backend.models.message import Message
-
 from backend.repositories.chat import ChatRepository
+
 
 class MessageRepository:
     def __init__(

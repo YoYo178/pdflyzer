@@ -1,14 +1,11 @@
 from fastapi import APIRouter, Depends, Response, status
 
-from backend.dependencies.services import get_auth_service
 from backend.dependencies.auth import get_current_user
-
-from backend.services.auth import AuthService
-
+from backend.dependencies.services import get_auth_service
 from backend.schemas.api import APIResponse
-
+from backend.schemas.auth import LoginRequest, RegisterRequest
 from backend.schemas.user import UserSelf
-from backend.schemas.auth import RegisterRequest, LoginRequest
+from backend.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

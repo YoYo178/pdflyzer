@@ -1,5 +1,6 @@
 import re
 
+
 class TextService:
     def normalize(self, text: str):
         text = text.replace("\r\n", "\n")

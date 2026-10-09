@@ -1,20 +1,19 @@
 from typing import Literal
+
 from beanie import PydanticObjectId
 
 from backend.core.chunk import ChunkService
-from backend.core.events.publisher import publish_event
 from backend.core.embedding import EmbeddingService
-from backend.core.text import TextService
+from backend.core.events.publisher import publish_event
 from backend.core.pdf import PDFService
-
+from backend.core.text import TextService
 from backend.events.chat import event_chat_document_update
 from backend.events.redis import redis_pub_event
-
 from backend.models.document_chunk import DocumentChunk
-
-from backend.repositories.document_chunk import DocumentChunkRepository
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
+from backend.repositories.document_chunk import DocumentChunkRepository
+
 
 async def process_document(
     ctx,

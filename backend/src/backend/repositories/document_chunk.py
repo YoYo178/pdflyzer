@@ -1,8 +1,8 @@
 from beanie import PydanticObjectId
 
 from backend.models.document_chunk import DocumentChunk
-
 from backend.types.document import RetrievedChunk
+
 
 class DocumentChunkRepository:
     async def create_many(

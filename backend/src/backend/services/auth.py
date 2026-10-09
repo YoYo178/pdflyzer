@@ -3,13 +3,11 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
 import backend.exceptions.auth as auth_exceptions
-
-from backend.repositories.user import UserRepository
-
 from backend.models.user import User
-from backend.schemas.auth import RegisterRequest, LoginRequest, TokensData
-
+from backend.repositories.user import UserRepository
+from backend.schemas.auth import LoginRequest, RegisterRequest, TokensData
 from backend.utils.jwt import generate_access_token, generate_refresh_token
+
 
 class AuthService:
     def __init__(self, user_repository: UserRepository, hasher: PasswordHasher):

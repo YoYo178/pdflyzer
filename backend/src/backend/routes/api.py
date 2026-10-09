@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from backend.routes.auth import router as auth_router
 from backend.routes.chat import router as chat_router
-from backend.routes.document import documents_router, chat_documents_router
+from backend.routes.document import chat_documents_router, documents_router
 from backend.routes.message import chat_messages_router
 from backend.routes.user import router as users_router
 

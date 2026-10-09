@@ -1,5 +1,6 @@
 from backend.exceptions.base import AppException
 
+
 class EmailExists(AppException):
     status_code = 409 # Conflict
     detail = "An account already exists with the provided email!"

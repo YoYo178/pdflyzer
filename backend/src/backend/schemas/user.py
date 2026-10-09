@@ -1,6 +1,7 @@
 from beanie import PydanticObjectId
 from pydantic import BaseModel, EmailStr
 
+
 # The base user schema
 class UserBase(BaseModel):
     name: str

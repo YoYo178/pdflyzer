@@ -1,10 +1,10 @@
 from beanie import PydanticObjectId
 
 import backend.exceptions.user as user_exceptions
-
 from backend.models.user import User
 from backend.repositories.user import UserRepository
 from backend.schemas.user import UserUpdate
+
 
 class UserService:
     def __init__(self, user_repository: UserRepository):
@@ -30,7 +30,6 @@ class UserService:
         if not deleted_user:
             raise user_exceptions.UserNotFound()
         
-        return None
 
     # Updates a user by ID
     async def update_user(self, user_id: PydanticObjectId, user_data: UserUpdate) -> User:

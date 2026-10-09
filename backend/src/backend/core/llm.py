@@ -1,11 +1,12 @@
+from collections.abc import AsyncIterator
 from textwrap import dedent
+
 from google import genai
-from typing import AsyncIterator
 
 from backend.settings import settings
-
 from backend.types.document import RetrievedChunk
 from backend.types.llm import LLMPrompt
+
 
 class LLMService:
     _client: genai.Client | None = None

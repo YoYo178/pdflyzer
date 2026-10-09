@@ -2,6 +2,7 @@ from beanie import PydanticObjectId
 
 from backend.models.user import User
 
+
 class UserRepository:
     async def find_all(self) -> list[User]:
         return await User.find_all().to_list()

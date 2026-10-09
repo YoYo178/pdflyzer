@@ -1,15 +1,17 @@
-from fastapi import Request, Depends, WebSocket, Response
-
 from beanie import PydanticObjectId
+from fastapi import Depends, Request, Response, WebSocket
 from jwt.exceptions import ExpiredSignatureError
 
-from backend.models.user import User
-
 import backend.exceptions.auth as auth_exceptions
-
 from backend.dependencies.repositories import get_user_repository
+from backend.models.user import User
 from backend.repositories.user import UserRepository
-from backend.utils.jwt import decode_access_token, decode_refresh_token, generate_access_token
+from backend.utils.jwt import (
+    decode_access_token,
+    decode_refresh_token,
+    generate_access_token,
+)
+
 
 async def verify_refresh_token(refresh_token: str, repo: UserRepository) -> User:
     try:

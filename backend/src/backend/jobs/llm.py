@@ -2,11 +2,10 @@ from beanie import PydanticObjectId
 
 from backend.core.events.publisher import publish_event
 from backend.core.llm import LLMService
-
 from backend.events.chat import event_chat_title_update
 from backend.events.redis import redis_pub_event
-
 from backend.repositories.chat import ChatRepository
+
 
 async def generate_chat_title(
     ctx,

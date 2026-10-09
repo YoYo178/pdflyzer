@@ -1,22 +1,18 @@
 import re
+from collections.abc import AsyncIterator
 
 from arq import ArqRedis
 from beanie import PydanticObjectId
-from typing import AsyncIterator
-
-from backend.core.embedding import EmbeddingService
-from backend.core.retrieval import RetrievalService
-from backend.core.llm import LLMService
 
 import backend.exceptions.message as message_exceptions
-
+from backend.core.embedding import EmbeddingService
+from backend.core.llm import LLMService
+from backend.core.retrieval import RetrievalService
 from backend.models.message import Message, MessageSource
-
-from backend.schemas.message import MessageUpdatePayload
-
-from backend.repositories.message import MessageRepository
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
+from backend.repositories.message import MessageRepository
+from backend.schemas.message import MessageUpdatePayload
 
 CITATION_REGEX = r"\[\[(\d+)\]\]"
 

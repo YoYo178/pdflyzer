@@ -2,6 +2,7 @@ from beanie import PydanticObjectId
 
 from backend.models.base import BaseTimestampDocument
 
+
 class DocumentChunk(BaseTimestampDocument):
     document_id: PydanticObjectId
     

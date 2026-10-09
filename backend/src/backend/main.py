@@ -1,26 +1,21 @@
 import asyncio
-
 from contextlib import asynccontextmanager
-from redis.asyncio import Redis
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-
-from backend.core.events.subscriber import redis_event_listener
-from backend.core.database import connect_db
-from backend.core.queue import create_queue
+from fastapi.responses import JSONResponse
+from redis.asyncio import Redis
 
 from backend.config.cors import CORS_CONFIG
-
+from backend.core.database import connect_db
+from backend.core.events.subscriber import redis_event_listener
+from backend.core.queue import create_queue
 from backend.exceptions.base import AppException
-
 from backend.routes.api import router as api_router
 from backend.routes.ws import router as ws_router
-
+from backend.settings import settings
 from backend.sockets import register_socket_handlers
 
-from backend.settings import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

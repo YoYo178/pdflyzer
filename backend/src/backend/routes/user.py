@@ -1,11 +1,10 @@
 from beanie import PydanticObjectId
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, Depends, status
 
 from backend.dependencies.auth import get_current_user
-from backend.models.user import User
-
 from backend.dependencies.services import get_user_service
-from backend.schemas.user import UserUpdate, UserSelf
+from backend.models.user import User
+from backend.schemas.user import UserSelf, UserUpdate
 from backend.services.user import UserService
 
 # Create Router

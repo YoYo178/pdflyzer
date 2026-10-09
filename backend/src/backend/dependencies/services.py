@@ -1,27 +1,37 @@
+from argon2 import PasswordHasher
 from arq import ArqRedis
 from fastapi import Depends
-from argon2 import PasswordHasher
 
 from backend.core.embedding import EmbeddingService
 from backend.core.llm import LLMService
 from backend.core.retrieval import RetrievalService
 from backend.core.storage import StorageService
-
+from backend.dependencies.core import (
+    get_embedding_service,
+    get_llm_service,
+    get_queue,
+    get_retrieval_service,
+    get_storage_service,
+)
+from backend.dependencies.hasher import get_password_hasher
+from backend.dependencies.repositories import (
+    get_chat_repository,
+    get_document_chunk_repository,
+    get_document_repository,
+    get_message_repository,
+    get_user_repository,
+)
+from backend.repositories.chat import ChatRepository
+from backend.repositories.document import DocumentRepository
+from backend.repositories.document_chunk import DocumentChunkRepository
+from backend.repositories.message import MessageRepository
+from backend.repositories.user import UserRepository
 from backend.services.auth import AuthService
 from backend.services.chat import ChatService
 from backend.services.document import DocumentService
 from backend.services.message import MessageService
 from backend.services.user import UserService
 
-from backend.repositories.chat import ChatRepository
-from backend.repositories.document import DocumentRepository
-from backend.repositories.document_chunk import DocumentChunkRepository
-from backend.repositories.message import MessageRepository
-from backend.repositories.user import UserRepository
-
-from backend.dependencies.core import get_storage_service, get_queue, get_embedding_service, get_retrieval_service, get_llm_service
-from backend.dependencies.repositories import get_user_repository, get_document_repository, get_chat_repository, get_message_repository, get_document_chunk_repository
-from backend.dependencies.hasher import get_password_hasher
 
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),

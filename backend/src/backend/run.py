@@ -1,4 +1,5 @@
 import uvicorn
+
 from backend.settings import settings
 
 if __name__ == "__main__":

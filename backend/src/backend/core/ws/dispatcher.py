@@ -1,5 +1,5 @@
-from collections.abc import Callable
-from typing import Awaitable, Any
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from backend.types.events import ClientToServerEvents
 from backend.types.ws import WebSocketContext

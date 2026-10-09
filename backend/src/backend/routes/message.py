@@ -1,14 +1,11 @@
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends
 from fastapi.sse import EventSourceResponse
-from beanie import PydanticObjectId
 
 from backend.dependencies.auth import get_current_user
 from backend.dependencies.services import get_message_service
-
 from backend.models.user import User
-
-from backend.schemas.message import MessagePayload, MessageView, MessageUpdatePayload
-
+from backend.schemas.message import MessagePayload, MessageUpdatePayload, MessageView
 from backend.services.message import MessageService
 
 chat_messages_router = APIRouter(prefix="/chats", tags=["Messages"])
@@ -40,7 +37,6 @@ async def create_message(
     async for chunk in service.create_message(PydanticObjectId(current_user.id), chat_id, message_data.content):
         yield chunk
         
-    return
 
 @chat_messages_router.patch("/{chat_id}/messages/{message_id}", response_model=MessageView)
 async def update_message(

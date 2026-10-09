@@ -4,6 +4,7 @@ from backend.models.chat import Chat
 from backend.repositories.chat import ChatRepository
 from backend.schemas.chat import ChatMeta
 
+
 class ChatService:
     def __init__(
         self,

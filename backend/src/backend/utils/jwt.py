@@ -1,17 +1,19 @@
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
+
 import jwt
 
 from backend.settings import settings
 
+
 def generate_access_token(subject: str, expires_delta: timedelta | None = None):
-    expire = datetime.now(timezone.utc) + (
+    expire = datetime.now(UTC) + (
         expires_delta or timedelta(minutes=15)
     )
 
     payload = {
         "sub": subject,
         "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
         "type": "access"
     }
 
@@ -22,14 +24,14 @@ def generate_access_token(subject: str, expires_delta: timedelta | None = None):
     )
 
 def generate_refresh_token(subject: str, expires_delta: timedelta | None = None):
-    expire = datetime.now(timezone.utc) + (
+    expire = datetime.now(UTC) + (
         expires_delta or timedelta(days=30)
     )
 
     payload = {
         "sub": subject,
         "exp": expire,
-        "iat": datetime.now(timezone.utc),
+        "iat": datetime.now(UTC),
         "type": "refresh"
     }
 

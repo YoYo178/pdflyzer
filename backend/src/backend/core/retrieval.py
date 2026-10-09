@@ -1,8 +1,8 @@
 from beanie import PydanticObjectId
 
+from backend.repositories.document_chunk import DocumentChunkRepository
 from backend.types.document import RetrievedChunk
 
-from backend.repositories.document_chunk import DocumentChunkRepository
 
 class RetrievalService:
     def __init__(

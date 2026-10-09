@@ -1,5 +1,7 @@
-from beanie import PydanticObjectId
 from dataclasses import dataclass
+
+from beanie import PydanticObjectId
+
 
 @dataclass
 class ProcessedPage:

@@ -1,6 +1,8 @@
-from datetime import datetime, UTC
-from beanie import Document, before_event, Replace, Save
+from datetime import UTC, datetime
+
+from beanie import Document, Replace, Save, before_event
 from pydantic import Field
+
 
 class BaseTimestampDocument(Document):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

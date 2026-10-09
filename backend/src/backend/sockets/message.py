@@ -1,14 +1,14 @@
 from beanie import PydanticObjectId
 
 from backend.dependencies.ws import get_websocket_connection_manager
-
 from backend.events.chat import (
     event_chat_stream_begin,
     event_chat_stream_chunk,
-    event_chat_stream_sources_chunk,
     event_chat_stream_end,
+    event_chat_stream_sources_chunk,
 )
 from backend.types.ws import WebSocketContext
+
 
 async def handle_create_message(
     ctx: WebSocketContext,

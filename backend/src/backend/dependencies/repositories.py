@@ -6,6 +6,7 @@ from backend.repositories.document_chunk import DocumentChunkRepository
 from backend.repositories.message import MessageRepository
 from backend.repositories.user import UserRepository
 
+
 def get_user_repository() -> UserRepository:
     return UserRepository()
 

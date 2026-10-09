@@ -3,6 +3,7 @@ import pymupdf
 from backend.core.text import TextService
 from backend.types.document import ProcessedPage, ProcessedParagraph
 
+
 class PDFService:
     
     def __init__(

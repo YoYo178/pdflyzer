@@ -1,8 +1,8 @@
 from beanie import PydanticObjectId
 
 import backend.exceptions.chat as chat_exceptions
-
 from backend.models.chat import Chat
+
 
 class ChatRepository:
     async def find_all(self, user_id: PydanticObjectId) -> list[Chat]:

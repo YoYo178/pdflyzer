@@ -1,8 +1,10 @@
 from typing import Literal
+
 from beanie import PydanticObjectId
 from pydantic import BaseModel
 
 from backend.models.message import MessageSource
+
 
 class MessagePayload(BaseModel):
     content: str

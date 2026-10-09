@@ -1,8 +1,10 @@
 from typing import Literal
+
 from beanie import PydanticObjectId
-from pydantic import model_validator, BaseModel
+from pydantic import BaseModel, model_validator
 
 from backend.models.base import BaseTimestampDocument
+
 
 class MessageSource(BaseModel):
     filename: str
