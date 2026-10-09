@@ -21,7 +21,7 @@ async def redis_event_listener(redis: Redis):
             
             event = json.loads(message['data'])
             
-            destination = event.get('dest')
+            destination = event.get('destination')
             payload = event.get('payload')
 
             if not destination:
