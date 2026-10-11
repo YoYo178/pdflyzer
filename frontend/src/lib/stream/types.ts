@@ -3,19 +3,15 @@ export type TStreamTransport = 'websocket' | 'sse';
 export interface IStreamHandlers {
   /** Fired once the transport is ready to accept the payload. */
   onOpen?: () => void;
-  onChunk: (chunk: string, chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK') => void;
+  onChunk: (chunk: string) => void;
   /** Fired when the server finished the reply normally. */
   onDone: () => void;
   onError: (error: Error) => void;
 }
 
-/** Server -> client WebSocket frames, as emitted by the chat socket route. */
-export interface IServerEvent<T = unknown> {
-  type: string;
-  data: T;
-}
-
 export const WS_EVENTS = {
+  socketClosed: 'socket.closed',
+
   messageSend: 'chat.message.send',
 
   streamBegin: 'chat.stream.begin',
@@ -26,5 +22,11 @@ export const WS_EVENTS = {
   /** Not emitted server-side yet; wired so the client reacts as soon as it is. */
   documentUpdated: 'chat.document.update',
 
-  chatTitleUpdated: 'chat.title.update'
+  chatTitleUpdated: 'chat.title.update',
 } as const;
+
+/** Server -> client WebSocket frames, as emitted by the chat socket route. */
+export interface IServerEvent<T = unknown> {
+  type: (typeof WS_EVENTS)[keyof typeof WS_EVENTS];
+  data: T;
+}

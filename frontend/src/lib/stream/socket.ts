@@ -151,7 +151,7 @@ function createChatSocket(chatId: string): IChatSocket {
         }
 
         teardown();
-        emit({ type: 'socket.closed', data: null });
+        emit({ type: WS_EVENTS.socketClosed, data: null });
         scheduleReconnect();
       };
     });

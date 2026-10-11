@@ -41,41 +41,39 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
     if (previousId) setMessages([]);
   }, [activeChatId, data, seedFromServer]);
 
-  const appendChunk = useCallback(
-    (
-      id: string,
-      chunk: string,
-      chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK',
-    ) => {
-      switch (chunkType) {
-        case 'MESSAGE_CHUNK':
-          setMessages((current) =>
-            current.map((message) =>
-              message.id === id
-                ? { ...message, content: message.content + chunk }
-                : message,
-            ),
-          );
-          break;
+  const appendChunk = useCallback((id: string, chunk: string) => {
+    const payload = JSON.parse(chunk) as {
+      data: string;
+      chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK';
+    };
 
-        case 'SOURCES_CHUNK':
-          const rawSources = (JSON.parse(chunk) || []) as string[];
-          const sources: IMessageSource[] = rawSources.map((source) =>
-            JSON.parse(source),
-          );
+    switch (payload.chunkType) {
+      case 'MESSAGE_CHUNK':
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === id
+              ? { ...message, content: message.content + payload.data }
+              : message,
+          ),
+        );
+        break;
 
-          setMessages((current) =>
-            current.map((message) =>
-              message.id === id ? { ...message, sources } : message,
-            ),
-          );
-          break;
-        default:
-          break;
-      }
-    },
-    [],
-  );
+      case 'SOURCES_CHUNK':
+        const rawSources = (payload.data || []) as string[];
+        const sources: IMessageSource[] = rawSources.map((source) =>
+          JSON.parse(source),
+        );
+
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === id ? { ...message, sources } : message,
+          ),
+        );
+        break;
+      default:
+        break;
+    }
+  }, []);
 
   const runStream = useCallback(
     async (chatId: string, prompt: string) => {
@@ -86,8 +84,8 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
         ...current,
         {
           id,
-          chat_id: chatId,
-          sender_id: '',
+          chat: chatId,
+          sender: '',
           sender_role: 'assistant',
           content: '',
           embeddings: [],
@@ -100,9 +98,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
       setIsStreaming(true);
       setStatusLabel('Thinking');
 
-      await stream.send(chatId, prompt, (chunk, chunkType) =>
-        appendChunk(id, chunk, chunkType),
-      );
+      await stream.send(chatId, prompt, (chunk) => appendChunk(id, chunk));
 
       setMessages((current) =>
         current.map((message) =>
@@ -125,8 +121,8 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
         ...current,
         {
           id: `user-${++sequence.current}`,
-          chat_id: chatId,
-          sender_id: '',
+          chat: chatId,
+          sender: '',
           sender_role: 'user',
           content: text,
           embeddings: [],
@@ -164,7 +160,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
     const lastUser = [...messages]
       .reverse()
       .find((message) => message.sender_role === 'user');
-    if (!lastUser || !lastUser.chat_id) return;
+    if (!lastUser || !lastUser.chat) return;
 
     stop();
 
@@ -179,7 +175,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
       return trimmed;
     });
 
-    await runStream(lastUser.chat_id, lastUser.content);
+    await runStream(lastUser.chat, lastUser.content);
   }, [messages, runStream, stop]);
 
   const rate = useCallback(

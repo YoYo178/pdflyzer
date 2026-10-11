@@ -58,14 +58,7 @@ export function useStreamMessage() {
 
   /** Resolves false when the socket cannot carry the reply so SSE can take over. */
   const streamOverSocket = useCallback(
-    (
-      chatId: string,
-      content: string,
-      onChunk: (
-        chunk: string,
-        chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK',
-      ) => void,
-    ) =>
+    (chatId: string, content: string, onChunk: (chunk: string) => void) =>
       new Promise<boolean>((resolve) => {
         const socket = getChatSocket(chatId);
 
@@ -76,13 +69,30 @@ export function useStreamMessage() {
         };
 
         unsubscribeRef.current = socket.subscribe((event) => {
-          if (event.type === WS_EVENTS.streamChunk) {
-            onChunk(String(event.data ?? ''), 'MESSAGE_CHUNK');
-          } else if (event.type === WS_EVENTS.streamSourcesChunk) {
-            onChunk(String(event.data ?? ''), 'SOURCES_CHUNK');
-          } else if (event.type === WS_EVENTS.streamEnd) {
+          if (event.type === WS_EVENTS.streamEnd) {
             finish(true);
+            return;
           }
+
+          const streamEvents = new Set<
+            (typeof WS_EVENTS)[keyof typeof WS_EVENTS]
+          >([WS_EVENTS.streamChunk, WS_EVENTS.streamSourcesChunk]);
+
+          if (!streamEvents.has(event.type)) return;
+
+          const chunkType =
+            event.type === WS_EVENTS.streamChunk
+              ? 'MESSAGE_CHUNK'
+              : event.type === WS_EVENTS.streamSourcesChunk
+                ? 'SOURCES_CHUNK'
+                : null;
+
+          const payload = JSON.stringify({
+            data: event.data,
+            chunkType,
+          });
+
+          onChunk(payload);
         });
 
         socket.open().then(
@@ -103,10 +113,7 @@ export function useStreamMessage() {
     async (
       chatId: string,
       content: string,
-      onChunk: (
-        chunk: string,
-        chunkType: 'MESSAGE_CHUNK' | 'SOURCES_CHUNK',
-      ) => void,
+      onChunk: (chunk: string) => void,
     ) => {
       clearPolling();
       abortRef.current?.abort();
