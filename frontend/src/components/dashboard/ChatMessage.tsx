@@ -15,6 +15,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import MessageContent from './MessageContent';
 import SourceList from './SourceList';
+import type { IDocument } from '@/types/document.types';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -123,6 +124,7 @@ interface ChatMessageProps {
   onCitationClick: (index: number) => void;
   onRegenerate: () => void;
   onRate: (id: string, rating: 'up' | 'down' | null) => void;
+  documents: IDocument[]
 }
 
 function ChatMessage({
@@ -135,6 +137,7 @@ function ChatMessage({
   onCitationClick,
   onRegenerate,
   onRate,
+  documents
 }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -194,6 +197,7 @@ function ChatMessage({
                 sources={message.sources}
                 messageId={message.id}
                 activeIndex={activeCitation}
+                documents={documents}
               />
             )}
 

@@ -19,7 +19,7 @@ export const useDocumentsHealth = ({ documents }: IDocumentsHealthProps) => {
   const documentsCount = useMemo(() => {
     return documents.reduce(
       (acc, val) => {
-        const state = val.status;
+        const state = val.stored_document.status;
 
         if (!acc?.[state]) acc[state] = 1;
         else acc[state]++;

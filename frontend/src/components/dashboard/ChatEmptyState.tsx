@@ -77,17 +77,17 @@ function ChatEmptyState({ documents, onPick }: ChatEmptyStateProps) {
       >
         {documents.map((document) => (
           <span
-            key={document._id}
+            key={document.id}
             className={cn(
               'inline-flex max-w-[14rem] items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground',
-              document.status !== 'READY' && 'opacity-60',
+              document.stored_document.status !== 'READY' && 'opacity-60',
             )}
           >
             <IconFileText className='h-3 w-3 shrink-0 text-teal-600 dark:text-teal-300' />
-            <span className='truncate'>{document.filename}</span>
-            {document.status !== 'READY' && (
+            <span className='truncate'>{document.stored_document.filename}</span>
+            {document.stored_document.status !== 'READY' && (
               <span className='shrink-0 text-[10px] uppercase tracking-wide'>
-                {document.status}
+                {document.stored_document.status}
               </span>
             )}
           </span>

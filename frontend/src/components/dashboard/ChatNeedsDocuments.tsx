@@ -6,7 +6,7 @@ import { useRef, type ChangeEvent } from 'react';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-const STATUS_LABEL: Record<IDocument['status'], string> = {
+const STATUS_LABEL: Record<IDocument['stored_document']['status'], string> = {
   QUEUED: 'Waiting to be processed',
   PROCESSING: 'Reading text and indexing',
   READY: 'Ready',
@@ -69,7 +69,7 @@ function ChatNeedsDocuments({
         >
           {documents.map((document) => (
             <li
-              key={document._id}
+              key={document.id}
               className='rounded-xl border border-border bg-secondary/40 px-3.5 py-3'
             >
               <div className='flex items-center gap-2.5'>
@@ -78,24 +78,24 @@ function ChatNeedsDocuments({
                   strokeWidth={1.75}
                 />
                 <span className='min-w-0 flex-1 truncate text-sm font-medium text-foreground'>
-                  {document.filename}
+                  {document.stored_document.filename}
                 </span>
                 <span className='shrink-0 text-[11px] tabular-nums text-muted-foreground'>
-                  {formatBytes(document.size)}
+                  {formatBytes(document.stored_document.size)}
                 </span>
               </div>
 
               <p
                 className={
-                  document.status === 'FAILED'
+                  document.stored_document.status === 'FAILED'
                     ? 'mt-1 pl-6.5 text-[11px] text-destructive'
                     : 'mt-1 pl-6.5 text-[11px] text-muted-foreground'
                 }
               >
-                {STATUS_LABEL[document.status]}
+                {STATUS_LABEL[document.stored_document.status]}
               </p>
 
-              {document.status === 'PROCESSING' && (
+              {document.stored_document.status === 'PROCESSING' && (
                 <span className='relative mt-2 ml-6.5 block h-1 overflow-hidden rounded-full bg-border'>
                   <span className='progress-indeterminate absolute inset-y-0 left-0 w-1/3 rounded-full bg-teal-600 dark:bg-teal-300' />
                 </span>

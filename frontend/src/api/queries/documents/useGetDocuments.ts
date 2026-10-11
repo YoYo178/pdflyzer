@@ -15,7 +15,7 @@ export function useGetDocuments(chatId?: string, shouldPoll: boolean = true) {
       shouldPoll &&
       state.data?.some(
         (document) =>
-          document.status === 'QUEUED' || document.status === 'PROCESSING',
+          document.stored_document.status === 'QUEUED' || document.stored_document.status === 'PROCESSING',
       )
         ? PROCESSING_POLL_MS
         : false,

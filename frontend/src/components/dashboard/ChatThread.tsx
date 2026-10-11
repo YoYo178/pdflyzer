@@ -136,7 +136,7 @@ function ChatThread({
     .find((message) => message.sender_role === 'assistant')?.id;
 
   const readyCount = documents.filter(
-    (document) => document.status === 'READY',
+    (document) => document.stored_document.status === 'READY',
   ).length;
 
   return (
@@ -197,6 +197,7 @@ function ChatThread({
                     }
                     onRegenerate={onRegenerate}
                     onRate={onRate}
+                    documents={documents}
                   />
                 </motion.div>
               </div>

@@ -96,11 +96,11 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
   );
 
   const readyCount = documents.filter(
-    (document) => document.status === 'READY',
+    (document) => document.stored_document.status === 'READY',
   ).length;
   const pageCount = documents
-    .filter((document) => document.status === 'READY')
-    .reduce((total, document) => total + document.pages, 0);
+    .filter((document) => document.stored_document.status === 'READY')
+    .reduce((total, document) => total + document.stored_document.pages, 0);
 
   // Mirrors ChatThread: with no messages and nothing indexed, the thread owns
   // the whole screen with its own upload call to action, so no bottom bar.

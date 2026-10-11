@@ -26,7 +26,7 @@ function ComposerUploadNotice({
 }: ComposerUploadNoticeProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const hasReady = documents.some((document) => document.status === 'READY');
+  const hasReady = documents.some((document) => document.stored_document.status === 'READY');
   const isIndexing = !hasReady && documents.length > 0;
 
   function onPick(event: ChangeEvent<HTMLInputElement>) {

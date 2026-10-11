@@ -384,7 +384,7 @@ function AppSidebar({
                 <ul className='space-y-1'>
                   {documents.map((document) => (
                     <DocumentRow
-                      key={document._id}
+                      key={document.id}
                       document={document}
                       onDelete={onDeleteDocument}
                     />
@@ -399,7 +399,7 @@ function AppSidebar({
   );
 }
 
-const DOCUMENT_STATUS_LABEL: Record<IDocument['status'], string> = {
+const DOCUMENT_STATUS_LABEL: Record<IDocument['stored_document']['status'], string> = {
   QUEUED: 'Queued',
   PROCESSING: 'Processing',
   READY: 'Ready',
@@ -412,9 +412,9 @@ interface DocumentRowProps {
 }
 
 function DocumentRow({ document, onDelete }: DocumentRowProps) {
-  const isFailed = document.status === 'FAILED';
-  const isProcessing = document.status === 'PROCESSING';
-  const isReady = document.status === 'READY';
+  const isFailed = document.stored_document.status === 'FAILED';
+  const isProcessing = document.stored_document.status === 'PROCESSING';
+  const isReady = document.stored_document.status === 'READY';
 
   return (
     <li className='group/doc relative rounded-lg px-2.5 py-2 transition-colors hover:bg-secondary/70'>
@@ -436,14 +436,14 @@ function DocumentRow({ document, onDelete }: DocumentRowProps) {
               'truncate text-xs font-medium',
               isFailed ? 'text-destructive' : 'text-foreground',
             )}
-            title={document.filename}
+            title={document.stored_document.filename}
           >
-            {document.filename}
+            {document.stored_document.filename}
           </p>
 
           {isReady ? (
             <p className='mt-0.5 truncate text-[10px] text-muted-foreground'>
-              {document.pages} pages · {formatBytes(document.size)}
+              {document.stored_document.pages} pages · {formatBytes(document.stored_document.size)}
             </p>
           ) : (
             <p
@@ -452,7 +452,7 @@ function DocumentRow({ document, onDelete }: DocumentRowProps) {
                 isFailed ? 'text-destructive/80' : 'text-muted-foreground',
               )}
             >
-              {DOCUMENT_STATUS_LABEL[document.status]}
+              {DOCUMENT_STATUS_LABEL[document.stored_document.status]}
               {isFailed ? ' — could not be parsed' : ''}
             </p>
           )}
@@ -467,8 +467,8 @@ function DocumentRow({ document, onDelete }: DocumentRowProps) {
         <div className='flex shrink-0 items-center opacity-0 transition-opacity group-hover/doc:opacity-100 group-focus-within/doc:opacity-100 focus-within:opacity-100 [@media(hover:none)]:opacity-100'>
           <button
             type='button'
-            aria-label={`Delete ${document.filename}`}
-            onClick={() => onDelete(document._id)}
+            aria-label={`Delete ${document.stored_document.filename}`}
+            onClick={() => onDelete(document.id)}
             className='flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-destructive focus-visible:bg-accent focus-visible:text-destructive focus-visible:opacity-100 focus-visible:outline-none'
           >
             <IconTrash className='h-3.5 w-3.5' />

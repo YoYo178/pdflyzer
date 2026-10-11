@@ -1,5 +1,5 @@
 export interface IMessageSource {
-  filename: string;
+  stored_document: string;
 
   page_start: number;
   page_end: number;
@@ -13,18 +13,18 @@ export interface IMessageSource {
 export interface IMessage {
   id: string;
 
-  chat_id: string;
+  chat: string;
 
-  sender_id: string;
+  sender: string;
   sender_role: 'user' | 'assistant' | 'system';
 
   content: string;
-
-  created_at: string;
-  updated_at: string;
 
   rating: 'up' | 'down' | null;
 
   status?: 'streaming' | 'done' | 'error'; // TODO: Add at backend
   sources?: IMessageSource[];
+
+  created_at: string;
+  updated_at: string;
 }
