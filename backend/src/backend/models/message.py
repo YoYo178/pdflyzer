@@ -7,7 +7,7 @@ from backend.models.base import BaseTimestampDocument
 
 
 class MessageSource(BaseModel):
-    filename: str
+    stored_document: PydanticObjectId
     
     page_start: int
     page_end: int
@@ -18,26 +18,25 @@ class MessageSource(BaseModel):
     section: str
 
 class Message(BaseTimestampDocument):
-    chat_id: PydanticObjectId
-    
-    sender_id: PydanticObjectId | None
-    sender_role: Literal['user', 'assistant', 'system']
-    
+    chat: PydanticObjectId
     content: str
-    embeddings: list[float]
-    
     rating: Literal['up', 'down'] | None = None
+    
+    sender: PydanticObjectId | None
+    sender_role: Literal['user', 'assistant', 'system']
     
     sources: list[MessageSource] = []
     
-    # Ensures relationship between sender_id and sender_role are maintained and enforced
+    embeddings: list[float]
+    
+    # Ensures relationship between sender and sender_role are maintained and enforced
     @model_validator(mode="after")
     def validate_sender(self):
-        if (self.sender_role == "assistant" or self.sender_role == "system") and self.sender_id is not None:
-            raise ValueError("System or Assistant messages cannot have a sender_id")
+        if (self.sender_role == "assistant" or self.sender_role == "system") and self.sender is not None:
+            raise ValueError("System or Assistant messages cannot have a sender")
         
-        if self.sender_role == "user" and self.sender_id is None:
-            raise ValueError("User messages must have a sender_id")
+        if self.sender_role == "user" and self.sender is None:
+            raise ValueError("User messages must have a sender")
         
         if(self.sender_role == "user" and len(self.sources)):
             raise ValueError("User messages cannot contain sources")

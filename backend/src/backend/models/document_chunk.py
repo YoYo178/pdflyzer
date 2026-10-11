@@ -4,11 +4,9 @@ from backend.models.base import BaseTimestampDocument
 
 
 class DocumentChunk(BaseTimestampDocument):
-    document_id: PydanticObjectId
-    
-    filename: str
-    
+    stored_document: PydanticObjectId
     chunk_index: int
+    
     text: str
     
     page_start: int

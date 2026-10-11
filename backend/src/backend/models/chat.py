@@ -4,7 +4,8 @@ from backend.models.base import BaseTimestampDocument
 
 
 class Chat(BaseTimestampDocument):
-    owner_id: PydanticObjectId
+    owner: PydanticObjectId
+    
     name: str
     pinned: bool = False
 
