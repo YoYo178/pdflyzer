@@ -51,10 +51,10 @@ class MessageService:
 
         await self.message_repository.create(
             Message(
-                sender_id=user_id,
+                sender=user_id,
                 sender_role="user",
 
-                chat_id=chat_id,
+                chat=chat_id,
                 
                 content=message_content,
                 embeddings=message_embeddings
@@ -91,7 +91,7 @@ class MessageService:
 
         citation_sources = [
             MessageSource(
-                filename=chunks[int(citation) - 1].filename,
+                stored_document=chunks[int(citation) - 1].stored_document,
                 page_start=chunks[int(citation) - 1].page_start,
                 page_end=chunks[int(citation) - 1].page_end,
                 paragraph_start=chunks[int(citation) - 1].paragraph_start,
@@ -103,9 +103,9 @@ class MessageService:
 
         await self.message_repository.create(
             Message(
-                sender_id=None,
+                sender=None,
                 sender_role="assistant",
-                chat_id=chat_id,
+                chat=chat_id,
                 content=response,
                 embeddings=[],
                 sources=citation_sources

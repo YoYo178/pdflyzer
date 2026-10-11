@@ -20,7 +20,7 @@ class ChatService:
 
     async def create_new_chat(self, user_id: PydanticObjectId) -> Chat:
         chat = Chat(
-            owner_id=user_id,
+            owner=user_id,
             name="New Chat"
         )
 

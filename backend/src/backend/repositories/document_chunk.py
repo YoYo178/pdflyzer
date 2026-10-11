@@ -17,10 +17,10 @@ class DocumentChunkRepository:
         
     async def delete_document_chunks(
         self,
-        document_id: PydanticObjectId
+        stored_document_id: PydanticObjectId
     ):
         await DocumentChunk.find(
-            DocumentChunk.document_id == document_id
+            DocumentChunk.stored_document == stored_document_id
         ).delete()
         
     async def vector_search(
@@ -42,9 +42,7 @@ class DocumentChunkRepository:
             {
                 "$project": {
                     "_id": 1,
-                    "document_id": 1,
-                    
-                    "filename": 1,
+                    "stored_document": 1,
     
                     "chunk_index": 1,
                     "text": 1,
@@ -67,9 +65,7 @@ class DocumentChunkRepository:
         return [
             RetrievedChunk(
                 id=result["_id"],
-                document_id=result["document_id"],
-                
-                filename=result["filename"],
+                stored_document=result["stored_document"],
 
                 chunk_index=result["chunk_index"],
                 text=result["text"],

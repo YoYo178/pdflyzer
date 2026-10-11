@@ -16,14 +16,14 @@ class MessageRepository:
     async def _verify_chat_ownership(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> None:
         chat = await self.chat_repository.find_by_id(user_id, chat_id)
         
-        if not chat or chat.owner_id != user_id:
+        if not chat or chat.owner != user_id:
             raise chat_exceptions.ChatMismatch()
     
     async def find_all(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[Message]:
         await self._verify_chat_ownership(user_id, chat_id)
         
         messages = await Message.find(
-            Message.chat_id == chat_id
+            Message.chat == chat_id
         ).to_list()
         
         return messages
@@ -32,7 +32,7 @@ class MessageRepository:
         await self._verify_chat_ownership(user_id, chat_id)
         
         message = await Message.find_one(
-            Message.chat_id == chat_id,
+            Message.chat == chat_id,
             Message.id == message_id
         )
         

@@ -6,7 +6,7 @@ from backend.models.chat import Chat
 
 class ChatRepository:
     async def find_all(self, user_id: PydanticObjectId) -> list[Chat]:
-        chats = await Chat.find(Chat.owner_id == user_id).to_list()
+        chats = await Chat.find(Chat.owner == user_id).to_list()
 
         # Pinned chats float to the top, then most recently updated.
         chats.sort(key=lambda chat: (not chat.pinned, -chat.updated_at.timestamp()))
@@ -16,7 +16,7 @@ class ChatRepository:
     async def find_by_id(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> Chat:
         chat = await Chat.find_one(
             Chat.id == chat_id,
-            Chat.owner_id == user_id
+            Chat.owner == user_id
         )
 
         if not chat:
