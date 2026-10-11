@@ -10,9 +10,8 @@ from backend.core.text import TextService
 from backend.events.chat import event_chat_document_update
 from backend.events.redis import redis_pub_event
 from backend.models.document_chunk import DocumentChunk
-from backend.repositories.chat import ChatRepository
-from backend.repositories.document import DocumentRepository
 from backend.repositories.document_chunk import DocumentChunkRepository
+from backend.repositories.stored_document import StoredDocumentRepository
 
 
 async def process_document(
@@ -21,8 +20,7 @@ async def process_document(
     document_id: str,
     chat_id: str
 ):
-    chat_repository = ChatRepository()
-    document_repository = DocumentRepository(chat_repository)
+    stored_document_repository = StoredDocumentRepository()
     document_chunk_repository = DocumentChunkRepository()
     
     text_service = TextService()
@@ -30,7 +28,7 @@ async def process_document(
     chunk_service = ChunkService()
     embedding_service = EmbeddingService()
 
-    document = await document_repository.find_by_id(
+    document = await stored_document_repository.find_by_id(
         PydanticObjectId(user_id), PydanticObjectId(document_id)
     )
 
@@ -40,9 +38,6 @@ async def process_document(
     async def update_status(status: Literal['QUEUED', 'PROCESSING', 'READY', 'FAILED']):
         document.status = status
         await document.save()
-        
-        if status == 'READY':
-            await document_repository.update_status_by_hash(PydanticObjectId(user_id), document.file_hash, PydanticObjectId(chat_id), status)
         
         await publish_event(
             ctx['redis'],
@@ -73,21 +68,18 @@ async def process_document(
         
         chunk_documents = [
             DocumentChunk(
-                id=PydanticObjectId(),
-                
-                filename=document.filename,
-                
-                document_id=PydanticObjectId(document.id),
+                stored_document=PydanticObjectId(document.id),
                 chunk_index=chunk.chunk_index,
                 
-                text=chunk.text,
                 embeddings=embedding,
                 
                 page_start=chunk.page_start,
                 page_end=chunk.page_end,
                 
                 paragraph_start=chunk.paragraph_start,
-                paragraph_end=chunk.paragraph_end
+                paragraph_end=chunk.paragraph_end,
+                
+                text=chunk.text
             ) for chunk, embedding in zip(chunks, embeddings)
         ]
         
