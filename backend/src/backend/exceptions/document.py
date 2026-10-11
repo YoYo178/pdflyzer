@@ -8,3 +8,7 @@ class DocumentNotFound(AppException):
 class DocumentAlreadyExists(AppException):
     status_code = 409 # Conflict
     detail = "The document you are trying to upload already exists"
+
+class DocumentLimitReached(AppException):
+    status_code = 403 # Forbidden
+    detail = "Max limit has been reached for storing documents on this chat."

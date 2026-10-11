@@ -19,12 +19,14 @@ from backend.dependencies.repositories import (
     get_document_chunk_repository,
     get_document_repository,
     get_message_repository,
+    get_stored_document_repository,
     get_user_repository,
 )
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
 from backend.repositories.document_chunk import DocumentChunkRepository
 from backend.repositories.message import MessageRepository
+from backend.repositories.stored_document import StoredDocumentRepository
 from backend.repositories.user import UserRepository
 from backend.services.auth import AuthService
 from backend.services.chat import ChatService
@@ -50,12 +52,14 @@ def get_user_service(
 def get_document_service(
     document_repository: DocumentRepository = Depends(get_document_repository),
     document_chunk_repository: DocumentChunkRepository = Depends(get_document_chunk_repository),
+    stored_document_repository: StoredDocumentRepository = Depends(get_stored_document_repository),
     storage: StorageService = Depends(get_storage_service),
     queue: ArqRedis = Depends(get_queue)
 ) -> DocumentService:
     return DocumentService(
         document_repository,
         document_chunk_repository,
+        stored_document_repository,
         storage,
         queue
     )

@@ -23,7 +23,7 @@ class DocumentRepository:
         )
 
         return await ChatDocument.find(
-            ChatDocument.chat_id == chat_id,
+            ChatDocument.chat == chat_id,
         ).to_list()
 
     async def find_by_id(self, user_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
@@ -34,7 +34,7 @@ class DocumentRepository:
 
         await self._verify_chat_ownership(
             user_id,
-            document.chat_id,
+            document.chat,
         )
 
         return document
@@ -47,84 +47,18 @@ class DocumentRepository:
 
         document = await ChatDocument.find_one(
             ChatDocument.id == document_id,
-            ChatDocument.chat_id == chat_id,
+            ChatDocument.chat == chat_id,
         )
 
         if not document:
             raise document_exceptions.DocumentNotFound()
 
         return document
-
-    async def find_by_hash(self, user_id: PydanticObjectId, file_hash: str, chat_id: PydanticObjectId | None = None) -> list[ChatDocument]:
-        if chat_id is not None:
-            await self._verify_chat_ownership(
-                user_id,
-                chat_id,
-            )
-
-            return await ChatDocument.find(
-                ChatDocument.file_hash == file_hash,
-                ChatDocument.chat_id == chat_id,
-            ).to_list()
-            
-        chats = await self.chat_repository.find_all(user_id)
-        chat_ids = [chat.id for chat in chats]
-        
-        if not chat_ids:
-            return []
-        
-        return await ChatDocument.find(
-            ChatDocument.file_hash == file_hash,
-            { "chat_id": { "$in": chat_ids } }
-        ).to_list()
-
-    async def find_one_by_hash(self, user_id: PydanticObjectId, file_hash: str, chat_id: PydanticObjectId | None = None) -> ChatDocument | None:
-        if chat_id:
-            await self._verify_chat_ownership(
-                user_id,
-                chat_id,
-            )
-
-            return await ChatDocument.find_one(
-                ChatDocument.file_hash == file_hash,
-                ChatDocument.chat_id == chat_id,
-            )
-
-        document = await ChatDocument.find_one(
-            ChatDocument.file_hash == file_hash,
-        )
-
-        if document:
-            try:
-                await self._verify_chat_ownership(
-                    user_id,
-                    document.chat_id,
-                )
-            except chat_exceptions.ChatNotFound:
-                return None
-
-        return document
     
-    async def update_status_by_hash(
-        self,
-        user_id: PydanticObjectId,
-        file_hash: str,
-        chat_id: PydanticObjectId,
-        status: str,
-    ) -> bool:
-        await self._verify_chat_ownership(user_id, chat_id)
-
-        result = await ChatDocument.find(
-            ChatDocument.file_hash == file_hash,
-            ChatDocument.chat_id == chat_id,
-        ).update_many(
-            {"$set": {"status": status}}
-        )
-        
-        if result is None:
-            return False
-
-        return True
+    async def find_by_stored_document_id(self, stored_document_id: PydanticObjectId) -> list[ChatDocument]:        
+        return await ChatDocument.find(
+            ChatDocument.stored_document == stored_document_id
+        ).to_list()
 
     async def create(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document: ChatDocument) -> ChatDocument:
         await self._verify_chat_ownership(
@@ -132,21 +66,8 @@ class DocumentRepository:
             chat_id,
         )
 
-        if document.chat_id != chat_id:
+        if document.chat != chat_id:
             raise chat_exceptions.ChatMismatch()
-
-        await document.save()
-
-        return document
-
-    async def update(self, user_id: PydanticObjectId, document_id: PydanticObjectId, update_data: dict) -> ChatDocument:
-        document = await self.find_by_id(
-            user_id,
-            document_id,
-        )
-
-        for key, value in update_data.items():
-            setattr(document, key, value)
 
         await document.save()
 
@@ -155,17 +76,6 @@ class DocumentRepository:
     async def delete(self, user_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
         document = await self.find_by_id(
             user_id,
-            document_id,
-        )
-
-        await document.delete()
-
-        return document
-
-    async def delete_in_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
-        document = await self.find_by_id_in_chat(
-            user_id,
-            chat_id,
             document_id,
         )
 
