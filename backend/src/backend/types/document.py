@@ -28,8 +28,7 @@ class ProcessedChunk:
 @dataclass
 class RetrievedChunk:
     id: PydanticObjectId
-    filename: str
-    document_id: PydanticObjectId
+    stored_document: PydanticObjectId
     chunk_index: int
     text: str
     page_start: int

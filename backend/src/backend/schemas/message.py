@@ -1,4 +1,5 @@
 from typing import Literal
+from datetime import datetime
 
 from beanie import PydanticObjectId
 from pydantic import BaseModel
@@ -14,12 +15,16 @@ class MessageUpdatePayload(BaseModel):
 
 class MessageView(BaseModel):
     id: PydanticObjectId
-    chat_id: PydanticObjectId
     
-    sender_id: PydanticObjectId | None
+    chat: PydanticObjectId
+    
+    sender: PydanticObjectId | None
     sender_role: Literal['user', 'assistant', 'system']
     
     content: str
     rating: Literal['up', 'down'] | None
     
     sources: list[MessageSource]
+    
+    created_at: datetime
+    updated_at: datetime
