@@ -25,7 +25,7 @@ class DocumentChunkRepository:
         
     async def vector_search(
         self,
-        chat_id: PydanticObjectId,
+        documents_in_chat: list[PydanticObjectId],
         query_embeddings: list[float],
         limit: int
     ) -> list[RetrievedChunk]:
@@ -56,6 +56,11 @@ class DocumentChunkRepository:
                     "score": {
                         "$meta": "vectorSearchScore"
                     }
+                }
+            },
+            {
+                "$match": {
+                    "stored_document": { "$in": documents_in_chat }
                 }
             }
         ]

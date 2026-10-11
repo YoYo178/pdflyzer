@@ -73,7 +73,8 @@ class MessageService:
                 message_content,
             )
         
-        chunks = await self.retrieval_service.retrieve(chat_id, message_embeddings)
+        documents_in_chat = [PydanticObjectId(doc.stored_document) for doc in await self.document_repository.find_all(user_id, chat_id)]
+        chunks = await self.retrieval_service.retrieve(documents_in_chat, message_embeddings)
         
         response = []
         response_generator = self.llm_service.stream(message_content, chunks)

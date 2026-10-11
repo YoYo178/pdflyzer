@@ -13,12 +13,12 @@ class RetrievalService:
 
     async def retrieve(
         self,
-        chat_id: PydanticObjectId,
+        documents_in_chat: list[PydanticObjectId],
         query_embeddings: list[float],
         limit: int = 5
     ) -> list[RetrievedChunk]:
         return await self.document_chunk_repository.vector_search(
-            chat_id=chat_id,
+            documents_in_chat=documents_in_chat,
             query_embeddings=query_embeddings,
             limit=limit
         )
