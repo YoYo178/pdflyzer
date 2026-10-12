@@ -31,6 +31,7 @@ class DocumentChunkRepository:
                     'queryVector': query_embeddings,
                     'numCandidates': 50,
                     'limit': limit,
+                    'filter': {'stored_document': {'$in': documents_in_chat}},
                 }
             },
             {
@@ -46,7 +47,6 @@ class DocumentChunkRepository:
                     'score': {'$meta': 'vectorSearchScore'},
                 }
             },
-            {'$match': {'stored_document': {'$in': documents_in_chat}}},
         ]
 
         results = await DocumentChunk.aggregate(pipeline).to_list()
