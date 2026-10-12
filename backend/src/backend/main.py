@@ -15,6 +15,7 @@ from backend.routes.api import router as api_router
 from backend.routes.ws import router as ws_router
 from backend.settings import settings
 from backend.sockets import register_socket_handlers
+from backend.utils.document import prune_orphaned_documents
 
 
 @asynccontextmanager
@@ -33,6 +34,10 @@ async def lifespan(app: FastAPI):
     
     # Connect to MongoDB
     await connect_db()
+    
+    # Prune orphaned documents if any (StoredDocument objects that no longer have any ChatDocument pointing to them)
+    # Usually this shouldn't be the case, but who knows
+    await prune_orphaned_documents()
 
     # Create another redis instance through ARQ for queueing jobs and attach it to the application
     app.state.queue = await create_queue()
