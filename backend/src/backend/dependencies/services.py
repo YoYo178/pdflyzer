@@ -64,21 +64,6 @@ def get_document_service(
         queue
     )
 
-def get_chat_service(
-    document_chunk_repository: DocumentChunkRepository = Depends(get_document_chunk_repository),
-    document_repository: DocumentRepository = Depends(get_document_repository),
-    chat_repository: ChatRepository = Depends(get_chat_repository),
-    message_repository: MessageRepository = Depends(get_message_repository),
-    stored_document_repository: StoredDocumentRepository = Depends(get_stored_document_repository)
-) -> ChatService:
-    return ChatService(
-        chat_repository,
-        document_chunk_repository,
-        document_repository,
-        message_repository,
-        stored_document_repository
-    )
-
 def get_message_service(
     message_repository: MessageRepository = Depends(get_message_repository),
     chat_repository: ChatRepository = Depends(get_chat_repository),
@@ -96,4 +81,15 @@ def get_message_service(
         retrieval_service,
         llm_service,
         queue
+    )
+
+def get_chat_service(
+    chat_repository: ChatRepository = Depends(get_chat_repository),
+    document_service: DocumentService = Depends(get_document_service),
+    message_service: MessageService = Depends(get_message_service),
+) -> ChatService:
+    return ChatService(
+        chat_repository,
+        document_service,
+        message_service
     )
