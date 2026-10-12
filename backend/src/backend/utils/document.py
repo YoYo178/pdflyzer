@@ -18,9 +18,9 @@ async def prune_orphaned_documents():
     stored_documents = await StoredDocument.find().to_list()
     
     for doc in stored_documents:
-        chat_document = await document_repository.find_by_id(doc.owner, PydanticObjectId(doc.id))
+        chat_documents = await document_repository.find_by_stored_document_id(PydanticObjectId(doc.id))
         
-        if chat_document:
+        if len(chat_documents) > 0:
             continue
         
         storage_service.reject_file(doc.file_path)
