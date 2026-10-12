@@ -44,11 +44,6 @@ def get_auth_service(
         hasher=password_hasher
     )
 
-def get_user_service(
-    user_repository: UserRepository = Depends(get_user_repository)
-) -> UserService:
-    return UserService(user_repository)
-
 def get_document_service(
     document_repository: DocumentRepository = Depends(get_document_repository),
     document_chunk_repository: DocumentChunkRepository = Depends(get_document_chunk_repository),
@@ -92,4 +87,13 @@ def get_chat_service(
         chat_repository,
         document_service,
         message_service
+    )
+
+def get_user_service(
+    user_repository: UserRepository = Depends(get_user_repository),
+    chat_service: ChatService = Depends(get_chat_service)
+) -> UserService:
+    return UserService(
+        user_repository,
+        chat_service
     )
