@@ -82,3 +82,11 @@ class DocumentRepository:
         await document.delete()
 
         return document
+
+    async def delete_in_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> None:
+        await self._verify_chat_ownership(
+            user_id,
+            chat_id,
+        )
+        
+        await ChatDocument.find(ChatDocument.chat == chat_id).delete()

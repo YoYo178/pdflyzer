@@ -65,3 +65,10 @@ class MessageRepository:
             raise message_exceptions.MessageNotFound()
         
         await message.delete()
+    
+    async def delete_in_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> None:
+        await self._verify_chat_ownership(user_id, chat_id)
+        
+        await Message.find(
+            Message.chat == chat_id,
+        ).delete()
