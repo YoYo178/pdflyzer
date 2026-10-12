@@ -33,3 +33,81 @@ dev = [
     "pyright>=1.1.414",
     "ruff>=0.16.10",
 ]
+
+
+# === Ruff configuration below ===
+
+[tool.ruff]
+target-version = "py314"
+
+line-length = 88
+indent-width = 4
+
+# Keep generated files and virtual environments out of linting.
+extend-exclude = [
+    "migrations",
+    "generated",
+    ".models",
+    ".venv",
+    "user_content"
+]
+
+[tool.ruff.lint]
+select = [
+    # Core correctness
+    "E",       # pycodestyle errors
+    "F",       # Pyflakes: undefined names, unused imports, etc.
+    "B",       # flake8-bugbear: likely bugs and design issues
+    "S",       # flake8-bandit: common security issues
+
+    # Modern Python and idiomatic code
+    "UP",      # pyupgrade
+    "I",       # isort: import sorting
+    "SIM",     # flake8-simplify
+    "RUF",     # Ruff-specific rules
+
+    # Better code quality
+    "C4",      # flake8-comprehensions
+    "PERF",    # Perflint: performance
+    "PIE",     # flake8-pie
+    "RET",     # flake8-return
+    "PTH",     # pathlib instead of os.path where appropriate
+    "ASYNC",   # async-related correctness and best practices
+    "DTZ",     # datetime timezone awareness
+    "LOG",     # logging best practices
+
+    # Useful design checks
+    "ARG",     # unused function arguments
+    "ERA",     # commented-out code
+    "G",       # logging format consistency
+    "FURB",    # refurb: modern Python improvements
+]
+
+ignore = [
+    "E501",    # Let the formatter handle line wrapping.
+    "S101",    # Allow assert in tests.
+    "S104",    # Binding to 0.0.0.0 is common for containers.
+    "S105",    # Avoid simplistic false positives for token/password names.
+    "S106",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# FastAPI dependency injection can make arguments appear unused.
+"**/routes/**/*.py" = ["B008"]
+"**/routers/**/*.py" = ["B008"]
+"**/dependencies/**/*.py" = ["B008"]
+
+[tool.ruff.lint.isort]
+# Treat the backend as the first-party package.
+known-first-party = ["backend"]
+combine-as-imports = true
+force-sort-within-sections = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
