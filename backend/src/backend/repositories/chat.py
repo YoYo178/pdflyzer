@@ -13,11 +13,10 @@ class ChatRepository:
 
         return chats
 
-    async def find_by_id(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> Chat:
-        chat = await Chat.find_one(
-            Chat.id == chat_id,
-            Chat.owner == user_id
-        )
+    async def find_by_id(
+        self, user_id: PydanticObjectId, chat_id: PydanticObjectId
+    ) -> Chat:
+        chat = await Chat.find_one(Chat.id == chat_id, Chat.owner == user_id)
 
         if not chat:
             raise chat_exceptions.ChatNotFound()
@@ -28,7 +27,9 @@ class ChatRepository:
         await chat.save()
         return chat
 
-    async def update(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, update_data: dict) -> Chat:
+    async def update(
+        self, user_id: PydanticObjectId, chat_id: PydanticObjectId, update_data: dict
+    ) -> Chat:
         chat = await self.find_by_id(user_id, chat_id)
 
         for key, value in update_data.items():
@@ -38,7 +39,9 @@ class ChatRepository:
 
         return chat
 
-    async def delete(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> Chat:
+    async def delete(
+        self, user_id: PydanticObjectId, chat_id: PydanticObjectId
+    ) -> Chat:
         chat = await self.find_by_id(user_id, chat_id)
 
         await chat.delete()

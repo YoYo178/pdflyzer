@@ -16,31 +16,23 @@ async def handle_create_message(
 ):
     websocket_connection_manager = get_websocket_connection_manager()
     chat_id = str(ctx.chat_id)
-    
+
     response_generator = ctx.message_service.create_message(
         PydanticObjectId(ctx.user.id),
         ctx.chat_id,
         data,
     )
-    
-    await websocket_connection_manager.broadcast(
-        chat_id,
-        event_chat_stream_begin()
-    )
-    
+
+    await websocket_connection_manager.broadcast(chat_id, event_chat_stream_begin())
+
     async for chunk in response_generator:
         if isinstance(chunk, str):
             await websocket_connection_manager.broadcast(
-                chat_id,
-                event_chat_stream_chunk(chunk)
+                chat_id, event_chat_stream_chunk(chunk)
             )
         elif isinstance(chunk, list):
             await websocket_connection_manager.broadcast(
-                chat_id,
-                event_chat_stream_sources_chunk(chunk)
+                chat_id, event_chat_stream_sources_chunk(chunk)
             )
-    
-    await websocket_connection_manager.broadcast(
-        chat_id,
-        event_chat_stream_end()
-    )
+
+    await websocket_connection_manager.broadcast(chat_id, event_chat_stream_end())

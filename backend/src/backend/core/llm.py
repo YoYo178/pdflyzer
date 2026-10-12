@@ -10,11 +10,11 @@ from backend.types.llm import LLMPrompt
 
 class LLMService:
     _client: genai.Client | None = None
-    _model: str = "gemini-3.6-flash"
-    
+    _model: str = 'gemini-3.6-flash'
+
     def __init__(self):
         self._client = genai.Client(api_key=settings.gemini_api_key)
-        
+
     def _build_prompt(self, question: str, chunks: list[RetrievedChunk]) -> LLMPrompt:
         system_prompt = dedent("""
             You are PDFLyzer, an AI assistant designed to help users understand, analyze, and interact with their documents.
@@ -139,9 +139,9 @@ class LLMService:
             If the documents cannot support an answer, be transparent about that limitation rather than guessing.
             When providing information derived from the documents, use the appropriate citation markers to make the supporting sources clear without unnecessarily interrupting the natural flow of the response.
         """).strip()
-        
-        user_prompt = "Relevant Document Context:"
-        
+
+        user_prompt = 'Relevant Document Context:'
+
         for index, chunk in enumerate(chunks):
             user_prompt += dedent(f"""
             
@@ -149,18 +149,15 @@ class LLMService:
                 {chunk.text}
                 
             """).strip()
-            
+
         user_prompt += dedent(f"""
             User question:
             
             {question}
         """).strip()
-        
-        return LLMPrompt(
-            system_prompt,
-            user_prompt
-        )
-        
+
+        return LLMPrompt(system_prompt, user_prompt)
+
     def _build_title_prompt(self, question: str) -> LLMPrompt:
         system_prompt = dedent("""
             Generate a concise title for this prompt.
@@ -172,74 +169,61 @@ class LLMService:
             - Preserve the primary topic.
             - Return only the title.
         """).strip()
-        
-        user_prompt = f"Prompt: \"{question}\""
-        
-        return LLMPrompt(
-            system_prompt,
-            user_prompt
-        )
-    
+
+        user_prompt = f'Prompt: "{question}"'
+
+        return LLMPrompt(system_prompt, user_prompt)
+
     async def generate_title(self, question: str):
         if not self._client:
-            raise RuntimeError("LLMService not initialized!")
-        
+            raise RuntimeError('LLMService not initialized!')
+
         prompt_data = self._build_title_prompt(question)
-        
-        chat = self._client.aio.chats.create(
-            model=self._model
-        )
-        
+
+        chat = self._client.aio.chats.create(model=self._model)
+
         response = await chat.send_message(
-            config={
-                "system_instruction": prompt_data.system_prompt
-            },
+            config={'system_instruction': prompt_data.system_prompt},
             message=prompt_data.user_prompt,
         )
-        
+
         return response.text
-                
+
     async def generate(self, question: str, chunks: list[RetrievedChunk]):
         if not self._client:
-            raise RuntimeError("LLMService not initialized!")
-        
+            raise RuntimeError('LLMService not initialized!')
+
         prompt_data = self._build_prompt(question, chunks)
-        
-        chat = self._client.aio.chats.create(
-            model=self._model
-        )
-        
+
+        chat = self._client.aio.chats.create(model=self._model)
+
         response = await chat.send_message(
-            config={
-                "system_instruction": prompt_data.system_prompt
-            },
+            config={'system_instruction': prompt_data.system_prompt},
             message=prompt_data.user_prompt,
         )
-        
+
         return response.text
-    
-    async def stream(self, question: str, chunks: list[RetrievedChunk]) -> AsyncIterator[str]:
+
+    async def stream(
+        self, question: str, chunks: list[RetrievedChunk]
+    ) -> AsyncIterator[str]:
         if not self._client:
-            raise RuntimeError("LLMService not initialized!")
-        
+            raise RuntimeError('LLMService not initialized!')
+
         prompt_data = self._build_prompt(question, chunks)
-        
-        chat = self._client.aio.chats.create(
-            model=self._model
-        )
-        
+
+        chat = self._client.aio.chats.create(model=self._model)
+
         chunks_generator = await chat.send_message_stream(
-            config={
-                "system_instruction": prompt_data.system_prompt
-            },
-            message=prompt_data.user_prompt
+            config={'system_instruction': prompt_data.system_prompt},
+            message=prompt_data.user_prompt,
         )
-        
+
         try:
             async for chunk in chunks_generator:
                 if not chunk.text:
                     continue
-                
+
                 yield chunk.text
         except Exception as e:
             print(e)

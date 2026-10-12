@@ -7,4 +7,4 @@ class User(UserBase, Document):
     password_hash: str
 
     class Settings:
-        name = "users"
+        name = 'users'

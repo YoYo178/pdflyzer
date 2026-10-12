@@ -1,7 +1,7 @@
 from pathlib import Path
 
 PROJECT_ROOT_DIR = Path(__file__).resolve().parents[3]
-MODEL_CACHE_DIR = PROJECT_ROOT_DIR / ".models"
+MODEL_CACHE_DIR = PROJECT_ROOT_DIR / '.models'
 
 
 class EmbeddingService:
@@ -13,7 +13,7 @@ class EmbeddingService:
             from sentence_transformers import SentenceTransformer
 
             self.model = SentenceTransformer(
-                "sentence-transformers/all-MiniLM-L6-v2",
+                'sentence-transformers/all-MiniLM-L6-v2',
                 cache_folder=str(MODEL_CACHE_DIR),
             )
 

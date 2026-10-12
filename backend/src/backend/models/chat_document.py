@@ -8,4 +8,4 @@ class ChatDocument(BaseTimestampDocument):
     stored_document: PydanticObjectId
 
     class Settings:
-        name = "chat_documents"
+        name = 'chat_documents'

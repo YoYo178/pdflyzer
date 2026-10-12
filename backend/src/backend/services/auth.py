@@ -1,4 +1,3 @@
-
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
@@ -20,9 +19,11 @@ class AuthService:
         if email_exists:
             raise auth_exceptions.EmailExists()
 
-        username_exists = await self.user_repository.find_by_username(register_data.username)
+        username_exists = await self.user_repository.find_by_username(
+            register_data.username
+        )
 
-        if(username_exists):
+        if username_exists:
             raise auth_exceptions.UsernameExists()
 
         password_hash = self.hasher.hash(register_data.password)
@@ -31,14 +32,14 @@ class AuthService:
             name=register_data.name,
             email=register_data.email,
             username=register_data.username,
-            password_hash=password_hash
+            password_hash=password_hash,
         )
 
         return await self.user_repository.create(user)
 
     async def handle_login(self, login_data: LoginRequest) -> TokensData:
 
-        if "@" in login_data.login:
+        if '@' in login_data.login:
             user = await self.user_repository.find_by_email(login_data.login)
         else:
             user = await self.user_repository.find_by_username(login_data.login)

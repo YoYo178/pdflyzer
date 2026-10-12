@@ -7,12 +7,14 @@ from backend.routes.message import chat_messages_router
 from backend.routes.user import router as users_router
 
 # Create API Router
-router = APIRouter(prefix="/api", tags=["API"])
+router = APIRouter(prefix='/api', tags=['API'])
+
 
 # API Test route
-@router.get("/")
+@router.get('/')
 def get_api_root():
-    return { "message": "API route working!", "data": None }
+    return {'message': 'API route working!', 'data': None}
+
 
 # Attach Auth Router
 router.include_router(auth_router)

@@ -9,10 +9,7 @@ from backend.settings import settings
 
 
 class WorkerSettings:
-    functions: ClassVar[list] = [
-        process_document,
-        generate_chat_title
-    ]
+    functions: ClassVar[list] = [process_document, generate_chat_title]
 
     redis_settings: ClassVar[RedisSettings] = RedisSettings(
         host=settings.redis_host,
@@ -20,5 +17,5 @@ class WorkerSettings:
     )
 
     @staticmethod
-    async def on_startup(ctx): # noqa: ARG004
+    async def on_startup(ctx):  # noqa: ARG004
         await connect_db()

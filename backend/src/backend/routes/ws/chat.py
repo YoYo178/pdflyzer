@@ -14,51 +14,51 @@ from backend.services.chat import ChatService
 from backend.services.message import MessageService
 from backend.types.ws import WebSocketContext
 
-router = APIRouter(prefix="/chats", tags=["Chat WebSockets"])
+router = APIRouter(prefix='/chats', tags=['Chat WebSockets'])
 
-@router.websocket("/{chat_id}")
+
+@router.websocket('/{chat_id}')
 async def handle_websocket_connection(
     websocket: WebSocket,
-    
     chat_id: PydanticObjectId,
     chat_service: ChatService = Depends(get_chat_service),
-    
-    connection_manager: WebSocketConnectionManager = Depends(get_websocket_connection_manager),
-    event_dispatcher: WebSocketEventDispatcher = Depends(get_websocket_event_dispatcher),
-    
+    connection_manager: WebSocketConnectionManager = Depends(
+        get_websocket_connection_manager
+    ),
+    event_dispatcher: WebSocketEventDispatcher = Depends(
+        get_websocket_event_dispatcher
+    ),
     current_user: User = Depends(get_current_websocket_user),
-    
     message_service: MessageService = Depends(get_message_service),
 ):
     # To verify chat ownership, raises an exception otherwise
     await chat_service.get_chat_by_id(PydanticObjectId(current_user.id), chat_id)
-    
+
     # Add this socket client to our list of tracked socket connections
     await connection_manager.connect(str(chat_id), websocket)
-    
+
     print(f"Client connected to chat '{chat_id}'")
 
     try:
         # Maintain a loop to keep the socket alive and listen for data
         while True:
             event = await websocket.receive_json()
-            
+
             await event_dispatcher.dispatch(
-                event=event["type"],
+                event=event['type'],
                 ctx=WebSocketContext(
                     websocket=websocket,
                     chat_id=chat_id,
                     user=current_user,
-                    
                     chat_service=chat_service,
-                    message_service=message_service
+                    message_service=message_service,
                 ),
-                data=event.get("data") or {}
+                data=event.get('data') or {},
             )
 
     except WebSocketDisconnect:
         print(f"Client disconnected from chat '{chat_id}'")
-        
+
         connection_manager.disconnect(
             str(chat_id),
             websocket,

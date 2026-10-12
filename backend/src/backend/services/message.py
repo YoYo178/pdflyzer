@@ -14,7 +14,8 @@ from backend.repositories.document import DocumentRepository
 from backend.repositories.message import MessageRepository
 from backend.schemas.message import MessageUpdatePayload
 
-CITATION_REGEX = r"\[\[(\d+)\]\]"
+CITATION_REGEX = r'\[\[(\d+)\]\]'
+
 
 class MessageService:
     def __init__(
@@ -25,7 +26,7 @@ class MessageService:
         embedding_service: EmbeddingService,
         retrieval_service: RetrievalService,
         llm_service: LLMService,
-        queue: ArqRedis
+        queue: ArqRedis,
     ):
         self.message_repository = message_repository
         self.chat_repository = chat_repository
@@ -34,60 +35,71 @@ class MessageService:
         self.retrieval_service = retrieval_service
         self.llm_service = llm_service
         self.queue = queue
-    
-    async def get_all_messages(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[Message]:
+
+    async def get_all_messages(
+        self, user_id: PydanticObjectId, chat_id: PydanticObjectId
+    ) -> list[Message]:
         return await self.message_repository.find_all(user_id, chat_id)
-    
-    async def get_message_by_id(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_id: PydanticObjectId) -> Message:
+
+    async def get_message_by_id(
+        self,
+        user_id: PydanticObjectId,
+        chat_id: PydanticObjectId,
+        message_id: PydanticObjectId,
+    ) -> Message:
         return await self.message_repository.find_by_id(user_id, chat_id, message_id)
-    
-    async def create_message(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_content: str) -> AsyncIterator[str | list[str]]:
+
+    async def create_message(
+        self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_content: str
+    ) -> AsyncIterator[str | list[str]]:
         documents = await self.document_repository.find_all(user_id, chat_id)
-        
+
         if not documents:
             raise message_exceptions.NoDocumentFound()
-        
+
         message_embeddings = self.embedding_service.generate([message_content])[0]
 
         await self.message_repository.create(
             Message(
                 sender=user_id,
-                sender_role="user",
-
+                sender_role='user',
                 chat=chat_id,
-                
                 content=message_content,
-                embeddings=message_embeddings
+                embeddings=message_embeddings,
             )
         )
-        
+
         chat = await self.chat_repository.find_by_id(user_id, chat_id)
-        
+
         # If it's a newly generated chat, and the title is still the default
         # then attempt to generate a meaningful title for this chat
-        if(chat.name == "New Chat"):
+        if chat.name == 'New Chat':
             await self.queue.enqueue_job(
                 'generate_chat_title',
                 str(user_id),
                 str(chat_id),
                 message_content,
             )
-        
-        documents_in_chat = [PydanticObjectId(doc.stored_document) for doc in await self.document_repository.find_all(user_id, chat_id)]
-        chunks = await self.retrieval_service.retrieve(documents_in_chat, message_embeddings)
-        
+
+        documents_in_chat = [
+            PydanticObjectId(doc.stored_document)
+            for doc in await self.document_repository.find_all(user_id, chat_id)
+        ]
+        chunks = await self.retrieval_service.retrieve(
+            documents_in_chat, message_embeddings
+        )
+
         response = []
         response_generator = self.llm_service.stream(message_content, chunks)
-        
+
         async for chunk in response_generator:
             response.append(chunk)
             yield chunk
 
-        response = "".join(response)
+        response = ''.join(response)
 
         available_citations = {
-            int(citation)
-            for citation in re.findall(CITATION_REGEX, response)
+            int(citation) for citation in re.findall(CITATION_REGEX, response)
         }
 
         citation_sources = [
@@ -97,7 +109,7 @@ class MessageService:
                 page_end=chunks[int(citation) - 1].page_end,
                 paragraph_start=chunks[int(citation) - 1].paragraph_start,
                 paragraph_end=chunks[int(citation) - 1].paragraph_end,
-                section=chunks[int(citation) - 1].text[:16] + "...",
+                section=chunks[int(citation) - 1].text[:16] + '...',
             )
             for citation in available_citations
         ]
@@ -105,18 +117,31 @@ class MessageService:
         await self.message_repository.create(
             Message(
                 sender=None,
-                sender_role="assistant",
+                sender_role='assistant',
                 chat=chat_id,
                 content=response,
                 embeddings=[],
-                sources=citation_sources
+                sources=citation_sources,
             )
         )
 
         yield [citation.model_dump_json() for citation in citation_sources]
-        
-    async def update_mesage(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_id: PydanticObjectId, message_data: MessageUpdatePayload):
-        return await self.message_repository.update(user_id, chat_id, message_id, message_data.model_dump())
-        
-    async def delete_message(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_id: PydanticObjectId) -> None:
+
+    async def update_mesage(
+        self,
+        user_id: PydanticObjectId,
+        chat_id: PydanticObjectId,
+        message_id: PydanticObjectId,
+        message_data: MessageUpdatePayload,
+    ):
+        return await self.message_repository.update(
+            user_id, chat_id, message_id, message_data.model_dump()
+        )
+
+    async def delete_message(
+        self,
+        user_id: PydanticObjectId,
+        chat_id: PydanticObjectId,
+        message_id: PydanticObjectId,
+    ) -> None:
         return await self.message_repository.delete(user_id, chat_id, message_id)

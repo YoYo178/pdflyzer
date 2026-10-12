@@ -11,5 +11,6 @@ from backend.core.ws.dispatcher import (
 def get_websocket_connection_manager() -> WebSocketConnectionManager:
     return websocket_connection_manager
 
+
 def get_websocket_event_dispatcher() -> WebSocketEventDispatcher:
     return websocket_event_dispatcher

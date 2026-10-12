@@ -1,6 +1,6 @@
 class AppException(Exception):
-    status_code = 500 # Internal Server Error
-    detail = "Internal Server Error"
+    status_code = 500  # Internal Server Error
+    detail = 'Internal Server Error'
 
     def __init__(self, detail: str | None = None):
         super().__init__(detail or self.detail)

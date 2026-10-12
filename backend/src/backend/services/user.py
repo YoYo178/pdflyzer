@@ -8,11 +8,7 @@ from backend.services.chat import ChatService
 
 
 class UserService:
-    def __init__(
-        self,
-        user_repository: UserRepository,
-        chat_service: ChatService
-    ):
+    def __init__(self, user_repository: UserRepository, chat_service: ChatService):
         self.user_repository = user_repository
         self.chat_service = chat_service
 
@@ -32,22 +28,24 @@ class UserService:
     # Deletes a user by ID
     async def delete_user(self, user_id: PydanticObjectId) -> None:
         deleted_user = await self.user_repository.delete(user_id)
-        
+
         if not deleted_user:
             raise user_exceptions.UserNotFound()
-        
+
         # Delete this user's chats
         chats = await self.chat_service.get_all_chats(user_id)
         for chat in chats:
             await self.chat_service.delete_chat(user_id, PydanticObjectId(chat.id))
 
     # Updates a user by ID
-    async def update_user(self, user_id: PydanticObjectId, user_data: UserUpdate) -> User:
+    async def update_user(
+        self, user_id: PydanticObjectId, user_data: UserUpdate
+    ) -> User:
         update_data = user_data.model_dump(exclude_unset=True)
 
         updated_user = await self.user_repository.update(user_id, update_data)
 
         if not updated_user:
             raise user_exceptions.UserNotFound()
-            
+
         return updated_user

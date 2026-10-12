@@ -7,16 +7,17 @@ from backend.repositories.chat import ChatRepository
 
 
 class DocumentRepository:
-    def __init__(
-        self,
-        chat_repository: ChatRepository
-    ):
+    def __init__(self, chat_repository: ChatRepository):
         self.chat_repository = chat_repository
 
-    async def _verify_chat_ownership(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> None:
+    async def _verify_chat_ownership(
+        self, user_id: PydanticObjectId, chat_id: PydanticObjectId
+    ) -> None:
         await self.chat_repository.find_by_id(user_id, chat_id)
 
-    async def find_all(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[ChatDocument]:
+    async def find_all(
+        self, user_id: PydanticObjectId, chat_id: PydanticObjectId
+    ) -> list[ChatDocument]:
         await self._verify_chat_ownership(
             user_id,
             chat_id,
@@ -26,7 +27,9 @@ class DocumentRepository:
             ChatDocument.chat == chat_id,
         ).to_list()
 
-    async def find_by_id(self, user_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
+    async def find_by_id(
+        self, user_id: PydanticObjectId, document_id: PydanticObjectId
+    ) -> ChatDocument:
         document = await ChatDocument.get(document_id)
 
         if not document:
@@ -39,7 +42,12 @@ class DocumentRepository:
 
         return document
 
-    async def find_by_id_in_chat(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
+    async def find_by_id_in_chat(
+        self,
+        user_id: PydanticObjectId,
+        chat_id: PydanticObjectId,
+        document_id: PydanticObjectId,
+    ) -> ChatDocument:
         await self._verify_chat_ownership(
             user_id,
             chat_id,
@@ -54,13 +62,20 @@ class DocumentRepository:
             raise document_exceptions.DocumentNotFound()
 
         return document
-    
-    async def find_by_stored_document_id(self, stored_document_id: PydanticObjectId) -> list[ChatDocument]:        
+
+    async def find_by_stored_document_id(
+        self, stored_document_id: PydanticObjectId
+    ) -> list[ChatDocument]:
         return await ChatDocument.find(
             ChatDocument.stored_document == stored_document_id
         ).to_list()
 
-    async def create(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, document: ChatDocument) -> ChatDocument:
+    async def create(
+        self,
+        user_id: PydanticObjectId,
+        chat_id: PydanticObjectId,
+        document: ChatDocument,
+    ) -> ChatDocument:
         await self._verify_chat_ownership(
             user_id,
             chat_id,
@@ -73,7 +88,9 @@ class DocumentRepository:
 
         return document
 
-    async def delete(self, user_id: PydanticObjectId, document_id: PydanticObjectId) -> ChatDocument:
+    async def delete(
+        self, user_id: PydanticObjectId, document_id: PydanticObjectId
+    ) -> ChatDocument:
         document = await self.find_by_id(
             user_id,
             document_id,

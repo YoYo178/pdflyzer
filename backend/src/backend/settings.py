@@ -9,17 +9,18 @@ class Settings(BaseSettings):
 
     access_token_secret: str
     refresh_token_secret: str
-    
+
     gemini_api_key: str
-    
+
     frontend_url: str
-    
+
     redis_host: str
     redis_port: int
 
     model_config = SettingsConfigDict(
-        env_file=".env",
-        extra="ignore",
+        env_file='.env',
+        extra='ignore',
     )
+
 
 settings = Settings()

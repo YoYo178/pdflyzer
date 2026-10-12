@@ -16,29 +16,36 @@ from backend.repositories.document_chunk import DocumentChunkRepository
 def get_queue(connection: HTTPConnection) -> ArqRedis:
     return connection.app.state.queue
 
+
 def get_storage_service() -> StorageService:
     return StorageService()
+
 
 def get_text_service() -> TextService:
     return TextService()
 
+
 def get_pdf_service(
-    text_service: TextService = Depends(get_text_service)
+    text_service: TextService = Depends(get_text_service),
 ) -> PDFService:
     return PDFService(text_service)
+
 
 def get_chunk_service() -> ChunkService:
     return ChunkService()
 
+
 def get_embedding_service() -> EmbeddingService:
     return embedding_service
 
+
 def get_retrieval_service(
-    document_chunk_repository: DocumentChunkRepository = Depends(get_document_chunk_repository)
+    document_chunk_repository: DocumentChunkRepository = Depends(
+        get_document_chunk_repository
+    ),
 ) -> RetrievalService:
-    return RetrievalService(
-        document_chunk_repository
-    )
+    return RetrievalService(document_chunk_repository)
+
 
 def get_llm_service() -> LLMService:
     return LLMService()
