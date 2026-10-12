@@ -90,7 +90,7 @@ class DocumentService:
         # Before deleting the actual ChatDocument object
         if len(other_docs) <= 1:
             # Delete chunks
-            await self.document_chunk_repository.delete_document_chunks(document_id)
+            await self.document_chunk_repository.delete_document_chunks(document.stored_document)
             
             # Delete StoredDocument instance
             stored_document = await self.stored_document_repository.delete(user_id, document.stored_document)
