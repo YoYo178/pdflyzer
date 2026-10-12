@@ -1,8 +1,8 @@
 from beanie import PydanticObjectId
 
 import backend.exceptions.document as document_exceptions
-
 from backend.models.stored_document import StoredDocument
+
 
 class StoredDocumentRepository:
     async def find_all(self, user_id: PydanticObjectId) -> list[StoredDocument]:

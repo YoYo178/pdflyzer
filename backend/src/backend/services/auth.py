@@ -56,5 +56,5 @@ class AuthService:
                 access_token=access_token,
                 refresh_token=refresh_token,
             )
-        except VerifyMismatchError:
-            raise auth_exceptions.InvalidLogin()
+        except VerifyMismatchError as err:
+            raise auth_exceptions.InvalidLogin() from err

@@ -80,7 +80,7 @@ async def process_document(
                 paragraph_end=chunk.paragraph_end,
                 
                 text=chunk.text
-            ) for chunk, embedding in zip(chunks, embeddings)
+            ) for chunk, embedding in zip(chunks, embeddings, strict=False)
         ]
         
         await document_chunk_repository.create_many(chunk_documents)

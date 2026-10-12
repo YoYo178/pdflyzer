@@ -1,5 +1,5 @@
 import asyncio
-from contextlib import asynccontextmanager
+import contextlib
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,7 +18,7 @@ from backend.sockets import register_socket_handlers
 from backend.utils.document import prune_orphaned_documents
 
 
-@asynccontextmanager
+@contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup a redis instance of pub/sub managing
     redis = Redis(
@@ -49,10 +49,9 @@ async def lifespan(app: FastAPI):
 
     # Cleanup redis pub/sub subscriber
     listener_task.cancel()
-    try:
+    
+    with contextlib.suppress(asyncio.CancelledError):
         await listener_task
-    except asyncio.CancelledError:
-        pass
 
     # Close redis pub/sub connection
     await redis.aclose()

@@ -1,9 +1,10 @@
 import asyncio
 import json
 
+from redis.asyncio import Redis
+
 from backend.config.events import EVENT_CHANNEL
 from backend.dependencies.ws import get_websocket_connection_manager
-from redis.asyncio import Redis
 
 
 async def redis_event_listener(redis: Redis):

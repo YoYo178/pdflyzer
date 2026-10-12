@@ -1,6 +1,6 @@
+from beanie import init_beanie
 import dns.asyncresolver
 import dns.resolver
-from beanie import init_beanie
 from pymongo import AsyncMongoClient
 
 from backend.models.chat import Chat

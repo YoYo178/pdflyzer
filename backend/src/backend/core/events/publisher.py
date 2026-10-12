@@ -1,6 +1,7 @@
 import json
 
 from arq.connections import ArqRedis
+
 from backend.config.events import EVENT_CHANNEL
 
 

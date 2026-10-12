@@ -1,12 +1,11 @@
 from beanie import PydanticObjectId
 
 from backend.core.storage import StorageService
-
 from backend.models.stored_document import StoredDocument
-
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
 from backend.repositories.document_chunk import DocumentChunkRepository
+
 
 async def prune_orphaned_documents():
     deleted_documents = 0

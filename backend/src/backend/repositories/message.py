@@ -22,11 +22,9 @@ class MessageRepository:
     async def find_all(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[Message]:
         await self._verify_chat_ownership(user_id, chat_id)
         
-        messages = await Message.find(
+        return await Message.find(
             Message.chat == chat_id
         ).to_list()
-        
-        return messages
     
     async def find_by_id(self, user_id: PydanticObjectId, chat_id: PydanticObjectId, message_id: PydanticObjectId) -> Message:
         await self._verify_chat_ownership(user_id, chat_id)

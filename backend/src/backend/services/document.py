@@ -2,8 +2,8 @@ from arq import ArqRedis
 from beanie import PydanticObjectId
 from fastapi import UploadFile
 
-import backend.exceptions.document as document_exceptions
 from backend.core.storage import StorageService
+import backend.exceptions.document as document_exceptions
 from backend.models.chat_document import ChatDocument
 from backend.models.stored_document import StoredDocument
 from backend.repositories.document import DocumentRepository
@@ -29,25 +29,19 @@ class DocumentService:
         self.queue = queue
 
     async def get_all_documents(self, user_id: PydanticObjectId, chat_id: PydanticObjectId) -> list[PopulatedChatDocument]:
-        
         documents = await self.repo.find_all(user_id, chat_id)
         
-        populated_documents = []
-        
-        for document in documents:
-            populated_documents.append(
-                PopulatedChatDocument(
-                    id=PydanticObjectId(document.id),
-                    
-                    chat=document.chat,
-                    stored_document=await self.stored_document_repository.find_by_id(user_id, document.stored_document),
-                    
-                    created_at=document.created_at,
-                    updated_at=document.updated_at,
-                )
-            )
-        
-        return populated_documents
+        return [
+            PopulatedChatDocument(
+                id=PydanticObjectId(document.id),
+                
+                chat=document.chat,
+                stored_document=await self.stored_document_repository.find_by_id(user_id, document.stored_document),
+                
+                created_at=document.created_at,
+                updated_at=document.updated_at,
+            ) for document in documents
+        ]
 
     async def get_document_by_id(self, user_id: PydanticObjectId, document_id: PydanticObjectId) -> PopulatedChatDocument:
         document = await self.repo.find_by_id(user_id, document_id)

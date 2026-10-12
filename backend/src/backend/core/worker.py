@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 from arq.connections import RedisSettings
 
 from backend.core.database import connect_db
@@ -7,20 +9,16 @@ from backend.settings import settings
 
 
 class WorkerSettings:
-    functions = [
+    functions: ClassVar[list] = [
         process_document,
         generate_chat_title
     ]
 
-    redis_settings = RedisSettings(
+    redis_settings: ClassVar[RedisSettings] = RedisSettings(
         host=settings.redis_host,
         port=settings.redis_port,
     )
 
     @staticmethod
-    async def on_startup(ctx):
+    async def on_startup(ctx): # noqa: ARG004
         await connect_db()
-
-    @staticmethod
-    async def on_shutdown(ctx):
-        pass

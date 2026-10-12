@@ -3,7 +3,6 @@ from typing import Literal
 from beanie import PydanticObjectId
 
 from backend.models.base import BaseTimestampDocument
-from backend.models.user import User
 
 
 class StoredDocument(BaseTimestampDocument):

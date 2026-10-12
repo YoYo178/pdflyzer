@@ -1,13 +1,13 @@
-import re
 from collections.abc import AsyncIterator
+import re
 
 from arq import ArqRedis
 from beanie import PydanticObjectId
 
-import backend.exceptions.message as message_exceptions
 from backend.core.embedding import EmbeddingService
 from backend.core.llm import LLMService
 from backend.core.retrieval import RetrievalService
+import backend.exceptions.message as message_exceptions
 from backend.models.message import Message, MessageSource
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository

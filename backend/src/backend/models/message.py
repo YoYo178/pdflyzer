@@ -1,7 +1,7 @@
 from typing import Literal
 
 from beanie import PydanticObjectId
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 from backend.models.base import BaseTimestampDocument
 
@@ -25,7 +25,7 @@ class Message(BaseTimestampDocument):
     sender: PydanticObjectId | None
     sender_role: Literal['user', 'assistant', 'system']
     
-    sources: list[MessageSource] = []
+    sources: list[MessageSource] = Field(default_factory=list)
     
     embeddings: list[float]
     

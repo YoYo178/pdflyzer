@@ -2,8 +2,8 @@ from beanie import PydanticObjectId
 from fastapi import Depends, Request, Response, WebSocket
 from jwt.exceptions import ExpiredSignatureError
 
-import backend.exceptions.auth as auth_exceptions
 from backend.dependencies.repositories import get_user_repository
+import backend.exceptions.auth as auth_exceptions
 from backend.models.user import User
 from backend.repositories.user import UserRepository
 from backend.utils.jwt import (
@@ -28,8 +28,8 @@ async def verify_refresh_token(refresh_token: str, repo: UserRepository) -> User
             raise auth_exceptions.UnauthorizedUser()
 
         return user
-    except ExpiredSignatureError:
-        raise auth_exceptions.UnauthorizedUser()
+    except ExpiredSignatureError as err:
+        raise auth_exceptions.UnauthorizedUser() from err
 
 async def issue_new_access_token(refresh_token: str, repo: UserRepository, response: Response):
     user = await verify_refresh_token(refresh_token, repo)
@@ -55,7 +55,7 @@ async def verify_access_token(
     isWebSocket: bool = False
 ) -> User:
     try:
-        if not access_token and response != None:
+        if not access_token and response is not None:
             return await issue_new_access_token(refresh_token, repo, response)
         
         if not access_token:
@@ -74,12 +74,12 @@ async def verify_access_token(
             raise auth_exceptions.UnauthorizedUser()
 
         return user
-    except ExpiredSignatureError:
+    except ExpiredSignatureError as err:
         # WebSocket cannot set cookies
-        if not isWebSocket and response != None:
+        if not isWebSocket and response is not None:
             return await issue_new_access_token(refresh_token, repo, response)
         
-        raise auth_exceptions.UnauthorizedUser()
+        raise auth_exceptions.UnauthorizedUser() from err
 
 async def get_current_user(
     request: Request,
