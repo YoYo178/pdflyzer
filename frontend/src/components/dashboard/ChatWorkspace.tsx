@@ -16,6 +16,7 @@ import { getErrorMessage } from '@/api/utils';
 import Drawer from '@/components/ui/drawer';
 import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
+import { useSocketErrorHandling } from '@/hooks/useSocketErrorHandling';
 import { formatChatCount, formatFileCount } from '@/lib/format';
 
 import useChatThread from '../../hooks/useChatThread';
@@ -70,6 +71,7 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
   const threadKey = activeChatId ?? mode;
 
   useChatLiveUpdates(activeChatId ?? '');
+  useSocketErrorHandling(activeChatId ?? '');
 
   // A chat created in this session must never be re-seeded from the server, or
   // the empty message list would wipe the thread the user just started.

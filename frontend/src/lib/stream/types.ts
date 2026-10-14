@@ -17,12 +17,14 @@ export const WS_EVENTS = {
   streamBegin: 'chat.stream.begin',
   streamChunk: 'chat.stream.chunk',
   streamSourcesChunk: 'chat.stream.sources_chunk',
+  streamError: 'chat.stream.error',
   streamEnd: 'chat.stream.end',
 
   /** Not emitted server-side yet; wired so the client reacts as soon as it is. */
   documentUpdated: 'chat.document.update',
 
   chatTitleUpdated: 'chat.title.update',
+  chatTitleError: 'chat.title.error',
 } as const;
 
 /** Server -> client WebSocket frames, as emitted by the chat socket route. */
