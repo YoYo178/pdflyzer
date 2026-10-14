@@ -218,12 +218,8 @@ class LLMService:
             config={'system_instruction': prompt_data.system_prompt},
             message=prompt_data.user_prompt,
         )
+        async for chunk in chunks_generator:
+            if not chunk.text:
+                continue
 
-        try:
-            async for chunk in chunks_generator:
-                if not chunk.text:
-                    continue
-
-                yield chunk.text
-        except Exception as e:
-            print(e)
+            yield chunk.text

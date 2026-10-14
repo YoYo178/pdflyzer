@@ -3,16 +3,21 @@ import re
 
 from arq import ArqRedis
 from beanie import PydanticObjectId
+from google.genai import errors
 
 from backend.core.embedding import EmbeddingService
+from backend.core.events.publisher import publish_event
 from backend.core.llm import LLMService
 from backend.core.retrieval import RetrievalService
+from backend.events.chat import event_chat_stream_error
+from backend.events.redis import redis_pub_event
 import backend.exceptions.message as message_exceptions
 from backend.models.message import Message, MessageSource
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
 from backend.repositories.message import MessageRepository
 from backend.schemas.message import MessageUpdatePayload
+from backend.utils.llm import generate_error_message
 
 CITATION_REGEX = r'\[\[(\d+)\]\]'
 
@@ -90,11 +95,27 @@ class MessageService:
         )
 
         response = []
-        response_generator = self.llm_service.stream(message_content, chunks)
 
-        async for chunk in response_generator:
-            response.append(chunk)
-            yield chunk
+        try:
+            response_generator = self.llm_service.stream(message_content, chunks)
+
+            async for chunk in response_generator:
+                response.append(chunk)
+                yield chunk
+        except Exception as e:
+            error_message = 'Something went wrong while streaming chat response, please try again later.'
+
+            if isinstance(e, errors.APIError):
+                error_message = generate_error_message(e.code, error_message)
+
+            await publish_event(
+                self.queue,
+                redis_pub_event(str(chat_id), event_chat_stream_error(error_message)),
+            )
+
+            print(
+                f'An error occured while trying to stream response for chat id "{chat_id}": {error_message}'
+            )
 
         response = ''.join(response)
 
