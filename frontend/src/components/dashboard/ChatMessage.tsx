@@ -1,5 +1,6 @@
 import type { TStreamTransport } from '@/lib/stream/types';
 import { cn } from '@/lib/utils';
+import type { IDocument } from '@/types/document.types';
 import type { IMessage } from '@/types/message.types';
 import {
   IconBroadcast,
@@ -15,7 +16,6 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import MessageContent from './MessageContent';
 import SourceList from './SourceList';
-import type { IDocument } from '@/types/document.types';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -124,7 +124,7 @@ interface ChatMessageProps {
   onCitationClick: (index: number) => void;
   onRegenerate: () => void;
   onRate: (id: string, rating: 'up' | 'down' | null) => void;
-  documents: IDocument[]
+  documents: IDocument[];
 }
 
 function ChatMessage({
@@ -137,7 +137,7 @@ function ChatMessage({
   onCitationClick,
   onRegenerate,
   onRate,
-  documents
+  documents,
 }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -159,14 +159,13 @@ function ChatMessage({
     setCopied(true);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setCopied(false), 1600);
-    toast.success('Answer copied', { position: 'bottom-center' });
+    toast.success('Answer copied');
   }
 
   function rate(value: 'up' | 'down') {
     const next = message.rating === value ? null : value;
     onRate(message.id, next);
-    if (next)
-      toast.success('Thanks for the feedback', { position: 'bottom-center' });
+    if (next) toast.success('Thanks for the feedback');
   }
 
   return (

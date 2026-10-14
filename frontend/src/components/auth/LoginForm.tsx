@@ -48,9 +48,7 @@ function LoginForm() {
 
       await mutateAsync({ login: email, password });
 
-      toast.success('Signed in successfully, redirecting to dashboard...', {
-        position: 'bottom-center',
-      });
+      toast.success('Signed in successfully, redirecting to dashboard...');
 
       // Invalidate the /me endpoint so user gets redirected to chat automatically
       queryClient.invalidateQueries({ queryKey: ['users', 'me'] });

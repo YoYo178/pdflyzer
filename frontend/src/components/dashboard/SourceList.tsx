@@ -43,7 +43,7 @@ function SourceList({
     setCopied(index);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setCopied(null), 1600);
-    toast.success('Source reference copied', { position: 'bottom-center' });
+    toast.success('Source reference copied');
   }
 
   return (

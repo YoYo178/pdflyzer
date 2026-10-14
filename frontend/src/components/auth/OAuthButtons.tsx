@@ -21,9 +21,7 @@ function OAuthButtons({ mode, className }: OAuthButtonsProps) {
 
   function onSelect(provider: IProviderOption) {
     if (!isOAuthEnabled) {
-      toast.info(`${provider.label} sign-in is not enabled yet.`, {
-        position: 'bottom-center',
-      });
+      toast.info(`${provider.label} sign-in is not enabled yet.`);
       return;
     }
 

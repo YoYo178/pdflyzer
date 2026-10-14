@@ -7,16 +7,18 @@ import { useDeleteChat } from '@/api/mutations/chats/useDeleteChat';
 import { useUpdateChat } from '@/api/mutations/chats/useUpdateChat';
 import { useDeleteDocument } from '@/api/mutations/documents/useDeleteDocument';
 import { useUploadDocuments } from '@/api/mutations/documents/useUploadDocuments';
+import { useChatLiveUpdates } from '@/api/queries/chats/useChatLiveUpdates';
 import { useGetAllChats } from '@/api/queries/chats/useGetAllChats';
 import { useGetChat } from '@/api/queries/chats/useGetChat';
-import { useGetDocuments } from '@/api/queries/documents/useGetDocuments';
 import { useDocumentLiveUpdates } from '@/api/queries/documents/useDocumentLiveUpdates';
+import { useGetDocuments } from '@/api/queries/documents/useGetDocuments';
 import { getErrorMessage } from '@/api/utils';
 import Drawer from '@/components/ui/drawer';
 import Logo from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
 import { formatChatCount, formatFileCount } from '@/lib/format';
 
+import useChatThread from '../../hooks/useChatThread';
 import AppSidebar from './AppSidebar';
 import ChatComposer from './ChatComposer';
 import ChatNotFound from './ChatNotFound';
@@ -24,8 +26,6 @@ import ChatThread from './ChatThread';
 import ChatTopbar from './ChatTopbar';
 import ComposerUploadNotice from './ComposerUploadNotice';
 import DashboardHome from './DashboardHome';
-import useChatThread from '../../hooks/useChatThread';
-import { useChatLiveUpdates } from '@/api/queries/chats/useChatLiveUpdates';
 
 export type TWorkspaceMode = 'dashboard' | 'new' | 'chat';
 
@@ -33,8 +33,6 @@ interface ChatWorkspaceProps {
   mode: TWorkspaceMode;
   chatId?: string;
 }
-
-const TOAST = { position: 'bottom-center' } as const;
 
 function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
   const navigate = useNavigate();
@@ -174,7 +172,6 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
       } catch (error) {
         toast.error('Could not send message', {
           description: getErrorMessage(error),
-          ...TOAST,
         });
       }
     },
@@ -193,13 +190,11 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
           `${files.length} ${files.length === 1 ? 'PDF' : 'PDFs'} added`,
           {
             description: 'Indexing runs in the background.',
-            ...TOAST,
           },
         );
       } catch (error) {
         toast.error('Upload failed', {
           description: getErrorMessage(error),
-          ...TOAST,
         });
       }
     },
@@ -211,11 +206,10 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
       updateChat.mutate(
         { chatId: id, name },
         {
-          onSuccess: () => toast.success('Chat renamed', TOAST),
+          onSuccess: () => toast.success('Chat renamed'),
           onError: (error) =>
             toast.error('Could not rename this chat', {
               description: getErrorMessage(error),
-              ...TOAST,
             }),
         },
       );
@@ -229,13 +223,12 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
         { chatId: id, pinned },
         {
           onSuccess: () =>
-            toast.success(pinned ? 'Chat pinned' : 'Chat unpinned', TOAST),
+            toast.success(pinned ? 'Chat pinned' : 'Chat unpinned'),
           onError: (error) =>
             toast.error(
               pinned ? 'Could not pin this chat' : 'Could not unpin this chat',
               {
                 description: getErrorMessage(error),
-                ...TOAST,
               },
             ),
         },
@@ -248,13 +241,12 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
     (id: string) => {
       removeChat.mutate(id, {
         onSuccess: () => {
-          toast.success('Chat deleted', TOAST);
+          toast.success('Chat deleted');
           if (id === activeChatId) goToDashboard();
         },
         onError: (error) =>
           toast.error('Could not delete this chat', {
             description: getErrorMessage(error),
-            ...TOAST,
           }),
       });
     },
@@ -268,11 +260,10 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
       removeDocument.mutate(
         { chatId: activeChatId, documentId },
         {
-          onSuccess: () => toast.success('PDF removed', TOAST),
+          onSuccess: () => toast.success('PDF removed'),
           onError: (error) =>
             toast.error('Could not remove this PDF', {
               description: getErrorMessage(error),
-              ...TOAST,
             }),
         },
       );

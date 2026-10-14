@@ -5,6 +5,6 @@ export const useErrorToast = (error: string | undefined) => {
   useEffect(() => {
     if (!error) return;
 
-    toast.error(error, { position: 'bottom-center' });
+    toast.error(error);
   }, [error]);
 };

@@ -5,7 +5,7 @@ function RootLayout() {
   return (
     <>
       <Outlet />
-      <Toaster richColors />
+      <Toaster richColors position='bottom-center' />
     </>
   );
 }

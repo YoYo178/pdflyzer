@@ -120,7 +120,6 @@ function RegisterForm() {
 
       toast.success(
         'Account created successfully, redirecting to dashboard...',
-        { position: 'bottom-center' },
       );
 
       // Invalidate the /me endpoint so user gets redirected to chat automatically
