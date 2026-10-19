@@ -26,23 +26,43 @@ class Message(BaseTimestampDocument):
     sender: PydanticObjectId | None
     sender_role: Literal['user', 'assistant', 'system']
 
-    sources: list[MessageSource] = Field(default_factory=list)
+    sources: list[MessageSource] | None = Field(default_factory=list)
 
-    embeddings: list[float]
+    embeddings: list[float] | None
 
-    # Ensures relationship between sender and sender_role are maintained and enforced
+    # Ensure schema shapes from different role perspectives
     @model_validator(mode='after')
     def validate_sender(self):
-        if (
-            self.sender_role == 'assistant' or self.sender_role == 'system'
-        ) and self.sender is not None:
-            raise ValueError('System or Assistant messages cannot have a sender')
-
-        if self.sender_role == 'user' and self.sender is None:
-            raise ValueError('User messages must have a sender')
-
-        if self.sender_role == 'user' and len(self.sources):
-            raise ValueError('User messages cannot contain sources')
+        # System role message shape enforcements
+        if self.sender_role == 'system':
+            if self.sender is not None:
+                raise ValueError('System messages cannot have a sender')
+            
+            if self.rating is not None:
+                raise ValueError('System messages cannot have ratings')
+        
+        # Assistant role message shape enforcements
+        if self.sender_role == 'assistant':
+            if self.sender is not None:
+                raise ValueError('Assistant messages cannot have a sender')
+            
+            if self.sources is None:
+                raise ValueError('Assistant messages must have sources')
+            
+            if self.embeddings is not None:
+                raise ValueError('Assistant messages must not contain embeddings')
+        
+        
+        # User role message shape enforcements
+        if self.sender_role == 'user':
+            if self.sender is None:
+                raise ValueError('User messages must have a sender')
+            
+            if self.sources is not None:
+                raise ValueError('User messages must contain have sources')
+            
+            if self.rating is not None:
+                raise ValueError('User messages cannot have ratings')
 
         return self
 

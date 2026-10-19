@@ -71,6 +71,9 @@ class MessageService:
                 chat=chat_id,
                 content=message_content,
                 embeddings=message_embeddings,
+                status=None,
+                sources=None,
+                rating=None
             )
         )
 
@@ -141,8 +144,9 @@ class MessageService:
                 sender_role='assistant',
                 chat=chat_id,
                 content=response,
-                embeddings=[],
+                embeddings=None,
                 sources=citation_sources,
+                rating=None
             )
         )
 
