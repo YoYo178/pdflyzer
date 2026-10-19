@@ -142,6 +142,11 @@ function ChatMessage({
   const [copied, setCopied] = useState(false);
   const timer = useRef<number | undefined>(undefined);
 
+  const isMessageError =
+    message.sender_role === 'assistant' && message.status === 'error';
+  const isMessageDone =
+    message.sender_role === 'assistant' && message.status === 'done';
+
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   if (message.sender_role === 'user') {
@@ -174,22 +179,29 @@ function ChatMessage({
         <IconSparkles className='h-3.5 w-3.5' />
       </div>
 
-      <div className='min-w-0 flex-1 space-y-3'>
-        {message.content ? (
-          <MessageContent
-            content={message.content}
-            onCitationClick={onCitationClick}
-            className='text-sm text-muted-foreground'
-          />
-        ) : (
-          <ThinkingDots />
-        )}
+      <div className='min-w-0 flex-1 flex flex-col gap-3'>
+        <>
+          {isStreaming && <ThinkingDots />}
 
-        {isStreaming && (
+          {isMessageError && (
+            <p className='text-sm text-red-500/90 dark:text-red-500/85 my-auto'>
+              An error occured while generating this response, please try again
+              later.
+            </p>
+          )}
+
+          {isMessageDone && message.content.length > 0 && (
+            <MessageContent
+              content={message.content}
+              onCitationClick={onCitationClick}
+              className='text-sm text-muted-foreground'
+            />
+          )}
+        </>
+
+        {isStreaming ? (
           <StreamingStatus label={statusLabel} transport={transport} />
-        )}
-
-        {!isStreaming && (
+        ) : (
           <>
             {message.sources && message.sources.length > 0 && (
               <SourceList
@@ -206,36 +218,45 @@ function ChatMessage({
               transition={{ duration: 0.3, ease: EASE }}
               className='flex items-center gap-1'
             >
-              <ActionButton label='Copy answer' onClick={copy}>
-                {copied ? (
-                  <IconCheck className='h-3.5 w-3.5 text-teal-600 dark:text-teal-300' />
-                ) : (
-                  <IconCopy className='h-3.5 w-3.5' />
-                )}
-              </ActionButton>
+              {!isMessageError && (
+                <ActionButton label='Copy answer' onClick={copy}>
+                  {copied ? (
+                    <IconCheck className='h-3.5 w-3.5 text-teal-600 dark:text-teal-300' />
+                  ) : (
+                    <IconCopy className='h-3.5 w-3.5' />
+                  )}
+                </ActionButton>
+              )}
 
               {isLast && (
-                <ActionButton label='Regenerate answer' onClick={onRegenerate}>
+                <ActionButton
+                  label={isMessageError ? 'Retry' : 'Regenerate answer'}
+                  onClick={onRegenerate}
+                >
                   <IconRefresh className='h-3.5 w-3.5' />
                 </ActionButton>
               )}
 
-              <span className='flex-1' />
+              {!isMessageError && (
+                <>
+                  <span className='flex-1' />
 
-              <ActionButton
-                label='Helpful'
-                active={message.rating === 'up'}
-                onClick={() => rate('up')}
-              >
-                <IconThumbUp className='h-3.5 w-3.5' />
-              </ActionButton>
-              <ActionButton
-                label='Not helpful'
-                active={message.rating === 'down'}
-                onClick={() => rate('down')}
-              >
-                <IconThumbDown className='h-3.5 w-3.5' />
-              </ActionButton>
+                  <ActionButton
+                    label='Helpful'
+                    active={message.rating === 'up'}
+                    onClick={() => rate('up')}
+                  >
+                    <IconThumbUp className='h-3.5 w-3.5' />
+                  </ActionButton>
+                  <ActionButton
+                    label='Not helpful'
+                    active={message.rating === 'down'}
+                    onClick={() => rate('down')}
+                  >
+                    <IconThumbDown className='h-3.5 w-3.5' />
+                  </ActionButton>
+                </>
+              )}
             </motion.div>
           </>
         )}
