@@ -27,6 +27,7 @@ class Message(BaseTimestampDocument):
     sender_role: Literal['user', 'assistant', 'system']
 
     sources: list[MessageSource] | None = Field(default_factory=list)
+    status: Literal['streaming', 'done', 'error'] | None
 
     embeddings: list[float] | None
 
@@ -51,6 +52,9 @@ class Message(BaseTimestampDocument):
             
             if self.embeddings is not None:
                 raise ValueError('Assistant messages must not contain embeddings')
+            
+            if self.status is None:
+                raise ValueError('Assistant messages must have a status value')
         
         
         # User role message shape enforcements
@@ -63,6 +67,9 @@ class Message(BaseTimestampDocument):
             
             if self.rating is not None:
                 raise ValueError('User messages cannot have ratings')
+            
+            if self.status is not None:
+                raise ValueError('User messages must have a status value')
 
         return self
 

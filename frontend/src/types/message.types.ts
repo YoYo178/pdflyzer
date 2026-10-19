@@ -22,7 +22,7 @@ export interface IMessage {
 
   rating: 'up' | 'down' | null;
 
-  status?: 'streaming' | 'done' | 'error'; // TODO: Add at backend
+  status: 'streaming' | 'done' | 'error';
   sources?: IMessageSource[];
 
   created_at: string;

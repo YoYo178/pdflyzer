@@ -25,6 +25,8 @@ class MessageView(BaseModel):
 
     content: str
     rating: Literal['up', 'down'] | None
+    
+    status: Literal['streaming', 'done', 'error'] | None
 
     sources: list[MessageSource]
 

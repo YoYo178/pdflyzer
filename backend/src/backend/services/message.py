@@ -97,6 +97,19 @@ class MessageService:
             documents_in_chat, message_embeddings
         )
 
+        llm_message = await self.message_repository.create(
+            Message(
+                sender=None,
+                sender_role='assistant',
+                chat=chat_id,
+                content='',
+                embeddings=None,
+                status='streaming',
+                sources=[],
+                rating=None
+            )
+        )
+
         response = []
 
         try:
@@ -116,9 +129,16 @@ class MessageService:
                 redis_pub_event(str(chat_id), event_chat_stream_error(error_message)),
             )
 
+            response = ''.join(response)
+            
+            llm_message.status = 'error'
+            llm_message.content = response
+            await llm_message.save()
+
             print(
                 f'An error occured while trying to stream response for chat id "{chat_id}": {error_message}'
             )
+            return
 
         response = ''.join(response)
 
@@ -137,18 +157,11 @@ class MessageService:
             )
             for citation in available_citations
         ]
-
-        await self.message_repository.create(
-            Message(
-                sender=None,
-                sender_role='assistant',
-                chat=chat_id,
-                content=response,
-                embeddings=None,
-                sources=citation_sources,
-                rating=None
-            )
-        )
+            
+        llm_message.status = 'done'
+        llm_message.content = response
+        llm_message.sources = citation_sources
+        await llm_message.save()
 
         yield [citation.model_dump_json() for citation in citation_sources]
 
