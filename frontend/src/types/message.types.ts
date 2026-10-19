@@ -10,21 +10,44 @@ export interface IMessageSource {
   section: string;
 }
 
-export interface IMessage {
+interface IBaseMessage {
   id: string;
 
   chat: string;
-
-  sender: string;
-  sender_role: 'user' | 'assistant' | 'system';
-
   content: string;
-
-  rating: 'up' | 'down' | null;
-
-  status: 'streaming' | 'done' | 'error';
-  sources?: IMessageSource[];
 
   created_at: string;
   updated_at: string;
 }
+
+interface ISystemMessage extends IBaseMessage {
+  sender: null;
+  sender_role: 'system';
+
+  rating: null;
+
+  status: null;
+  sources: null;
+}
+
+interface IAssistantMessage extends IBaseMessage {
+  sender: null;
+  sender_role: 'assistant';
+
+  rating: 'up' | 'down' | null;
+
+  status: 'streaming' | 'done' | 'error';
+  sources: IMessageSource[];
+}
+
+interface IUserMessage extends IBaseMessage {
+  sender: string;
+  sender_role: 'user';
+
+  rating: null;
+
+  status: null;
+  sources: [];
+}
+
+export type TMessage = IAssistantMessage | IUserMessage | ISystemMessage

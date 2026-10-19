@@ -1,7 +1,7 @@
 import type { TStreamTransport } from '@/lib/stream/types';
 import { cn } from '@/lib/utils';
 import type { IDocument } from '@/types/document.types';
-import type { IMessage } from '@/types/message.types';
+import type { TMessage } from '@/types/message.types';
 import {
   IconBroadcast,
   IconCheck,
@@ -115,7 +115,7 @@ function StreamingStatus({
 }
 
 interface ChatMessageProps {
-  message: IMessage;
+  message: TMessage;
   isLast: boolean;
   isStreaming: boolean;
   statusLabel: string;

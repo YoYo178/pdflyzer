@@ -1,7 +1,7 @@
 import type { TStreamTransport } from '@/lib/stream/types';
 import { cn } from '@/lib/utils';
 import type { IDocument } from '@/types/document.types';
-import type { IMessage } from '@/types/message.types';
+import type { TMessage } from '@/types/message.types';
 import { IconArrowDown } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -36,7 +36,7 @@ function dayLabel(iso: string) {
 
 interface ChatThreadProps {
   threadKey: string | null;
-  messages: IMessage[];
+  messages: TMessage[];
   documents: IDocument[];
   isStreaming: boolean;
   statusLabel: string;
@@ -118,7 +118,7 @@ function ChatThread({
   }
 
   const rows = useMemo(() => {
-    const result: { message: IMessage; day: string; showDivider: boolean }[] =
+    const result: { message: TMessage; day: string; showDivider: boolean }[] =
       [];
     let previousDay = '';
 

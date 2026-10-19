@@ -1,7 +1,7 @@
 import { useUpdateMessage } from '@/api/mutations/messages/useUpdateMessage';
 import { useGetAllMessages } from '@/api/queries/messages/useGetAllMessages';
 import { useStreamMessage } from '@/api/queries/messages/useStreamMessage';
-import type { IMessage, IMessageSource } from '@/types/message.types';
+import type { TMessage, IMessageSource } from '@/types/message.types';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function useChatThread(activeChatId: string, seedFromServer = true) {
@@ -13,7 +13,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
   const stream = useStreamMessage();
   const updateMessage = useUpdateMessage();
 
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<TMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [statusLabel, setStatusLabel] = useState('');
 
@@ -66,7 +66,9 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
 
         setMessages((current) =>
           current.map((message) =>
-            message.id === id ? { ...message, sources } : message,
+            message.id === id && message.sender_role === 'assistant'
+              ? { ...message, sources }
+              : message,
           ),
         );
         break;
@@ -85,13 +87,14 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
         {
           id,
           chat: chatId,
-          sender: '',
+          sender: null,
           sender_role: 'assistant',
           content: '',
           embeddings: [],
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           status: 'streaming',
+          sources: [],
           rating: null,
         },
       ]);
@@ -102,7 +105,9 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
 
       setMessages((current) =>
         current.map((message) =>
-          message.id === id ? { ...message, status: 'done' } : message,
+          message.id === id && message.sender_role === 'assistant'
+            ? { ...message, status: 'done' }
+            : message,
         ),
       );
       setIsStreaming(false);
@@ -128,7 +133,8 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
           embeddings: [],
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          status: 'done',
+          status: null,
+          sources: [],
           rating: null,
         },
       ]);
@@ -147,7 +153,9 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
 
       setMessages((current) =>
         current.map((message) =>
-          message.id === id ? { ...message, status: 'done' } : message,
+          message.id === id && message.sender_role === 'assistant'
+            ? { ...message, status: 'done' }
+            : message,
         ),
       );
     }
@@ -182,7 +190,9 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
     async (id: string, value: 'up' | 'down' | null) => {
       setMessages((current) =>
         current.map((message) =>
-          message.id === id ? { ...message, rating: value } : message,
+          message.id === id && message.sender_role === 'assistant'
+            ? { ...message, rating: value }
+            : message,
         ),
       );
       await updateMessage.mutateAsync({
