@@ -41,7 +41,6 @@ interface ChatThreadProps {
   isStreaming: boolean;
   statusLabel: string;
   transport: TStreamTransport;
-  onSuggestion: (prompt: string) => void;
   onUpload: (files: File[]) => void;
   isUploading: boolean;
   onRegenerate: () => void;
@@ -55,7 +54,6 @@ function ChatThread({
   isStreaming,
   statusLabel,
   transport,
-  onSuggestion,
   onUpload,
   isUploading,
   onRegenerate,
@@ -154,7 +152,7 @@ function ChatThread({
       >
         {messages.length === 0 ? (
           readyCount > 0 ? (
-            <ChatEmptyState documents={documents} onPick={onSuggestion} />
+            <ChatEmptyState documents={documents} />
           ) : (
             <ChatNeedsDocuments
               documents={documents}

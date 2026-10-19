@@ -347,7 +347,6 @@ function ChatWorkspace({ mode, chatId }: ChatWorkspaceProps) {
               isStreaming={isStreaming}
               statusLabel={statusLabel}
               transport={transport}
-              onSuggestion={ask}
               onUpload={uploadFiles}
               isUploading={uploadDocuments.isPending}
               onRegenerate={regenerate}
