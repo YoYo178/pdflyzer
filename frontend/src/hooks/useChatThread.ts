@@ -51,7 +51,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
       case 'MESSAGE_CHUNK':
         setMessages((current) =>
           current.map((message) =>
-            message.id === id
+            message.id === id && message.sender_role === 'assistant'
               ? { ...message, content: message.content + payload.data }
               : message,
           ),
