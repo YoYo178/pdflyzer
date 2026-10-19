@@ -47,7 +47,7 @@ interface IUserMessage extends IBaseMessage {
   rating: null;
 
   status: null;
-  sources: [];
+  sources: null;
 }
 
 export type TMessage = IAssistantMessage | IUserMessage | ISystemMessage

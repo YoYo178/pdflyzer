@@ -134,7 +134,7 @@ function useChatThread(activeChatId: string, seedFromServer = true) {
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           status: null,
-          sources: [],
+          sources: null,
           rating: null,
         },
       ]);
