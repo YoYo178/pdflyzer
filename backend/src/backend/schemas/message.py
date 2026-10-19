@@ -28,7 +28,7 @@ class MessageView(BaseModel):
     
     status: Literal['streaming', 'done', 'error'] | None
 
-    sources: list[MessageSource]
+    sources: list[MessageSource] | None
 
     created_at: datetime
     updated_at: datetime
