@@ -181,7 +181,7 @@ function ChatMessage({
 
       <div className='min-w-0 flex-1 flex flex-col gap-3'>
         <>
-          {isStreaming && <ThinkingDots />}
+          {isStreaming && message.content === '' && <ThinkingDots />}
 
           {isMessageError && (
             <p className='text-sm text-red-500/90 dark:text-red-500/85 my-auto'>
@@ -190,7 +190,7 @@ function ChatMessage({
             </p>
           )}
 
-          {isMessageDone && message.content.length > 0 && (
+          {(isMessageDone || message.content.length > 0) && (
             <MessageContent
               content={message.content}
               onCitationClick={onCitationClick}
