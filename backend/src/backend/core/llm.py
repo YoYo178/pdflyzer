@@ -1,5 +1,6 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from textwrap import dedent
+from typing import Any, TypeVar
 
 from google import genai
 
@@ -8,11 +9,21 @@ from backend.types.document import RetrievedChunk
 from backend.types.llm import LLMPrompt
 
 
-class LLMService:
-    _client: genai.Client | None = None
-    _model: str = 'gemini-3.6-flash'
+T = TypeVar("T")
 
-    def __init__(self):
+MODELS = (
+    "gemini-3.8-flash",
+    "gemini-3.6-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-lite",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-flash",
+)
+
+
+class LLMService:
+    def __init__(self) -> None:
         self._client = genai.Client(api_key=settings.gemini_api_key)
 
     def _build_prompt(self, question: str, chunks: list[RetrievedChunk]) -> LLMPrompt:
@@ -140,21 +151,29 @@ class LLMService:
             When providing information derived from the documents, use the appropriate citation markers to make the supporting sources clear without unnecessarily interrupting the natural flow of the response.
         """).strip()
 
-        user_prompt = 'Relevant Document Context:'
-
-        for index, chunk in enumerate(chunks):
-            user_prompt += dedent(f"""
-            
-                --- Document Chunk {index + 1} ("[[{index + 1}]]" for citation) ---
+        document_context = "\n\n".join(
+            dedent(
+                f"""
+                --- Document Chunk {index} ("[[{index}]]" for citation) ---
                 {chunk.text}
-                
-            """).strip()
+                """
+            ).strip()
+            for index, chunk in enumerate(chunks, start=1)
+        )
 
-        user_prompt += dedent(f"""
-            User question:
-            
-            {question}
-        """).strip()
+        user_prompt = "\n\n".join(
+            part
+            for part in (
+                (
+                    "Relevant Document Context:\n\n"
+                    f"{document_context}"
+                )
+                if document_context
+                else "",
+                f"User question:\n{question}",
+            )
+            if part
+        )
 
         return LLMPrompt(system_prompt, user_prompt)
 
@@ -170,56 +189,105 @@ class LLMService:
             - Return only the title.
         """).strip()
 
-        user_prompt = f'Prompt: "{question}"'
-
-        return LLMPrompt(system_prompt, user_prompt)
-
-    async def generate_title(self, question: str):
-        if not self._client:
-            raise RuntimeError('LLMService not initialized!')
-
-        prompt_data = self._build_title_prompt(question)
-
-        chat = self._client.aio.chats.create(model=self._model)
-
-        response = await chat.send_message(
-            config={'system_instruction': prompt_data.system_prompt},
-            message=prompt_data.user_prompt,
+        return LLMPrompt(
+            system_prompt=system_prompt,
+            user_prompt=f'Prompt: "{question}"',
         )
 
-        return response.text
+    async def _run_with_fallback(self, callback: Callable[[str], Awaitable[T]]) -> T:
+        last_error: Exception | None = None
 
-    async def generate(self, question: str, chunks: list[RetrievedChunk]):
-        if not self._client:
-            raise RuntimeError('LLMService not initialized!')
+        for model in MODELS:
+            try:
+                print(f"Trying model: {model}")
+                return await callback(model)
 
-        prompt_data = self._build_prompt(question, chunks)
+            except Exception as exc:
+                last_error = exc
+                print(f"Model {model} failed: {exc}")
 
-        chat = self._client.aio.chats.create(model=self._model)
+        if last_error is not None:
+            raise last_error
 
-        response = await chat.send_message(
-            config={'system_instruction': prompt_data.system_prompt},
-            message=prompt_data.user_prompt,
-        )
+        raise RuntimeError("No LLM models configured.")
 
-        return response.text
+    async def _stream_with_fallback(self, callback: Callable[[str], AsyncIterator[str]]) -> AsyncIterator[str]:
+        for model in MODELS:
+            print(f"Trying model: {model}")
+            has_yielded = False
 
-    async def stream(
-        self, question: str, chunks: list[RetrievedChunk]
-    ) -> AsyncIterator[str]:
-        if not self._client:
-            raise RuntimeError('LLMService not initialized!')
+            try:
+                async for chunk in callback(model):
+                    if not chunk:
+                        continue
 
-        prompt_data = self._build_prompt(question, chunks)
+                    has_yielded = True
+                    yield chunk
 
-        chat = self._client.aio.chats.create(model=self._model)
+                return
 
-        chunks_generator = await chat.send_message_stream(
-            config={'system_instruction': prompt_data.system_prompt},
-            message=prompt_data.user_prompt,
-        )
-        async for chunk in chunks_generator:
-            if not chunk.text:
+            except Exception as exc:
+                print(f"Model {model} failed: {exc}")
+
+                if has_yielded:
+                    raise
+
                 continue
 
-            yield chunk.text
+        raise RuntimeError(
+            "All configured LLM models failed before streaming."
+        )
+
+    async def generate_title(self, question: str) -> str | None:
+        prompt = self._build_title_prompt(question)
+
+        async def request(model: str) -> str | None:
+            chat = self._client.aio.chats.create(model=model)
+
+            response = await chat.send_message(
+                config={
+                    "system_instruction": prompt.system_prompt,
+                },
+                message=prompt.user_prompt,
+            )
+
+            return response.text
+
+        return await self._run_with_fallback(request)
+
+    async def generate(self, question: str, chunks: list[RetrievedChunk]) -> str | None:
+        prompt = self._build_prompt(question, chunks)
+
+        async def request(model: str) -> str | None:
+            chat = self._client.aio.chats.create(model=model)
+
+            response = await chat.send_message(
+                config={
+                    "system_instruction": prompt.system_prompt,
+                },
+                message=prompt.user_prompt,
+            )
+
+            return response.text
+
+        return await self._run_with_fallback(request)
+
+    async def stream(self, question: str, chunks: list[RetrievedChunk]) -> AsyncIterator[str]:
+        prompt = self._build_prompt(question, chunks)
+
+        async def request(model: str) -> AsyncIterator[str]:
+            chat = self._client.aio.chats.create(model=model)
+
+            response_stream = await chat.send_message_stream(
+                config={
+                    "system_instruction": prompt.system_prompt,
+                },
+                message=prompt.user_prompt,
+            )
+
+            async for response in response_stream:
+                if response.text:
+                    yield response.text
+
+        async for chunk in self._stream_with_fallback(request):
+            yield chunk
