@@ -1,3 +1,4 @@
+from typing import Literal
 from beanie import PydanticObjectId
 from pydantic import BaseModel
 
@@ -22,3 +23,9 @@ class AccessTokenPayload(BaseModel):
 class TokensData(BaseModel):
     access_token: str
     refresh_token: str
+
+
+class EmailVerificationRequest(BaseModel):
+    user_id: PydanticObjectId
+    method: Literal['token', 'code']
+    data: str

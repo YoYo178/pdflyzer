@@ -6,6 +6,7 @@ from backend.repositories.document_chunk import DocumentChunkRepository
 from backend.repositories.message import MessageRepository
 from backend.repositories.stored_document import StoredDocumentRepository
 from backend.repositories.user import UserRepository
+from backend.repositories.verification import VerificationRepository
 
 
 def get_user_repository() -> UserRepository:
@@ -34,3 +35,7 @@ def get_message_repository(
 
 def get_document_chunk_repository() -> DocumentChunkRepository:
     return DocumentChunkRepository()
+
+
+def get_verification_repository() -> VerificationRepository:
+    return VerificationRepository()

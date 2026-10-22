@@ -9,6 +9,7 @@ from backend.models.document_chunk import DocumentChunk
 from backend.models.message import Message
 from backend.models.stored_document import StoredDocument
 from backend.models.user import User
+from backend.models.verification import Verification
 from backend.settings import settings
 
 nameservers = ['8.8.8.8', '1.1.1.1']
@@ -33,6 +34,7 @@ async def connect_db():
             Message,
             StoredDocument,
             User,
+            Verification
         ],
     )
     print('[MongoDB] Beanie initialized successfully!')

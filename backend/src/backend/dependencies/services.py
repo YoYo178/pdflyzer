@@ -21,6 +21,7 @@ from backend.dependencies.repositories import (
     get_message_repository,
     get_stored_document_repository,
     get_user_repository,
+    get_verification_repository
 )
 from backend.repositories.chat import ChatRepository
 from backend.repositories.document import DocumentRepository
@@ -28,18 +29,34 @@ from backend.repositories.document_chunk import DocumentChunkRepository
 from backend.repositories.message import MessageRepository
 from backend.repositories.stored_document import StoredDocumentRepository
 from backend.repositories.user import UserRepository
+from backend.repositories.verification import VerificationRepository
 from backend.services.auth import AuthService
 from backend.services.chat import ChatService
 from backend.services.document import DocumentService
 from backend.services.message import MessageService
 from backend.services.user import UserService
+from backend.services.verification import VerificationService
 
+
+def get_verification_service(    
+    verification_repository: VerificationRepository = Depends(get_verification_repository),
+    password_hasher: PasswordHasher = Depends(get_password_hasher)
+) -> VerificationService:
+    return VerificationService(
+        verification_repository,
+        password_hasher
+    )
 
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
     password_hasher: PasswordHasher = Depends(get_password_hasher),
+    verification_service: VerificationService = Depends(get_verification_service)
 ) -> AuthService:
-    return AuthService(user_repository=user_repository, hasher=password_hasher)
+    return AuthService(
+        user_repository,
+        password_hasher,
+        verification_service
+    )
 
 
 def get_document_service(

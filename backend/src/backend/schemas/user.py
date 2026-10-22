@@ -1,3 +1,4 @@
+from datetime import datetime
 from beanie import PydanticObjectId
 from pydantic import BaseModel, EmailStr
 
@@ -23,3 +24,6 @@ class UserSelf(BaseModel):
     name: str
     username: str
     email: EmailStr
+    
+    created_at: datetime
+    updated_at: datetime
