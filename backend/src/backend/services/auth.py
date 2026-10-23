@@ -1,6 +1,7 @@
 from datetime import datetime, UTC
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+from arq import ArqRedis
 from beanie import PydanticObjectId
 
 import backend.exceptions.auth as auth_exceptions
@@ -17,11 +18,13 @@ class AuthService:
         self,
         user_repository: UserRepository,
         hasher: PasswordHasher,
-        verification_service: VerificationService
+        verification_service: VerificationService,
+        queue: ArqRedis,
     ):
         self.hasher = hasher
         self.user_repository = user_repository
         self.verification_service = verification_service
+        self.queue = queue
 
     async def create_user(self, register_data: RegisterRequest) -> PydanticObjectId:
         email_exists = await self.user_repository.find_by_email(register_data.email)
@@ -50,8 +53,13 @@ class AuthService:
         verification_object = await self.verification_service.generate_object(
             PydanticObjectId(user.id)
         )
-        
-        # TODO: Send user an email containing both token and code
+
+        await self.queue.enqueue_job(
+            'send_verification_email',
+            str(user.id),
+            str(verification_object.code),
+            verification_object.token,
+        )
 
         return PydanticObjectId(user.id)
 

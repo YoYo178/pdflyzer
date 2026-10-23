@@ -4,6 +4,7 @@ from fastapi import Depends
 
 from backend.core.embedding import EmbeddingService
 from backend.core.llm import LLMService
+from backend.core.queue import create_queue
 from backend.core.retrieval import RetrievalService
 from backend.core.storage import StorageService
 from backend.dependencies.core import (
@@ -50,12 +51,14 @@ def get_verification_service(
 def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
     password_hasher: PasswordHasher = Depends(get_password_hasher),
-    verification_service: VerificationService = Depends(get_verification_service)
+    verification_service: VerificationService = Depends(get_verification_service),
+    queue: ArqRedis = Depends(create_queue),
 ) -> AuthService:
     return AuthService(
         user_repository,
         password_hasher,
-        verification_service
+        verification_service,
+        queue,
     )
 
 
