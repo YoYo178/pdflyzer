@@ -24,7 +24,7 @@ function Logo({ className, size = 'md' }: LogoProps) {
           size === 'sm' ? 'text-sm' : 'text-[15px]',
         )}
       >
-        pdf<span className="text-teal-600 dark:text-teal-300">lyzer</span>
+        PDF<span className="text-teal-600 dark:text-teal-300">lyzer</span>
       </span>
     </span>
   );

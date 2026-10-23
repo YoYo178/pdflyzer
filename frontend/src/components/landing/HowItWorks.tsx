@@ -15,7 +15,7 @@ const STEPS = [
     icon: IconUpload,
     step: '02',
     title: 'Upload your documents',
-    desc: 'Add one PDF or many to a single chat. pdflyzer indexes them instantly, ready to answer.',
+    desc: 'Add one PDF or many to a single chat. PDFlyzer indexes them instantly, ready to answer.',
   },
   {
     icon: IconBolt,

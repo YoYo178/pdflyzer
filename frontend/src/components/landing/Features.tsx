@@ -20,7 +20,7 @@ const FEATURES = [
   {
     icon: IconFiles,
     title: 'Multi-document chats',
-    desc: 'Drop contracts, specs, and reports into one chat. pdflyzer reads across all of them so your questions get full-context answers.',
+    desc: 'Drop contracts, specs, and reports into one chat. PDFlyzer reads across all of them so your questions get full-context answers.',
   },
   {
     icon: IconBroadcast,
@@ -52,7 +52,7 @@ function Features() {
           <SectionHeading
             eyebrow="Features"
             title="Everything you need to trust an AI with your documents"
-            description="pdflyzer is small by design: upload, ask, verify. The hard parts — grounding, streaming, and privacy — are handled for you."
+            description="PDFlyzer is small by design: upload, ask, verify. The hard parts — grounding, streaming, and privacy — are handled for you."
           />
         </Reveal>
 

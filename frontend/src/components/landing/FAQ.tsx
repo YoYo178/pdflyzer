@@ -6,11 +6,11 @@ import SectionHeading from '@/components/ui/section-heading';
 const FAQ_ITEMS: AccordionItem[] = [
   {
     q: 'What file types can I upload?',
-    a: 'PDFs today — that is what pdflyzer is built around. More document formats will follow as the product grows.',
+    a: 'PDFs today — that is what PDFlyzer is built around. More document formats will follow as the product grows.',
   },
   {
     q: 'Can I ask questions across several documents at once?',
-    a: 'Yes. Upload as many PDFs as you need to a single chat. pdflyzer searches all of them together so answers blend context across files.',
+    a: 'Yes. Upload as many PDFs as you need to a single chat. PDFlyzer searches all of them together so answers blend context across files.',
   },
   {
     q: 'How do citations work?',

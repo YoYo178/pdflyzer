@@ -26,7 +26,7 @@ function ChatEmptyState({ documents }: ChatEmptyStateProps) {
           Ask anything about your documents
         </h1>
         <p className='mx-auto mt-2 max-w-md text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base'>
-          pdflyzer reads across every file in this chat and cites the exact page
+          PDFlyzer reads across every file in this chat and cites the exact page
           it used — so you can verify any claim in one click.
         </p>
       </motion.div>

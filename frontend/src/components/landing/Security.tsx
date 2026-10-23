@@ -38,7 +38,7 @@ function Security() {
               <SectionHeading
                 eyebrow="Security"
                 title="Your documents are the whole point. We treat them that way."
-                description="A chat-with-PDF product is only useful if it is trusted with the files you would not post anywhere. pdflyzer is built around scoped access, authenticated accounts, and answers you can verify — not guess."
+                description="A chat-with-PDF product is only useful if it is trusted with the files you would not post anywhere. PDFlyzer is built around scoped access, authenticated accounts, and answers you can verify — not guess."
               />
               <div className="mt-8 flex items-center gap-3 rounded-2xl border border-teal-600/20 bg-teal-500/[0.06] p-4 dark:border-teal-300/20 dark:bg-teal-300/[0.06]">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-500/15 text-teal-700 dark:bg-teal-300/15 dark:text-teal-300">

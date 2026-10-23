@@ -18,7 +18,7 @@ function Login() {
           </h1>
 
           <p className='mx-auto mt-2.5 max-w-md text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg'>
-            Sign in to pdflyzer — answer questions, verify the sources, and pick
+            Sign in to PDFlyzer — answer questions, verify the sources, and pick
             back up where you left off on any device.
           </p>
         </Reveal>
@@ -29,7 +29,7 @@ function Login() {
 
         <Reveal delay={200}>
           <p className='mt-8 text-sm text-muted-foreground'>
-            New to pdflyzer?{' '}
+            New to PDFlyzer?{' '}
             <Link
               to='/register'
               className='font-medium text-teal-600 transition-colors hover:text-teal-500 dark:text-teal-300 dark:hover:text-teal-200'

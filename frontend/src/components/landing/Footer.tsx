@@ -49,7 +49,7 @@ function Footer() {
             <Socials className='justify-self-start' />
 
             <p className='text-[11px] text-muted-foreground'>
-              © {new Date().getFullYear()} pdflyzer
+              © {new Date().getFullYear()} PDFlyzer
             </p>
 
             <a
@@ -64,7 +64,7 @@ function Footer() {
 
         {/* desktop bottom bar */}
         <div className='mt-2 hidden items-center justify-between text-[11px] text-muted-foreground md:flex'>
-          <p>© {new Date().getFullYear()} pdflyzer. Ask your PDFs anything.</p>
+          <p>© {new Date().getFullYear()} PDFlyzer. Ask your PDFs anything.</p>
 
           <Socials />
         </div>

@@ -56,7 +56,7 @@ function ChatNeedsDocuments({
         <p className='mx-auto mt-2 max-w-md text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base'>
           {hasDocuments
             ? 'We are extracting and indexing the text now. Once it is ready you can ask a question and every answer will cite the exact page it used.'
-            : 'pdflyzer can only answer from the documents you add to a chat. Upload a PDF and it will be parsed and indexed automatically.'}
+            : 'PDFlyzer can only answer from the documents you add to a chat. Upload a PDF and it will be parsed and indexed automatically.'}
         </p>
       </motion.div>
 

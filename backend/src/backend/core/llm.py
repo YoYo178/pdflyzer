@@ -28,7 +28,7 @@ class LLMService:
 
     def _build_prompt(self, question: str, chunks: list[RetrievedChunk]) -> LLMPrompt:
         system_prompt = dedent("""
-            You are PDFLyzer, an AI assistant designed to help users understand, analyze, and interact with their documents.
+            You are PDFlyzer, an AI assistant designed to help users understand, analyze, and interact with their documents.
 
             Your primary responsibility is to provide accurate, helpful, and contextually relevant answers using the document content made available to you.
 

@@ -159,7 +159,7 @@ HTML_TEMPLATE = Template("""\
                     </table>
                   </td>
                   <td align="left" valign="middle" style="padding-left: 10px;">
-                    <span class="text" style="font-family: 'Oxanium Variable', Oxanium, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 17px; line-height: 22px; font-weight: 700; letter-spacing: -0.3px; color: #18181b;">pdf<span class="brand" style="color: #0d9488;">lyzer</span></span>
+                    <span class="text" style="font-family: 'Oxanium Variable', Oxanium, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 17px; line-height: 22px; font-weight: 700; letter-spacing: -0.3px; color: #18181b;">PDF<span class="brand" style="color: #0d9488;">lyzer</span></span>
                   </td>
                   <td align="right" valign="middle" class="hide-mobile">
                     <span class="pill" style="display: inline-block; padding: 6px 10px; background-color: #fafafa; border: 1px solid #e4e4e7; border-radius: 999px; color: #71717a; font-family: 'Oxanium Variable', Oxanium, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 10px; line-height: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;">Account security</span>

@@ -99,7 +99,7 @@ function ChatComposer({ onSend, onStop, isStreaming }: ChatComposerProps) {
         />
 
         <label htmlFor="chat-composer" className="sr-only">
-          Message pdflyzer
+          Message PDFlyzer
         </label>
         <textarea
           id="chat-composer"
