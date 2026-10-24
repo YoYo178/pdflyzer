@@ -21,7 +21,7 @@ API.interceptors.response.use(
         new APIError(
           message,
           error.response?.status ?? 500,
-          error.response?.data,
+          error.response?.data?.data !== undefined ? error.response?.data?.data : error.response?.data,
         ),
       );
     }
