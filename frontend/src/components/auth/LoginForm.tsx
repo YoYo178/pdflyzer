@@ -5,6 +5,7 @@ import { IconLock, IconMail } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import * as v from 'valibot';
 import { Button } from '../ui/button';
@@ -28,6 +29,7 @@ type TLoginSchema = v.InferOutput<typeof loginFormSchema>;
 
 function LoginForm() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { mutateAsync, isPending, error } = useLogin();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -46,14 +48,27 @@ function LoginForm() {
     async (data: TLoginSchema) => {
       const { email, password } = data;
 
-      await mutateAsync({ login: email, password });
+      try {
+        await mutateAsync({ login: email, password });
 
-      toast.success('Signed in successfully, redirecting to dashboard...');
+        toast.success('Signed in successfully, redirecting to dashboard...');
 
-      // Invalidate the /me endpoint so user gets redirected to chat automatically
-      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+        // Invalidate the /me endpoint so user gets redirected to chat automatically
+        queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+      } catch (err: any) {
+        // If unverified user, backend returns 401 with UnverifiedUser
+        if (err?.status === 401) {
+          const userId = err?.data?.user_id || err?.response?.data?.data?.user_id;
+          if (userId) {
+            toast.info('Please verify your email to continue.');
+            navigate(`/verify-email?user_id=${encodeURIComponent(userId)}`);
+            return;
+          }
+        }
+        throw err;
+      }
     },
-    [mutateAsync, queryClient],
+    [mutateAsync, queryClient, navigate],
   );
 
   return (

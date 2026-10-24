@@ -8,9 +8,9 @@ import {
   IconShieldCheck,
   IconUser,
 } from '@tabler/icons-react';
-import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import * as v from 'valibot';
 import { Button } from '../ui/button';
@@ -93,7 +93,7 @@ const registerFormSchema = v.config(
 type TRegisterSchema = v.InferOutput<typeof registerFormSchema>;
 
 function RegisterForm() {
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { mutateAsync, isPending, error } = useRegister();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -111,21 +111,21 @@ function RegisterForm() {
 
   const onSubmit = useCallback(
     async (data: TRegisterSchema) => {
-      await mutateAsync({
+      const response = await mutateAsync({
         email: data.email,
         name: data.fullName,
         password: data.password,
         username: data.username,
       });
 
-      toast.success(
-        'Account created successfully, redirecting to dashboard...',
-      );
+      toast.success('Account created successfully. Please verify your email.');
 
-      // Invalidate the /me endpoint so user gets redirected to chat automatically
-      queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+      const userId = (response as any)?.data?.user_id;
+      if (userId) {
+        navigate(`/verify-email?user_id=${encodeURIComponent(userId)}`);
+      }
     },
-    [mutateAsync, queryClient],
+    [mutateAsync, navigate],
   );
 
   return (

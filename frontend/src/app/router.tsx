@@ -13,6 +13,7 @@ import ErrorPage from '@/pages/error/ErrorPage';
 // Guest pages
 import Login from '@/pages/guest/Login';
 import Register from '@/pages/guest/Register';
+import VerifyEmail from '@/pages/guest/VerifyEmail';
 
 // Protected pages
 import Chat from '@/pages/protected/Chat';
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
           {
             path: '/register',
             element: <Register />,
+          },
+          {
+            path: '/verify-email',
+            element: <VerifyEmail />,
           },
         ],
       },
