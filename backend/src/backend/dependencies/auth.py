@@ -76,6 +76,9 @@ async def verify_access_token(
 
         if not user:
             raise auth_exceptions.UnauthorizedUser()
+        
+        if not user.is_verified:
+            raise auth_exceptions.UnverifiedUser()
 
         return user
     except ExpiredSignatureError as err:
