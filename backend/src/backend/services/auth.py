@@ -74,7 +74,7 @@ class AuthService:
             raise auth_exceptions.InvalidLogin()
         
         if not user.is_verified:
-            raise auth_exceptions.UnverifiedUser()
+            raise auth_exceptions.UnverifiedUser(data={"user_id": str(user.id)})
 
         try:
             self.hasher.verify(user.password_hash, login_data.password)

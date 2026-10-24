@@ -74,5 +74,5 @@ app.include_router(ws_router)
 async def app_exception_handler(_, exc: AppException):
     return JSONResponse(
         status_code=exc.status_code,
-        content={'status': False, 'message': exc.detail, 'data': None},
+        content={'status': False, 'message': exc.detail, 'data': getattr(exc, 'data', None)},
     )
