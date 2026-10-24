@@ -5,12 +5,13 @@ from backend.dependencies.auth import get_current_user
 from backend.dependencies.services import get_document_service
 from backend.models.user import User
 from backend.services.document import DocumentService
+from backend.schemas.document import PopulatedDocumentView
 
 # Document router
 documents_router = APIRouter(prefix='/documents', tags=['Documents'])
 
 
-@documents_router.get('/{document_id}')
+@documents_router.get('/{document_id}', response_model=PopulatedDocumentView)
 async def handle_get_document(
     document_id: PydanticObjectId,
     current_user: User = Depends(get_current_user),
@@ -46,7 +47,7 @@ async def upload_document(
     )
 
 
-@chat_documents_router.get('/{chat_id}/documents')
+@chat_documents_router.get('/{chat_id}/documents', response_model=list[PopulatedDocumentView])
 async def get_all_documents(
     chat_id: PydanticObjectId,
     current_user: User = Depends(get_current_user),
@@ -55,7 +56,7 @@ async def get_all_documents(
     return await service.get_all_documents(PydanticObjectId(current_user.id), chat_id)
 
 
-@chat_documents_router.get('/{chat_id}/documents/{document_id}')
+@chat_documents_router.get('/{chat_id}/documents/{document_id}', response_model=PopulatedDocumentView)
 async def get_document_in_chat(
     chat_id: PydanticObjectId,
     document_id: PydanticObjectId,
