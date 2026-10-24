@@ -10,10 +10,8 @@ import { Blobatar } from '@blobatar/react';
 import { useGaze } from '@blobatar/react/gaze';
 import {
   IconChevronDown,
-  IconKeyboard,
   IconLogout,
   IconMoon,
-  IconSettings,
   IconSun,
 } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -101,15 +99,6 @@ function UserMenu({ className, triggerClassName }: UserMenuProps) {
         </div>
       </div>
       <DropdownMenuSeparator />
-      <DropdownMenuItem
-        icon={<IconSettings />}
-        onClick={() => navigate('/settings')}
-      >
-        Settings
-      </DropdownMenuItem>
-      <DropdownMenuItem icon={<IconKeyboard />}>
-        Keyboard shortcuts
-      </DropdownMenuItem>
       <DropdownMenuItem
         onClick={() => setTheme(isDark ? 'light' : 'dark')}
         icon={isDark ? <IconSun /> : <IconMoon />}

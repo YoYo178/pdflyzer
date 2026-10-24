@@ -66,10 +66,6 @@ export const router = createBrowserRouter([
                 path: '/chats/:chat_id',
                 element: <Chat />,
               },
-              {
-                path: '/settings',
-                element: <Settings />,
-              },
             ],
           },
         ],
