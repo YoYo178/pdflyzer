@@ -29,3 +29,6 @@ class EmailVerificationRequest(BaseModel):
     user_id: PydanticObjectId
     method: Literal['token', 'code']
     data: str
+
+class ResendVerificationRequest(BaseModel):
+    user_id: PydanticObjectId

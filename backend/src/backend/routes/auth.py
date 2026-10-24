@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Response, status
 from backend.dependencies.auth import get_current_user
 from backend.dependencies.services import get_auth_service
 from backend.schemas.api import APIResponse
-from backend.schemas.auth import LoginRequest, RegisterRequest, EmailVerificationRequest
+from backend.schemas.auth import LoginRequest, RegisterRequest, EmailVerificationRequest, ResendVerificationRequest
 from backend.schemas.user import UserSelf
 from backend.services.auth import AuthService
 
@@ -98,4 +98,16 @@ async def verify_email(
         data={
             'user': UserSelf.model_validate_json(verified_data.user.model_dump_json())
         }
+    )
+
+@router.post('/resend-email')
+async def resend_email(
+    resend_data: ResendVerificationRequest,
+    service: AuthService = Depends(get_auth_service)
+):
+    await service.resend_email(resend_data)
+    
+    return APIResponse(
+        status=True,
+        message='Resent verification email successfully'
     )

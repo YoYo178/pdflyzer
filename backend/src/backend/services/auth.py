@@ -7,7 +7,7 @@ from beanie import PydanticObjectId
 import backend.exceptions.auth as auth_exceptions
 from backend.models.user import User
 from backend.repositories.user import UserRepository
-from backend.schemas.auth import LoginRequest, RegisterRequest, TokensData, EmailVerificationRequest
+from backend.schemas.auth import LoginRequest, RegisterRequest, TokensData, EmailVerificationRequest, ResendVerificationRequest
 from backend.services.verification import VerificationService
 from backend.types.auth import VerifiedEmailData
 from backend.utils.jwt import generate_access_token, generate_refresh_token
@@ -139,4 +139,26 @@ class AuthService:
                 access_token=access_token,
                 refresh_token=refresh_token,
             )
+        )
+    
+    async def resend_email(self, resend_data: ResendVerificationRequest) -> None:
+        user_id = resend_data.user_id
+        
+        user = await self.user_repository.find_by_id(user_id)
+        
+        if user is None:
+            raise auth_exceptions.UserNotFound()
+        
+        if user.is_verified:
+            raise auth_exceptions.UserAlreadyVerified()
+        
+        verification_object = await self.verification_service.generate_object(
+            PydanticObjectId(user.id)
+        )
+
+        await self.queue.enqueue_job(
+            'send_verification_email',
+            str(user.id),
+            str(verification_object.code),
+            verification_object.token,
         )
