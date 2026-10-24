@@ -4,7 +4,11 @@ import type {
   ILoginRequest,
   ILoginResponse,
   IRegisterRequest,
-  TRegisterResponse,
+  IRegisterResponse,
+  IResendEmailRequest,
+  IResendEmailResponse,
+  IVerifyEmailRequest,
+  IVerifyEmailResponse,
 } from './types';
 
 async function login(data: ILoginRequest) {
@@ -14,7 +18,19 @@ async function login(data: ILoginRequest) {
 }
 
 async function register(data: IRegisterRequest) {
-  const response = await API.post<TRegisterResponse>('/auth/register', data);
+  const response = await API.post<IRegisterResponse>('/auth/register', data);
+
+  return response.data;
+}
+
+async function verifyEmail(data: IVerifyEmailRequest) {
+  const response = await API.post<IVerifyEmailResponse>('/auth/verify-email', data);
+
+  return response.data;
+}
+
+async function resendEmail(data: IResendEmailRequest) {
+  const response = await API.post<IResendEmailResponse>('/auth/resend-email', data);
 
   return response.data;
 }
@@ -28,5 +44,7 @@ async function logout() {
 export default {
   login,
   register,
+  verifyEmail,
+  resendEmail,
   logout,
 };

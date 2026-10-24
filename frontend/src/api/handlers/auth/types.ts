@@ -16,7 +16,35 @@ export interface IRegisterRequest {
   password: string;
 }
 
-export type TRegisterResponse = IUser;
+export interface IRegisterResponse {
+  message: string;
+  data?: {
+    user_id: string;
+  };
+}
+
+export type TRegisterResponse = IRegisterResponse;
+
+export interface IVerifyEmailRequest {
+  user_id: string;
+  method: 'code' | 'token';
+  data: string;
+}
+
+export interface IVerifyEmailResponse {
+  message: string;
+  data?: {
+    user?: IUser;
+  };
+}
+
+export interface IResendEmailRequest {
+  user_id: string;
+}
+
+export interface IResendEmailResponse {
+  message: string;
+}
 
 export const OAUTH_PROVIDERS = ['google', 'github'] as const;
 
