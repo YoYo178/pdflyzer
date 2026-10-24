@@ -74,6 +74,21 @@ class AuthService:
             raise auth_exceptions.InvalidLogin()
         
         if not user.is_verified:
+        
+            verification_object = await self.verification_service.get_by_user_id(PydanticObjectId(user.id))
+            
+            if verification_object is None:
+                verification_object = await self.verification_service.generate_object(
+                    PydanticObjectId(user.id)
+                )
+
+                await self.queue.enqueue_job(
+                    'send_verification_email',
+                    str(user.id),
+                    str(verification_object.code),
+                    verification_object.token,
+                )
+
             raise auth_exceptions.UnverifiedUser(data={"user_id": str(user.id)})
 
         try:
