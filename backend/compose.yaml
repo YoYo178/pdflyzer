@@ -1,0 +1,68 @@
+
+services:
+  api:
+    image: pdflyzer-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./src/backend/.env
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      USER_CONTENT_DIR: /app/user_content
+      HF_HOME: /home/nonroot/.cache/huggingface
+    volumes:
+      - user_content:/app/user_content
+      - model_cache:/home/nonroot/.cache/huggingface
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+  worker:
+    image: pdflyzer-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - arq
+      - backend.core.worker.WorkerSettings
+    env_file:
+      - ./src/backend/.env
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      USER_CONTENT_DIR: /app/user_content
+      HF_HOME: /home/nonroot/.cache/huggingface
+    volumes:
+      - user_content:/app/user_content
+      - model_cache:/home/nonroot/.cache/huggingface
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 60s
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  user_content:
+  model_cache:
+  redis_data:
