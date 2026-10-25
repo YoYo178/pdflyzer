@@ -1,0 +1,13 @@
+# Environment variable files
+.env
+*.env
+*.env.*
+
+# Python generated cache files
+*.pyc
+
+# User generated content
+user_content
+
+# Model cache directory
+.models

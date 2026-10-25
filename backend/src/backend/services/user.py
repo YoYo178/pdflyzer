@@ -1,54 +1,51 @@
 from beanie import PydanticObjectId
 
-from backend.exceptions.user import UserNotFound
+import backend.exceptions.user as user_exceptions
 from backend.models.user import User
-from backend.schemas.user import UserCreate, UserUpdate
+from backend.repositories.user import UserRepository
+from backend.schemas.user import UserUpdate
+from backend.services.chat import ChatService
 
-### Helper function to safely get a user
-async def get_user_safe(user_id: PydanticObjectId):
-    user = await User.get(user_id)
 
-    if not user:
-        raise UserNotFound()
+class UserService:
+    def __init__(self, user_repository: UserRepository, chat_service: ChatService):
+        self.user_repository = user_repository
+        self.chat_service = chat_service
 
-    return user
+    # Gets all users
+    async def get_users(self) -> list[User]:
+        return await self.user_repository.find_all()
 
-# Gets all users
-async def get_users():
-    return await User.find_all().to_list()
+    # Gets a specific user by ID
+    async def get_user(self, user_id: PydanticObjectId) -> User:
+        user = await self.user_repository.find_by_id(user_id)
 
-# Gets a specific user by ID
-async def get_user(user_id: PydanticObjectId):
-    return await get_user_safe(user_id)
+        if not user:
+            raise user_exceptions.UserNotFound()
 
-# Creates a new user
-async def create_user(user_data: UserCreate):
-    user = User(
-        email=user_data.email,
-        name=user_data.name,
-        username=user_data.username,
-        password_hash=user_data.password
-    )
+        return user
 
-    await user.save()
+    # Deletes a user by ID
+    async def delete_user(self, user_id: PydanticObjectId) -> None:
+        deleted_user = await self.user_repository.delete(user_id)
 
-    return user
+        if not deleted_user:
+            raise user_exceptions.UserNotFound()
 
-# Deletes a user by ID
-async def delete_user(user_id: PydanticObjectId):
-    user = await get_user_safe(user_id)
+        # Delete this user's chats
+        chats = await self.chat_service.get_all_chats(user_id)
+        for chat in chats:
+            await self.chat_service.delete_chat(user_id, PydanticObjectId(chat.id))
 
-    await user.delete()
+    # Updates a user by ID
+    async def update_user(
+        self, user_id: PydanticObjectId, user_data: UserUpdate
+    ) -> User:
+        update_data = user_data.model_dump(exclude_unset=True)
 
-# Updates a user by ID
-async def update_user(user_id: PydanticObjectId, user_data: UserUpdate):
-    user = await get_user_safe(user_id)
+        updated_user = await self.user_repository.update(user_id, update_data)
 
-    updates = user_data.model_dump(exclude_unset=True)
+        if not updated_user:
+            raise user_exceptions.UserNotFound()
 
-    for key, value in updates.items():
-        setattr(user, key, value)
-
-    await user.save()
-
-    return user
+        return updated_user

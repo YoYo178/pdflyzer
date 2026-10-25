@@ -1,21 +1,122 @@
+
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "PDFLyzer backend"
 readme = "README.md"
 authors = [
     { name = "YoYo178", email = "95132723+YoYo178@users.noreply.github.com" }
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "aiosmtplib>=5.1.3",
+    "argon2-cffi>=25.1.0",
+    "arq>=0.28.0",
     "beanie>=2.1.0",
     "fastapi[standard]>=0.141.1",
+    "google-genai>=2.22.0",
     "pydantic-settings>=2.14.2",
+    "pyjwt>=2.13.0",
+    "pymupdf>=1.28.2",
+    "python-multipart>=0.0.32",
+    "redis>=5.3.1",
+    "sentence-transformers>=5.7.0",
+    "torch>=2.0.0",
 ]
-
-[project.scripts]
-backend = "backend:main"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.414",
+    "ruff>=0.16.10",
+]
+
+# Resolve PyTorch from its CPU-only index.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]
+
+
+# === Ruff configuration ===
+
+[tool.ruff]
+target-version = "py314"
+line-length = 88
+indent-width = 4
+
+# Keep generated files and virtual environments out of linting.
+extend-exclude = [
+    "migrations",
+    "generated",
+    ".models",
+    ".venv",
+    "user_content",
+]
+
+[tool.ruff.lint]
+select = [
+    # Core correctness
+    "E",       # pycodestyle errors
+    "F",       # Pyflakes: undefined names, unused imports, etc.
+    "B",       # flake8-bugbear: likely bugs and design issues
+    "S",       # flake8-bandit: common security issues
+
+    # Modern Python and idiomatic code
+    "UP",      # pyupgrade
+    "I",       # isort: import sorting
+    "SIM",     # flake8-simplify
+    "RUF",     # Ruff-specific rules
+
+    # Better code quality
+    "C4",      # flake8-comprehensions
+    "PERF",    # Perflint: performance
+    "PIE",     # flake8-pie
+    "RET",     # flake8-return
+    "PTH",     # pathlib instead of os.path where appropriate
+    "ASYNC",   # async-related correctness and best practices
+    "DTZ",     # datetime timezone awareness
+    "LOG",     # logging best practices
+
+    # Useful design checks
+    "ARG",     # unused function arguments
+    "ERA",     # commented-out code
+    "G",       # logging format consistency
+    "FURB",    # refurb: modern Python improvements
+]
+
+ignore = [
+    "E501",    # Let the formatter handle line wrapping.
+    "S101",    # Allow assert in tests.
+    "S104",    # Binding to 0.0.0.0 is common for containers.
+    "S105",    # Avoid simplistic false positives for token/password names.
+    "S106",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# FastAPI dependency injection can make arguments appear unused.
+"**/routes/**/*.py" = ["B008"]
+"**/routers/**/*.py" = ["B008"]
+"**/dependencies/**/*.py" = ["B008"]
+
+[tool.ruff.lint.isort]
+# Treat the backend as the first-party package.
+known-first-party = ["backend"]
+combine-as-imports = true
+force-sort-within-sections = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "lf"
+skip-magic-trailing-comma = false
