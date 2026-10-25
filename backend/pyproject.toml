@@ -1,7 +1,8 @@
+
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "PDFLyzer backend"
 readme = "README.md"
 authors = [
     { name = "YoYo178", email = "95132723+YoYo178@users.noreply.github.com" }
@@ -20,10 +21,8 @@ dependencies = [
     "python-multipart>=0.0.32",
     "redis>=5.3.1",
     "sentence-transformers>=5.7.0",
+    "torch>=2.0.0",
 ]
-
-[project.scripts]
-backend = "backend:main"
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
@@ -35,12 +34,21 @@ dev = [
     "ruff>=0.16.10",
 ]
 
+# Resolve PyTorch from its CPU-only index.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
-# === Ruff configuration below ===
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]
+
+
+# === Ruff configuration ===
 
 [tool.ruff]
 target-version = "py314"
-
 line-length = 88
 indent-width = 4
 
@@ -50,7 +58,7 @@ extend-exclude = [
     "generated",
     ".models",
     ".venv",
-    "user_content"
+    "user_content",
 ]
 
 [tool.ruff.lint]
