@@ -5,7 +5,7 @@
 const WS_NAMESPACE = '/ws/chats';
 
 function resolveSocketOrigin() {
-  const configured = import.meta.env.VITE_API_URL;
+  const configured = import.meta.env.VITE_SERVER_URL;
 
   if (typeof configured === 'string' && configured) {
     const url = new URL(configured);
@@ -26,7 +26,7 @@ export function buildChatSocketUrl(chatId: string) {
 
 /** Same endpoint under `fetch`, used by the SSE transport (POST, not GET). */
 export function resolveApiOrigin() {
-  const configured = import.meta.env.VITE_API_URL;
+  const configured = import.meta.env.VITE_SERVER_URL;
 
   if (typeof configured === 'string' && configured) {
     return new URL(configured).toString().replace(/\/+$/, '');
