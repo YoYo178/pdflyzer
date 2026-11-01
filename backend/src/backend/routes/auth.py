@@ -7,6 +7,8 @@ from backend.schemas.auth import LoginRequest, RegisterRequest, EmailVerificatio
 from backend.schemas.user import UserSelf
 from backend.services.auth import AuthService
 
+from backend.settings import settings
+
 router = APIRouter(prefix='/auth', tags=['Auth'])
 
 
@@ -38,8 +40,8 @@ async def handle_login(
         key='refresh_token',
         value=tokens_data.refresh_token,
         httponly=True,
-        secure=False,
-        samesite='lax',
+        secure=settings.PROD,
+        samesite='lax' if settings.PROD is False else 'strict',
         max_age=60 * 60 * 24 * 30,  # 30 Days
     )
 
@@ -47,9 +49,9 @@ async def handle_login(
         key='access_token',
         value=tokens_data.access_token,
         httponly=True,
-        secure=False,
+        secure=settings.PROD,
+        samesite='lax' if settings.PROD is False else 'strict',
         max_age=60 * 15,  # 15 Minutes
-        samesite='lax',
     )
 
     return APIResponse(status=True, message='Logged in successfully!', data=None)
@@ -78,8 +80,8 @@ async def verify_email(
         key='refresh_token',
         value=verified_data.tokens.refresh_token,
         httponly=True,
-        secure=False,
-        samesite='lax',
+        secure=settings.PROD,
+        samesite='lax' if settings.PROD is False else 'strict',
         max_age=60 * 60 * 24 * 30,  # 30 Days
     )
 
@@ -87,8 +89,8 @@ async def verify_email(
         key='access_token',
         value=verified_data.tokens.access_token,
         httponly=True,
-        secure=False,
-        samesite='lax',
+        secure=settings.PROD,
+        samesite='lax' if settings.PROD is False else 'strict',
         max_age=60 * 15,  # 15 Minutes
     )
     

@@ -2,6 +2,8 @@ from beanie import PydanticObjectId
 from fastapi import Depends, Request, Response, WebSocket
 from jwt.exceptions import ExpiredSignatureError
 
+from backend.settings import settings
+
 from backend.dependencies.repositories import get_user_repository
 import backend.exceptions.auth as auth_exceptions
 from backend.models.user import User
@@ -43,9 +45,9 @@ async def issue_new_access_token(
         key='access_token',
         value=access_token,
         httponly=True,
-        secure=False,
+        secure=settings.PROD,
         max_age=60 * 15,  # 15 Minutes
-        samesite='lax',
+        samesite='lax' if settings.PROD is False else 'strict',
     )
 
     return user

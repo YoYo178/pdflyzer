@@ -2,6 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    app_env: str = 'development'
+    
     mongodb_uri: str
     db_name: str
 
@@ -22,6 +24,14 @@ class Settings(BaseSettings):
     smtp_username: str
     smtp_password: str
     smtp_from: str
+    
+    @property
+    def DEV(self) -> bool:
+        return self.app_env.lower() in ('development', 'dev', 'local')
+    
+    @property
+    def PROD(self) -> bool:
+        return not self.DEV
 
     model_config = SettingsConfigDict(
         env_file='.env',
