@@ -1,13 +1,4 @@
 
-from pathlib import Path
-
-PROJECT_ROOT_DIR = Path(__file__).resolve().parents[3]
-MODEL_CACHE_DIR = PROJECT_ROOT_DIR / ".models"
-
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-EMBEDDING_BATCH_SIZE = 8
-
-
 class EmbeddingService:
     def __init__(self):
         self.model = None
@@ -17,8 +8,7 @@ class EmbeddingService:
             from sentence_transformers import SentenceTransformer
 
             self.model = SentenceTransformer(
-                MODEL_NAME,
-                cache_folder=str(MODEL_CACHE_DIR),
+                "sentence-transformers/all-MiniLM-L6-v2",
                 device="cpu",
             )
 
@@ -35,7 +25,7 @@ class EmbeddingService:
 
         embeddings = model.encode(
             texts,
-            batch_size=EMBEDDING_BATCH_SIZE,
+            batch_size=8,
             show_progress_bar=False,
             convert_to_numpy=True,
             device="cpu",
