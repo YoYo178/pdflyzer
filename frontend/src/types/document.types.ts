@@ -1,5 +1,5 @@
 export interface IStoredDocument {
-  _id: string;
+  id: string;
 
   owner: string;
   filename: string;

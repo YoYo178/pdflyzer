@@ -32,7 +32,7 @@ function SourceList({
   function getSourceFilename(source: IMessageSource): string {
     return (
       documents.find(
-        (doc) => doc.stored_document._id === source.stored_document,
+        (doc) => doc.stored_document.id === source.stored_document,
       )?.stored_document.filename ?? ''
     );
   }
