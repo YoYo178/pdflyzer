@@ -1,6 +1,6 @@
 from backend.settings import settings
 
-ALLOWED_ORIGINS = [settings.frontend_url]
+ALLOWED_ORIGINS = ['http://localhost:5173', 'https://yoyo178.github.io', settings.frontend_origin]
 
 CORS_CONFIG = {
     'allow_origins': ALLOWED_ORIGINS,

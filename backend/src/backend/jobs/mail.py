@@ -21,7 +21,7 @@ async def send_verification_email(
     if not user:
         return
 
-    verify_url = f'{settings.frontend_url.rstrip("/")}/verify-email?' + urlencode(
+    verify_url = f'{settings.frontend_origin.rstrip("/")}/pdflyzer/verify-email?' + urlencode(
         {
             'user_id': str(user.id),
             'method': 'token',
@@ -34,7 +34,7 @@ async def send_verification_email(
         verify_url=verify_url,
         name=user.name,
         email=user.email,
-        site_url=settings.frontend_url,
+        site_url=settings.frontend_origin.rstrip('/') + '/pdflyzer',
     )
 
     await mail_service.send(
