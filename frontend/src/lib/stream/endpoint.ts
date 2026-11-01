@@ -17,7 +17,7 @@ function resolveSocketOrigin() {
   }
 
   const { protocol, host } = window.location;
-  return `${protocol === 'https:' ? 'wss' : 'ws'}://${host}`;
+  return `${protocol === 'https:' ? 'wss' : 'ws'}://${host}/pdflyzer`;
 }
 
 export function buildChatSocketUrl(chatId: string) {
