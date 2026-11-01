@@ -19,60 +19,63 @@ import VerifyEmail from '@/pages/guest/VerifyEmail';
 import Chat from '@/pages/protected/Chat';
 import Dashboard from '@/pages/protected/Dashboard';
 
-export const router = createBrowserRouter([
-  {
-    element: <RootLayout />,
-    errorElement: <ErrorPage />,
-    children: [
-      {
-        path: '/',
-        element: <Landing />,
-      },
+export const router = createBrowserRouter(
+  [
+    {
+      element: <RootLayout />,
+      errorElement: <ErrorPage />,
+      children: [
+        {
+          path: '/',
+          element: <Landing />,
+        },
 
-      {
-        element: <GuestRoute />,
-        children: [
-          {
-            path: '/login',
-            element: <Login />,
-          },
-          {
-            path: '/register',
-            element: <Register />,
-          },
-          {
-            path: '/verify-email',
-            element: <VerifyEmail />,
-          },
-        ],
-      },
+        {
+          element: <GuestRoute />,
+          children: [
+            {
+              path: '/login',
+              element: <Login />,
+            },
+            {
+              path: '/register',
+              element: <Register />,
+            },
+            {
+              path: '/verify-email',
+              element: <VerifyEmail />,
+            },
+          ],
+        },
 
-      {
-        element: <ProtectedRoute />,
-        children: [
-          {
-            element: <AppLayout />,
-            children: [
-              {
-                path: '/dashboard',
-                element: <Dashboard />,
-              },
-              {
-                path: '/chats/new',
-                element: <Chat />,
-              },
-              {
-                path: '/chats/:chat_id',
-                element: <Chat />,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        path: '*',
-        element: <ErrorPage />,
-      },
-    ],
-  },
-]);
+        {
+          element: <ProtectedRoute />,
+          children: [
+            {
+              element: <AppLayout />,
+              children: [
+                {
+                  path: '/dashboard',
+                  element: <Dashboard />,
+                },
+                {
+                  path: '/chats/new',
+                  element: <Chat />,
+                },
+                {
+                  path: '/chats/:chat_id',
+                  element: <Chat />,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          path: '*',
+          element: <ErrorPage />,
+        },
+      ],
+    },
+  ],
+  { basename: '/pdflyzer/' },
+);

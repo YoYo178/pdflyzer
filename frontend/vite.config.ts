@@ -10,6 +10,7 @@ function resolveAlias(pathString: string) {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  base: '/pdflyzer/',
   resolve: {
     alias: {
       '@': resolveAlias('src'),
