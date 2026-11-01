@@ -65,8 +65,18 @@ async def handle_login(
 def handle_logout(
     res: Response,
 ):
-    res.delete_cookie('access_token')
-    res.delete_cookie('refresh_token')
+    res.delete_cookie(
+        key='access_token',
+        httponly=True,
+        secure=settings.PROD,
+        samesite='lax' if settings.PROD is False else 'none'
+    )
+    res.delete_cookie(
+        key='refresh_token',
+        httponly=True,
+        secure=settings.PROD,
+        samesite='lax' if settings.PROD is False else 'none'
+    )
 
 @router.post('/verify-email')
 async def verify_email(
