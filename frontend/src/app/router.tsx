@@ -18,7 +18,6 @@ import VerifyEmail from '@/pages/guest/VerifyEmail';
 // Protected pages
 import Chat from '@/pages/protected/Chat';
 import Dashboard from '@/pages/protected/Dashboard';
-import Settings from '@/pages/protected/Settings';
 
 export const router = createBrowserRouter([
   {
