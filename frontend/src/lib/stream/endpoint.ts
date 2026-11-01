@@ -13,7 +13,7 @@ function resolveSocketOrigin() {
     url.pathname = '';
     url.search = '';
     url.hash = '';
-    return url.toString().replace(/\/+$/, '');
+    return url.toString().replace(/\/+$/, '') + '/pdflyzer';
   }
 
   const { protocol, host } = window.location;
