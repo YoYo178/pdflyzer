@@ -28,9 +28,13 @@ COPY README.md ./README.md
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 
-# Prepare persistent content storage with the correct permissions.
-RUN mkdir -p /app/user_content \
-    && chown -R nonroot:nonroot /app/user_content
+# Prepare directories with correct ownership.
+RUN mkdir -p \
+        /app/user_content \
+        /home/nonroot/.cache/huggingface \
+    && chown -R nonroot:nonroot \
+        /app/user_content \
+        /home/nonroot/.cache
 
 USER nonroot
 
