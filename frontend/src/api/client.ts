@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { APIError } from './utils';
 
-const API_URL = new URL('/api', import.meta.env.VITE_SERVER_URL);
+const API_URL = new URL('/pdflyzer/api', import.meta.env.VITE_SERVER_URL);
 
 export const API = axios.create({
   baseURL: API_URL.toString(),
