@@ -21,8 +21,9 @@ from backend.utils.document import prune_orphaned_documents
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
     # Setup a redis instance of pub/sub managing
-    redis = Redis(
-        host=settings.redis_host, port=settings.redis_port, decode_responses=True
+    redis = Redis.from_url(
+        settings.redis_url,
+        decode_responses=True,
     )
 
     # Attach the subscriber for listening to published events

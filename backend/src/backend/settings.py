@@ -15,9 +15,8 @@ class Settings(BaseSettings):
     gemini_api_key: str
 
     frontend_origin: str
-
-    redis_host: str
-    redis_port: int
+    
+    redis_url: str
     
     smtp_host: str
     smtp_port: int = 587

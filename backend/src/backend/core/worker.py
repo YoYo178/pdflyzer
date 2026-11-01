@@ -16,9 +16,8 @@ class WorkerSettings:
         send_verification_email,
     ]
 
-    redis_settings: ClassVar[RedisSettings] = RedisSettings(
-        host=settings.redis_host,
-        port=settings.redis_port,
+    redis_settings: ClassVar[RedisSettings] = RedisSettings.from_dsn(
+        settings.redis_url
     )
 
     @staticmethod
