@@ -47,7 +47,7 @@ async def issue_new_access_token(
         httponly=True,
         secure=settings.PROD,
         max_age=60 * 15,  # 15 Minutes
-        samesite='lax' if settings.PROD is False else 'strict',
+        samesite='lax' if settings.PROD is False else 'none',
     )
 
     return user

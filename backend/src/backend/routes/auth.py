@@ -41,7 +41,7 @@ async def handle_login(
         value=tokens_data.refresh_token,
         httponly=True,
         secure=settings.PROD,
-        samesite='lax' if settings.PROD is False else 'strict',
+        samesite='lax' if settings.PROD is False else 'none',
         max_age=60 * 60 * 24 * 30,  # 30 Days
     )
 
@@ -50,7 +50,7 @@ async def handle_login(
         value=tokens_data.access_token,
         httponly=True,
         secure=settings.PROD,
-        samesite='lax' if settings.PROD is False else 'strict',
+        samesite='lax' if settings.PROD is False else 'none',
         max_age=60 * 15,  # 15 Minutes
     )
 
@@ -81,7 +81,7 @@ async def verify_email(
         value=verified_data.tokens.refresh_token,
         httponly=True,
         secure=settings.PROD,
-        samesite='lax' if settings.PROD is False else 'strict',
+        samesite='lax' if settings.PROD is False else 'none',
         max_age=60 * 60 * 24 * 30,  # 30 Days
     )
 
@@ -90,7 +90,7 @@ async def verify_email(
         value=verified_data.tokens.access_token,
         httponly=True,
         secure=settings.PROD,
-        samesite='lax' if settings.PROD is False else 'strict',
+        samesite='lax' if settings.PROD is False else 'none',
         max_age=60 * 15,  # 15 Minutes
     )
     
