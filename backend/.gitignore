@@ -11,3 +11,6 @@ user_content
 
 # Model cache directory
 .models
+
+# Prompts directory
+src/prompts
