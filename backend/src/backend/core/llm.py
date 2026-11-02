@@ -116,10 +116,14 @@ class LLMService:
             chat = self._client.aio.chats.create(model=model)
 
             response = await chat.send_message(
-                config={
-                    "system_instruction": prompt.system_prompt,
-                },
                 message=prompt.user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=prompt.system_prompt,
+                    thinking_config=types.ThinkingConfig(
+                        thinking_level=types.ThinkingLevel.MINIMAL
+                    ),
+                    temperature=0.1
+                ),
             )
 
             return response.text
@@ -133,10 +137,14 @@ class LLMService:
             chat = self._client.aio.chats.create(model=model)
 
             response = await chat.send_message(
-                config={
-                    "system_instruction": prompt.system_prompt,
-                },
                 message=prompt.user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=prompt.system_prompt,
+                    thinking_config=types.ThinkingConfig(
+                        thinking_level=types.ThinkingLevel.MINIMAL
+                    ),
+                    temperature=0.1
+                ),
             )
 
             return response.text
@@ -150,10 +158,14 @@ class LLMService:
             chat = self._client.aio.chats.create(model=model)
 
             response_stream = await chat.send_message_stream(
-                config={
-                    "system_instruction": prompt.system_prompt,
-                },
                 message=prompt.user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=prompt.system_prompt,
+                    thinking_config=types.ThinkingConfig(
+                        thinking_level=types.ThinkingLevel.MINIMAL
+                    ),
+                    temperature=0.1
+                ),
             )
 
             async for response in response_stream:
