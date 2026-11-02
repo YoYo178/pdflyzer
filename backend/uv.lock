@@ -123,56 +123,6 @@ wheels = [
 ]
 
 [[package]]
-name = "backend"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "aiosmtplib" },
-    { name = "argon2-cffi" },
-    { name = "arq" },
-    { name = "beanie" },
-    { name = "fastapi", extra = ["standard"] },
-    { name = "google-genai" },
-    { name = "pydantic-settings" },
-    { name = "pyjwt" },
-    { name = "pymupdf" },
-    { name = "python-multipart" },
-    { name = "redis" },
-    { name = "sentence-transformers" },
-    { name = "torch", version = "2.14.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
-    { name = "torch", version = "2.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pyright" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiosmtplib", specifier = ">=5.1.3" },
-    { name = "argon2-cffi", specifier = ">=25.1.0" },
-    { name = "arq", specifier = ">=0.28.0" },
-    { name = "beanie", specifier = ">=2.1.0" },
-    { name = "fastapi", extras = ["standard"], specifier = ">=0.141.1" },
-    { name = "google-genai", specifier = ">=2.22.0" },
-    { name = "pydantic-settings", specifier = ">=2.14.2" },
-    { name = "pyjwt", specifier = ">=2.13.0" },
-    { name = "pymupdf", specifier = ">=1.28.2" },
-    { name = "python-multipart", specifier = ">=0.0.32" },
-    { name = "redis", specifier = ">=5.3.1" },
-    { name = "sentence-transformers", specifier = ">=5.7.0" },
-    { name = "torch", specifier = ">=2.0.0", index = "https://download.pytorch.org/whl/cpu" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pyright", specifier = ">=1.1.414" },
-    { name = "ruff", specifier = ">=0.16.10" },
-]
-
-[[package]]
 name = "beanie"
 version = "2.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1316,6 +1266,56 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/7d/fa/3944b40b07da9ce895c0e6303a5ab7d53da063554f534556b134a54d6093/packaging-26.3.tar.gz", hash = "sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79", size = 313412, upload-time = "2026-08-04T18:15:28.737Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl", hash = "sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c", size = 129956, upload-time = "2026-08-04T18:15:27.159Z" },
+]
+
+[[package]]
+name = "pdflyzer-backend"
+version = "1.0.0"
+source = { editable = "." }
+dependencies = [
+    { name = "aiosmtplib" },
+    { name = "argon2-cffi" },
+    { name = "arq" },
+    { name = "beanie" },
+    { name = "fastapi", extra = ["standard"] },
+    { name = "google-genai" },
+    { name = "pydantic-settings" },
+    { name = "pyjwt" },
+    { name = "pymupdf" },
+    { name = "python-multipart" },
+    { name = "redis" },
+    { name = "sentence-transformers" },
+    { name = "torch", version = "2.14.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
+    { name = "torch", version = "2.14.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform != 'darwin'" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pyright" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiosmtplib", specifier = ">=5.1.3" },
+    { name = "argon2-cffi", specifier = ">=25.1.0" },
+    { name = "arq", specifier = ">=0.28.0" },
+    { name = "beanie", specifier = ">=2.1.0" },
+    { name = "fastapi", extras = ["standard"], specifier = ">=0.141.1" },
+    { name = "google-genai", specifier = ">=2.22.0" },
+    { name = "pydantic-settings", specifier = ">=2.14.2" },
+    { name = "pyjwt", specifier = ">=2.13.0" },
+    { name = "pymupdf", specifier = ">=1.28.2" },
+    { name = "python-multipart", specifier = ">=0.0.32" },
+    { name = "redis", specifier = ">=5.3.1" },
+    { name = "sentence-transformers", specifier = ">=5.7.0" },
+    { name = "torch", specifier = ">=2.0.0", index = "https://download.pytorch.org/whl/cpu" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pyright", specifier = ">=1.1.414" },
+    { name = "ruff", specifier = ">=0.16.10" },
 ]
 
 [[package]]

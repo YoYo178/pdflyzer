@@ -1,7 +1,16 @@
 {
-  "name": "frontend",
-  "private": true,
-  "version": "0.0.0",
+  "name": "pdflyzer-frontend",
+  "description": "The web client for PDFlyzer, an AI-powered PDF assistant that lets users upload documents, manage conversations, and interact with their PDFs through an intuitive chat interface. Built with React, and TypeScript.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": {
+    "name": "-_YoYo178_-",
+    "url": "https://github.com/YoYo178"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YoYo178/pdflyzer"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
