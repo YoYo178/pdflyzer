@@ -23,7 +23,7 @@ MODELS = (
     "gemini-2.5-flash",
 )
 
-PROMPTS_PATH = Path(__file__).parent.parent / "prompts"
+PROMPTS_PATH = Path(__file__).parent.parent.parent / "prompts"
 
 DEFAULT_RAG_SYSTEM_PROMPT = (PROMPTS_PATH / "rag_system_prompt.txt").read_text(encoding="utf-8").strip()
 DEFAULT_TITLE_SYSTEM_PROMPT = (PROMPTS_PATH / "title_system_prompt.txt").read_text(encoding="utf-8").strip()
