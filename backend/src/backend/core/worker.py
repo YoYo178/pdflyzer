@@ -13,10 +13,6 @@ from backend.settings import settings
 
 
 class WorkerSettings:
-    redis_settings: ClassVar[RedisSettings] = RedisSettings.from_dsn(
-        settings.redis_url
-    )
-
     functions: ClassVar[list] = [
         process_document,
         generate_chat_title,
@@ -26,6 +22,11 @@ class WorkerSettings:
     max_jobs = 1
     max_tries = 3
     job_timeout = 600
+
+    redis_settings: ClassVar[RedisSettings] = RedisSettings(
+        host=settings.redis_host,
+        port=settings.redis_port,
+    )
 
     @staticmethod
     async def on_startup(ctx):  # noqa: ARG004
