@@ -1,6 +1,6 @@
 {
   "name": "pdflyzer-frontend",
-  "description": "The web client for PDFlyzer, an AI-powered PDF assistant that lets users upload documents, manage conversations, and interact with their PDFs through an intuitive chat interface. Built with React, and TypeScript.",
+  "description": "The web client for PDFLyzer, an AI-powered PDF assistant that lets users upload documents, manage conversations, and interact with their PDFs through an intuitive chat interface. Built with React, TypeScript, and Vite.",
   "version": "1.0.0",
   "license": "MIT",
   "author": {
