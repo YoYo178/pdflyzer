@@ -3,6 +3,9 @@
 *.env
 *.env.*
 
+# Include .env.example
+!.env.example
+
 # Python generated cache files
 *.pyc
 
